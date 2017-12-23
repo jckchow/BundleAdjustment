@@ -115,77 +115,6 @@ struct collinearity {
 
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct lidarResidual3DCartesianRelative {
-  lidarResidual3DCartesianRelative(double x, double y, double z, double weight)
-      : x_(x), y_(y), z_(z), weight_(weight) {}
-
-  template <typename T>
-  // unknown parameters followed by the output residual
-  bool operator()(const T* const deltaPose, const T* const roll, const T* const pitch, const T* const yaw, const T* const Tx, const T* const Ty, const T* const Tz, const T* const XYZ, T* residual) const {
-
-//   std::cout<<"deltaPose: "<<deltaPose[0]<<", "<<deltaPose[1]<<", "<<deltaPose[2]<<", "<<deltaPose[3]<<", "<<deltaPose[4]<<", "<<deltaPose[5]<<std::endl;
-
-  // rotation from map to sensor
-  T r11 = cos(pitch[0]) * cos(yaw[0]);
-  T r12 = cos(roll[0]) * sin(yaw[0]) + sin(roll[0]) * sin(pitch[0]) * cos(yaw[0]);
-  T r13 = sin(roll[0]) * sin(yaw[0]) - cos(roll[0]) * sin(pitch[0]) * cos(yaw[0]);
-
-  T r21 = -cos(pitch[0]) * sin(yaw[0]);
-  T r22 = cos(roll[0]) * cos(yaw[0]) - sin(roll[0]) * sin(pitch[0]) * sin(yaw[0]);
-  T r23 = sin(roll[0]) * cos(yaw[0]) + cos(roll[0]) * sin(pitch[0]) * sin(yaw[0]);
-
-  T r31 = sin(pitch[0]);
-  T r32 = -sin(roll[0]) * cos(pitch[0]);
-  T r33 = cos(roll[0]) * cos(pitch[0]);
-
-  // EOP
-  T XTemp = r11 * ( XYZ[0] - Tx[0] ) + r12 * ( XYZ[1] - Ty[0] ) + r13 * ( XYZ[2] - Tz[0] );
-  T YTemp = r21 * ( XYZ[0] - Tx[0] ) + r22 * ( XYZ[1] - Ty[0] ) + r23 * ( XYZ[2] - Tz[0] );
-  T ZTemp = r31 * ( XYZ[0] - Tx[0] ) + r32 * ( XYZ[1] - Ty[0] ) + r33 * ( XYZ[2] - Tz[0] );
-
-  // boresight rotation matrix
-  T m11 = cos(deltaPose[1]) * cos(deltaPose[2]);
-  T m12 = cos(deltaPose[0]) * sin(deltaPose[2]) + sin(deltaPose[0]) * sin(deltaPose[1]) * cos(deltaPose[2]);
-  T m13 = sin(deltaPose[0]) * sin(deltaPose[2]) - cos(deltaPose[0]) * sin(deltaPose[1]) * cos(deltaPose[2]);
-
-  T m21 = -cos(deltaPose[1]) * sin(deltaPose[2]);
-  T m22 = cos(deltaPose[0]) * cos(deltaPose[2]) - sin(deltaPose[0]) * sin(deltaPose[1]) * sin(deltaPose[2]);
-  T m23 = sin(deltaPose[0]) * cos(deltaPose[2]) + cos(deltaPose[0]) * sin(deltaPose[1]) * sin(deltaPose[2]);
-
-  T m31 = sin(deltaPose[1]);
-  T m32 = -sin(deltaPose[0]) * cos(deltaPose[1]);
-  T m33 = cos(deltaPose[0]) * cos(deltaPose[1]);
-
-  // boresight and leverarm
-  T x_true =  m11 * ( XTemp - deltaPose[3] ) + m12 * ( YTemp - deltaPose[4] ) + m13 * ( ZTemp - deltaPose[5] );
-  T y_true =  m21 * ( XTemp - deltaPose[3] ) + m22 * ( YTemp - deltaPose[4] ) + m23 * ( ZTemp - deltaPose[5] );
-  T z_true =  m31 * ( XTemp - deltaPose[3] ) + m32 * ( YTemp - deltaPose[4] ) + m33 * ( ZTemp - deltaPose[5] );
-
-  residual[0] = x_true - T(x_); // x-residual
-  residual[1] = y_true - T(y_); // y-residual        
-  residual[2] = z_true - T(z_); // z-residual, should be zero if we have a 2D LiDAR
-
-//   std::cout<<"residual: "<<residual[0]<<", "<<residual[1]<<", "<<residual[2]<<std::endl;
-//   sleep(1000000);
-
-  residual[0] *= T(weight_);
-  residual[1] *= T(weight_);
-  residual[2] *= T(1/1.0E-6);
-
-  return true;
-  }
-
- private:
-  // Observations for a sample.
-  const double x_;
-  const double y_;
-  const double z_;
-  const double weight_;
-};
-
-
-
 /////////////////////////
 /// MAIN CERES-SOLVER ///
 /////////////////////////
@@ -252,6 +181,7 @@ int main(int argc, char** argv) {
     inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop");
     std::vector<int> eopStation, eopCamera;
     std::vector<double> eopXo, eopYo, eopZo, eopOmega, eopPhi, eopKappa;
+    std::vector<std::vector<double> > EOP;
     while (true) 
     {
         int c1, c2;
@@ -266,6 +196,17 @@ int main(int argc, char** argv) {
         eopOmega.push_back(c6);
         eopPhi.push_back(c7);
         eopKappa.push_back(c8);
+
+        std::vector<double> tempEOP;
+        tempEOP.resize(6);
+        tempEOP[0] = c6; // omega
+        tempEOP[1] = c7; // phi
+        tempEOP[2] = c8; // kappa
+        tempEOP[3] = c3; // Xo
+        tempEOP[4] = c4; // Yo
+        tempEOP[5] = c5; // Zo
+        EOP.push_back(tempEOP);
+
         if( inp.eof() ) 
             break;
     }
@@ -278,6 +219,7 @@ int main(int argc, char** argv) {
     eopOmega.pop_back();
     eopPhi.pop_back();
     eopKappa.pop_back();
+    EOP.pop_back();
 
     inp.close();
     std::cout << "    Number of EOPs read: "<< eopStation.size() << std::endl;
@@ -294,6 +236,7 @@ int main(int argc, char** argv) {
     inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop");
     std::vector<int> iopCamera, iopAxis;
     std::vector<double> iopXMin, iopYMin, iopXMax, iopYMax, iopXp, iopYp, iopC, iopA1, iopA2, iopK1, iopK2, iopK3, iopP1, iopP2;
+    std::vector<std::vector<double> > IOP, AP;
     while (true) 
     {
         int c1, c2;
@@ -317,6 +260,24 @@ int main(int argc, char** argv) {
         iopP1.push_back(c15);
         iopP2.push_back(c16);
 
+        std::vector<double> tempIOP;
+        tempIOP.resize(3);
+        tempIOP[0] = c7;
+        tempIOP[1] = c8;
+        tempIOP[2] = c9;
+        IOP.push_back(tempIOP);
+
+        std::vector<double> tempAP;
+        tempAP.resize(7);
+        tempAP[0] = c10;
+        tempAP[1] = c11;
+        tempAP[2] = c12;
+        tempAP[3] = c13;
+        tempAP[4] = c14;
+        tempAP[5] = c15;
+        tempAP[6] = c16;
+        AP.push_back(tempAP);
+
         if( inp.eof() ) 
             break;
     }
@@ -337,9 +298,62 @@ int main(int argc, char** argv) {
     iopK3.pop_back();
     iopP1.pop_back();
     iopP2.pop_back();
+    IOP.pop_back();
+    AP.pop_back();
 
     inp.close();
     std::cout << "    Number of IOPs read: "<< iopCamera.size() << std::endl;
+
+
+
+    // Reading *.xyz file
+    PyRun_SimpleString("print '  Start reading XYZ' ");  
+    inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz");
+    std::vector<int> xyzTarget;
+    std::vector<double> xyzX, xyzY, xyzZ, xyzXStdDev, xyzYStdDev, xyzZStdDev;
+    std::vector<std::vector<double> > XYZ;
+    while (true) 
+    {
+        int c1;
+        double c2, c3, c4, c5, c6, c7;
+        inp  >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7;
+
+        xyzTarget.push_back(c1);
+        xyzX.push_back(c2);
+        xyzY.push_back(c3);
+        xyzZ.push_back(c4);
+        xyzXStdDev.push_back(c5);
+        xyzYStdDev.push_back(c6);
+        xyzZStdDev.push_back(c7);
+
+        std::vector<double> tempXYZ;
+        tempXYZ.resize(3);
+        tempXYZ[0] = c2; // X
+        tempXYZ[1] = c3; // Y
+        tempXYZ[2] = c4; // Z
+        XYZ.push_back(tempXYZ);
+
+        if( inp.eof() ) 
+            break;
+    }
+    
+    xyzTarget.pop_back();
+    xyzX.pop_back();
+    xyzY.pop_back();
+    xyzZ.pop_back();
+    xyzXStdDev.pop_back();
+    xyzYStdDev.pop_back();
+    xyzZStdDev.pop_back();
+    XYZ.pop_back();
+
+    inp.close();
+
+    std::cout << "    Number of XYZ read: "<< xyzTarget.size() << std::endl;
+    std::vector<int> xyzTargetID;
+    xyzTargetID = xyzTarget;
+    std::sort (xyzTargetID.begin(), xyzTargetID.end()); // must sort before the following unique function works
+    xyzTargetID.erase(std::unique(xyzTargetID.begin(), xyzTargetID.end()), xyzTargetID.end());
+    std::cout << "    Number of unique Targets read: "<< xyzTargetID.size() << std::endl;
 
     PyRun_SimpleString("print 'Done reading data:', round(TIME.clock()-t0, 3), 's' ");
 

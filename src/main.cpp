@@ -88,8 +88,19 @@ int main(int argc, char** argv) {
     std::cout << "    Number of observations read: "<< imageX.size() << std::endl;
     std::vector<int> imageFrameID;
     imageFrameID = imageStation;
+    std::sort (imageFrameID.begin(), imageFrameID.end()); // must sort before the following unique function works
     imageFrameID.erase(std::unique(imageFrameID.begin(), imageFrameID.end()), imageFrameID.end());
-    std::cout << "    Number of frames read: "<< imageFrameID.size() << std::endl;
+    std::cout << "    Number of unique frames read: "<< imageFrameID.size() << std::endl;
+    // for(int i = 0; i < imageFrameID.size(); i++)
+    //     std::cout<<imageFrameID[i]<<std::endl;
+    std::vector<int> imageTargetID;
+    imageTargetID = imageTarget;
+    std::sort (imageTargetID.begin(), imageTargetID.end()); // must sort before the following unique function works
+    imageTargetID.erase(std::unique(imageTargetID.begin(), imageTargetID.end()), imageTargetID.end());
+    std::cout << "    Number of unique targets read: "<< imageTargetID.size() << std::endl;
+    // for(int i = 0; i < imageTargetID.size(); i++)
+    //     std::cout<<imageTargetID[i]<<std::endl;
+
 
 
     // Reading *.eop file
@@ -128,6 +139,7 @@ int main(int argc, char** argv) {
     std::cout << "    Number of EOPs read: "<< eopStation.size() << std::endl;
     std::vector<int> eopCameraID;
     eopCameraID = eopCamera;
+    std::sort (eopCameraID.begin(), eopCameraID.end()); // must sort before the following unique function works
     eopCameraID.erase(std::unique(eopCameraID.begin(), eopCameraID.end()), eopCameraID.end());
     std::cout << "    Number of cameras read: "<< eopCameraID.size() << std::endl;
 
@@ -186,7 +198,6 @@ int main(int argc, char** argv) {
     std::cout << "    Number of IOPs read: "<< iopCamera.size() << std::endl;
 
     PyRun_SimpleString("print 'Done reading data:', round(TIME.clock()-t0, 3), 's' ");
-
 
     // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // /// Initialize the unknowns

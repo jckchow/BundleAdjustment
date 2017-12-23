@@ -1,3 +1,18 @@
+////////////////////////////////////////////////////////////////////////////
+///
+///   COPYRIGHT (C) 2017 Vusion Technologies, all rights reserved.
+///
+///   No part of this software may be reproduced or modified in any
+///   form or by any means - electronic, mechanical, photocopying,
+///   recording, or otherwise - without the prior written consent of
+///   Vusion Technologies
+///
+///   Author: Jacky Chow
+///   Date: December 23, 2017
+///   Description: Photogrammetric Bundle Adjustment
+///
+////////////////////////////////////////////////////////////////////////////
+
 #include "ceres/ceres.h"
 #include "ceres/cost_function.h"
 #include "ceres/cubic_interpolation.h"

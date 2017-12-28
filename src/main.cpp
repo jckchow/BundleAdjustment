@@ -709,6 +709,39 @@ int main(int argc, char** argv) {
         fclose(fout);
     }
 
+    if (true)
+    {
+        std::cout<<"  Writing targets to file..."<<std::endl;
+        FILE *fout = fopen("XYZ.jck", "w");
+        for(int i = 0; i < xyzTarget.size(); ++i)
+        {
+            fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", xyzTarget[i], XYZ[i][0], XYZ[i][1], XYZ[i][2], sqrt(xyzVariance(i,0)), sqrt(xyzVariance(i,1)), sqrt(xyzVariance(i,2)));
+        }
+        fclose(fout);
+    }
+
+    if (true)
+    {
+        std::cout<<"  Writing EOPs to file..."<<std::endl;
+        FILE *fout = fopen("EOP.jck", "w");
+        for(int i = 0; i < EOP.size(); ++i)
+        {
+            fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", eopStation[i], EOP[i][0]*180.0/PI, EOP[i][1]*180.0/PI, EOP[i][2]*180.0/PI, EOP[i][3], EOP[i][4], EOP[i][5], sqrt(eopVariance(i,0))*180.0/PI, sqrt(eopVariance(i,1))*180.0/PI, sqrt(eopVariance(i,2))*180.0/PI, sqrt(eopVariance(i,3)), sqrt(eopVariance(i,4)), sqrt(eopVariance(i,5)) );
+        }
+        fclose(fout);
+    }
+
+    if (true)
+    {
+        std::cout<<"  Writing IOPs to file..."<<std::endl;
+        FILE *fout = fopen("iop.jck", "w");
+        for(int i = 0; i < IOP.size(); ++i)
+        {
+            fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", iopCamera[i], IOP[i][0], IOP[i][1], IOP[i][2], sqrt(iopVariance(i,0)), sqrt(iopVariance(i,1)), sqrt(iopVariance(i,2)) );
+        }
+        fclose(fout);
+    }
+
     PyRun_SimpleString("print 'Done outputting bundle adjustment results to file:', round(TIME.clock()-t0, 3), 's' ");
 
 

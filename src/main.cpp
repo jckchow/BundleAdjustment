@@ -513,6 +513,8 @@ int main(int argc, char** argv) {
     // for(int n = 0; n < X.size(); n++)
     // std::cout<<"before X: "<<X[n]<<std::endl;
 
+    PyRun_SimpleString("print 'Done building Ceres-Solver cost functions:', round(TIME.clock()-t0, 3), 's' ");
+
     ceres::Solver::Options options;
     options.max_num_iterations = 50;
     // options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY; // sparse solver
@@ -520,33 +522,15 @@ int main(int argc, char** argv) {
     options.minimizer_progress_to_stdout = true;
 	options.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
     options.min_lm_diagonal = 1.0E-150;
-    // options.function_tolerance = 1.0E-20;
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
     std::cout << summary.BriefReport() << "\n";
     std::cout << summary.FullReport() << "\n";
 
-    std::cout<<"After XYZ"<<std::endl;
-    for (int n = 0; n < XYZ.size(); n++)
-    {
-        std::cout<<xyzTarget[n]<<": "<<XYZ[n][0]<<", "<<XYZ[n][1]<<", "<<XYZ[n][2]<<std::endl;
-    }
-    std::cout<<"After EOP"<<std::endl;
-    for (int n = 0; n < EOP.size(); n++)
-    {
-        std::cout<<eopStation[n]<<": "<<EOP[n][0]*180.0/PI<<", "<<EOP[n][1]*180.0/PI<<", "<<EOP[n][2]*180.0/PI<<", "<<EOP[n][3]<<", "<<EOP[n][4]<<", "<<EOP[n][5]<<std::endl;
-    }
-    std::cout<<"After IOP"<<std::endl;
-    for (int n = 0; n < iopCamera.size(); n++)
-    {
-        std::cout<<iopCamera[n]<<": "<<IOP[n][0]<<", "<<IOP[n][1]<<", "<<IOP[n][2]<<std::endl;
-    }
-    std::cout<<"After AP"<<std::endl;
-    for (int n = 0; n < iopCamera.size(); n++)
-    {
-        std::cout<<iopCamera[n]<<": "<<AP[n][0]<<", "<<AP[n][1]<<", "<<AP[n][2]<<AP[n][3]<<", "<<AP[n][4]<<", "<<AP[n][5]<<", "<<AP[n][6]<<std::endl;
-    }
 
+
+    PyRun_SimpleString("t0 = TIME.clock()");        
+    PyRun_SimpleString("print 'Start computing covariance matrix' ");  
     ceres::Covariance::Options covarianceOoptions;
     ceres::Covariance covariance(covarianceOoptions);
 
@@ -554,9 +538,17 @@ int main(int argc, char** argv) {
     // for(int i = 0; i < XYZ.size(); i++)
     //     for(int j = 0; j < XYZ.size(); j++)
             // covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[j][0]));
-    covariance_blocks.push_back(std::make_pair(&XYZ[0][0], &XYZ[0][0]));
-    covariance_blocks.push_back(std::make_pair(&XYZ[1][0], &XYZ[1][0]));
-    covariance_blocks.push_back(std::make_pair(&XYZ[2][0], &XYZ[2][0]));
+    for(int i = 0; i < XYZ.size(); i++)
+        covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[i][0])); // do 3x3 block diagonal of the XYZ object space target points
+
+    for(int i = 0; i < EOP.size(); i++)
+        covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[i][0])); // do 6x6 block diagonal of the XYZ object space target points
+
+    for(int i = 0; i < IOP.size(); i++)
+        covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[i][0])); // do 3x3 block diagonal of the XYZ object space target points
+
+    for(int i = 0; i < IOP.size(); i++)
+        covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
 
     covariance.Compute(covariance_blocks, &problem);
 
@@ -573,27 +565,121 @@ int main(int argc, char** argv) {
     //         covariance_X(i,0) = temp[0];
     //     }
 
+    Eigen::MatrixXd xyzVariance(XYZ.size(),3);
+    for(int i = 0; i < XYZ.size(); i++)
+    {
+        Eigen::MatrixXd covariance_X(3, 3);
+        covariance.GetCovarianceBlock(&XYZ[i][0], &XYZ[i][0], covariance_X.data());
+        Eigen::VectorXd variance_X(3);
+        variance_X = covariance_X.diagonal();
+        xyzVariance(i,0) = variance_X(0);
+        xyzVariance(i,1) = variance_X(1);
+        xyzVariance(i,2) = variance_X(2);
 
-    Eigen::MatrixXd covariance_X(3, 3);
-    covariance.GetCovarianceBlock(&XYZ[0][0], &XYZ[0][0], covariance_X.data());
-     std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
-     std::cout<<"covariance matrix: "<<std::endl;
-     std::cout<<covariance_X<<std::endl;
+    //  std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
+    //  std::cout<<"covariance matrix: "<<std::endl;
+    //  std::cout<<covariance_X<<std::endl;
+    }
 
-    covariance.GetCovarianceBlock(&XYZ[1][0], &XYZ[1][0], covariance_X.data());
-     std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
-     std::cout<<"covariance matrix: "<<std::endl;
-     std::cout<<covariance_X<<std::endl;
+    Eigen::MatrixXd eopVariance(EOP.size(),6);
+    for(int i = 0; i < EOP.size(); i++)
+    {
+        Eigen::MatrixXd covariance_X(6, 6);
+        covariance.GetCovarianceBlock(&EOP[i][0], &EOP[i][0], covariance_X.data());
+        Eigen::VectorXd variance_X(6);
+        variance_X = covariance_X.diagonal();
+        eopVariance(i,0) = variance_X(0);
+        eopVariance(i,1) = variance_X(1);
+        eopVariance(i,2) = variance_X(2);
+        eopVariance(i,3) = variance_X(3);
+        eopVariance(i,4) = variance_X(4);
+        eopVariance(i,5) = variance_X(5);
+    }
 
-    covariance.GetCovarianceBlock(&XYZ[2][0], &XYZ[2][0], covariance_X.data());
-     std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
-     std::cout<<"covariance matrix: "<<std::endl;
-     std::cout<<covariance_X<<std::endl;
+    Eigen::MatrixXd iopVariance(IOP.size(),3);
+    for(int i = 0; i < IOP.size(); i++)
+    {
+        Eigen::MatrixXd covariance_X(3, 3);
+        covariance.GetCovarianceBlock(&IOP[i][0], &IOP[i][0], covariance_X.data());
+        Eigen::VectorXd variance_X(3);
+        variance_X = covariance_X.diagonal();
+        iopVariance(i,0) = variance_X(0);
+        iopVariance(i,1) = variance_X(1);
+        iopVariance(i,2) = variance_X(2);
+    }
+
+    Eigen::MatrixXd apVariance(AP.size(),7);
+    for(int i = 0; i < AP.size(); i++)
+    {
+        Eigen::MatrixXd covariance_X(7, 7);
+        covariance.GetCovarianceBlock(&AP[i][0], &AP[i][0], covariance_X.data());
+        Eigen::VectorXd variance_X(7);
+        variance_X = covariance_X.diagonal();
+        apVariance(i,0) = variance_X(0);
+        apVariance(i,1) = variance_X(1);
+        apVariance(i,2) = variance_X(2);
+        apVariance(i,3) = variance_X(3);
+        apVariance(i,4) = variance_X(4);
+        apVariance(i,5) = variance_X(5);
+        apVariance(i,6) = variance_X(6);
+    }
+
+
+    PyRun_SimpleString("print 'Done computing covariance matrix:', round(TIME.clock()-t0, 3), 's' ");
+
+    // Output results to screen
+    std::cout<<"Before Adjustment XYZ"<<std::endl;
+    std::cout<<"  TargetID: X, Y, Z"<<std::endl;
+    for (int n = 0; n < xyzTarget.size(); n++)
+    {
+        std::cout<<"  "<<xyzTarget[n]<<": "<<xyzX[n]<<", "<<xyzY[n]<<", "<<xyzZ[n]<<std::endl;
+    }
+    std::cout<<"After Adjustment XYZ"<<std::endl;
+    std::cout<<"  TargetID: X, Y, Z, XStdDev, YStdDev, ZStdDev"<<std::endl;
+    for (int n = 0; n < XYZ.size(); n++)
+    {
+        std::cout<<"  "<<xyzTarget[n]<<": "<<XYZ[n][0]<<", "<<XYZ[n][1]<<", "<<XYZ[n][2]<<", "<<sqrt(xyzVariance(n,0))<<", "<<sqrt(xyzVariance(n,1))<<", "<<sqrt(xyzVariance(n,2))<<std::endl;
+    }
+    std::cout<<"Before Adjustment EOP"<<std::endl;
+    std::cout<<"  StationID: roll, pitch, yaw[deg], Xo, Yo, Zo"<<std::endl;
+    for (int n = 0; n < eopStation.size(); n++)
+    {
+        std::cout<<eopStation[n]<<": "<<eopOmega[n]*180.0/PI<<", "<<eopPhi[n]*180.0/PI<<", "<<eopKappa[n]*180.0/PI<<", "<<eopXo[n]<<", "<<eopYo[n]<<", "<<eopZo[n]<<std::endl;
+    }
+    std::cout<<"After Adjustment EOP"<<std::endl;
+    std::cout<<"  StationID: roll, pitch, yaw[deg], Xo, Yo, Zo, rollStdDev, pitchStdDev, yawStdDev[deg], XoStdDev, YoStdDev, ZoStdDev"<<std::endl;
+    for (int n = 0; n < EOP.size(); n++)
+    {
+        std::cout<<eopStation[n]<<": "<<EOP[n][0]*180.0/PI<<", "<<EOP[n][1]*180.0/PI<<", "<<EOP[n][2]*180.0/PI<<", "<<EOP[n][3]<<", "<<EOP[n][4]<<", "<<EOP[n][5]<<", "<<sqrt(eopVariance(n,0))*180.0/PI<<", "<<sqrt(eopVariance(n,1))*180.0/PI<<", "<<sqrt(eopVariance(n,2))*180.0/PI<<", "<<sqrt(eopVariance(n,3))<<", "<<sqrt(eopVariance(n,4))<<", "<<sqrt(eopVariance(n,5))<<std::endl;
+    }
+    std::cout<<"Before Adjustment IOP"<<std::endl;
+    std::cout<<"  CameraID: xp, yp, c"<<std::endl;
+    for (int n = 0; n < iopCamera.size(); n++)
+    {
+        std::cout<<"  "<<iopCamera[n]<<": "<<iopXp[n]<<", "<<iopYp[n]<<", "<<iopC[n]<<std::endl;
+    }
+    std::cout<<"After Adjustment IOP"<<std::endl;
+    std::cout<<"  CameraID: xp, yp, c, xpStdDev, ypStdDev, cStdDev"<<std::endl;
+    for (int n = 0; n < iopCamera.size(); n++)
+    {
+        std::cout<<"  "<<iopCamera[n]<<": "<<IOP[n][0]<<", "<<IOP[n][1]<<", "<<IOP[n][2]<<", "<<sqrt(iopVariance(n,0))<<", "<<sqrt(iopVariance(n,1))<<", "<<sqrt(iopVariance(n,2))<<std::endl;
+    }
+    std::cout<<"Before Adjustment AP"<<std::endl;
+    std::cout<<"  CameraID: a1, a2, k1, k2, k3, p1, p2"<<std::endl;
+    for (int n = 0; n < iopCamera.size(); n++)
+    {
+        std::cout<<"  "<<iopCamera[n]<<": "<<iopA1[n]<<", "<<iopA2[n]<<", "<<iopK1[n]<<", "<<iopK2[n]<<", "<<iopK3[n]<<", "<<iopP1[n]<<", "<<iopP2[n]<<std::endl;
+    }
+    std::cout<<"After Adjustment AP"<<std::endl;
+    std::cout<<"  CameraID: a1, a2, k1, k2, k3, p1, p2, a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev"<<std::endl;
+    for (int n = 0; n < iopCamera.size(); n++)
+    {
+        std::cout<<"  "<<iopCamera[n]<<": "<<AP[n][0]<<", "<<AP[n][1]<<", "<<AP[n][2]<<AP[n][3]<<", "<<AP[n][4]<<", "<<AP[n][5]<<", "<<AP[n][6]<<", "<< sqrt(apVariance(n,0))<<", "<< sqrt(apVariance(n,1))<<", "<< sqrt(apVariance(n,2))<<", "<< sqrt(apVariance(n,3))<<", "<< sqrt(apVariance(n,4))<<", "<< sqrt(apVariance(n,5))<<", "<< sqrt(apVariance(n,6))<<std::endl;
+    }
 
     std::vector<double> residuals;
     double cost = 0.0;
     problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, NULL);
-
     Eigen::MatrixXd imageResiduals(imageX.size(), 2);
     std::cout<<"Residuals:"<<std::endl;
     for (int n = 0; n<imageX.size(); n++)
@@ -603,7 +689,25 @@ int main(int argc, char** argv) {
     }
     std::cout<<imageResiduals<<std::endl;
 
-    PyRun_SimpleString("print 'building Ceres-Solver cost functions:', round(TIME.clock()-t0, 3), 's' ");
+    // Output results to file
+    PyRun_SimpleString("t0 = TIME.clock()");        
+    PyRun_SimpleString("print 'Start outputting bundle adjustment results to file' ");     
+    //Output results back to Python for plotting
+    if (true)
+    {
+        std::cout<<"  Writing residuals to file..."<<std::endl;
+        FILE *fout = fopen("image.jck", "w");
+        for(int i = 0; i < imageTargetID.size(); ++i)
+        {
+            fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
+        }
+        fclose(fout);
+    }
 
+    PyRun_SimpleString("print 'Done outputting bundle adjustment results to file:', round(TIME.clock()-t0, 3), 's' ");
+
+
+
+    std::cout<<"Program Successful ^-^"<<std::endl;
     return 0;
 }

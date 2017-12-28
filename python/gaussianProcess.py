@@ -47,19 +47,19 @@ y = data[:,2:4]
 
 centroid = np.mean(y, axis=0)
 y -= centroid
-
 ############################
 ### GP Training
 ############################
 sigma2 = gaussian_process.kernels.ConstantKernel(1.0, constant_value_bounds=(1e-010, 1e10))
 RBF = gaussian_process.kernels.RBF(0.1, length_scale_bounds=(1e-10, 1e10))
-#noise = gaussian_process.kernels.WhiteKernel (0.025, noise_level_bounds=(1e-03, 1.0))
+noise = gaussian_process.kernels.WhiteKernel (0.025, noise_level_bounds=(1e-10, 1.0e10))
 
 # define the kernel
-#K = sigma2 * RBF + noise
-K = sigma2 * RBF
+K = sigma2 * RBF + noise
+#K = sigma2 * RBF
 
-GP = gaussian_process.GaussianProcessRegressor(kernel=K, alpha=0.0025**2, n_restarts_optimizer=100)
+#GP = gaussian_process.GaussianProcessRegressor(kernel=K, alpha=0.025**2, n_restarts_optimizer=100)
+GP = gaussian_process.GaussianProcessRegressor(kernel=K, n_restarts_optimizer=100)
 
 t0 = time()
 GP.fit(X, y)
@@ -73,6 +73,8 @@ joblib.dump(GP, 'GPLearnedCalibrationModel.pkl')
 ############################
 ### GP Prediction
 ############################
+
+# predict on a grid for purely visualization purposes
 t0 = time()
 minX = np.min(X,axis=0)
 maxX = np.max(X,axis=0)
@@ -93,44 +95,6 @@ y += centroid
 ############################
 ### Plot the GP prediction
 ############################
-#fig = plt.figure()
-#plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
-#         np.concatenate([y_pred[:,0:1] - 1.9600 * sigma,
-#                        (y_pred[:,0:1] + 1.9600 * sigma)[::-1]]),
-#         alpha=.2, fc='y', ec='None')
-#plt.plot(t[indexBegin:indexEnd], trajectory[indexBegin:indexEnd,0:1], 'r.', label=u'Hector SLAM')
-#plt.plot(x_pred, y_pred[:,0:1], 'b-', label=u'GP Smoothed')
-#plt.xlabel('$Time [s]$')
-#plt.ylabel('$X [m]$')
-#plt.legend(loc='upper left')
-#plt.title("Initial ${\Theta}$: %s\nOptimum ${\Theta}$: %s\nLog-Marginal-Likelihood: %s"
-#          % (K, GP.kernel_,
-#             GP.log_marginal_likelihood(GP.kernel_.theta)))
-#plt.show()
-#
-#fig = plt.figure()
-#plt.fill(np.concatenate([x_pred, x_pred[::-1]]),
-#         np.concatenate([y_pred[:,1:2] - 1.9600 * sigma,
-#                        (y_pred[:,1:2] + 1.9600 * sigma)[::-1]]),
-#         alpha=.2, fc='y', ec='None')
-#plt.plot(t[indexBegin:indexEnd], trajectory[indexBegin:indexEnd,1:2], 'r.', label=u'Hector SLAM')
-#plt.plot(x_pred, y_pred[:,1:2], 'b-', label=u'GP Smoothed')
-#plt.xlabel('$Time [s]$')
-#plt.ylabel('$Y [m]$')
-#plt.legend(loc='upper left')
-#plt.title("Initial ${\Theta}$: %s\nOptimum ${\Theta}$: %s\nLog-Marginal-Likelihood: %s"
-#          % (K, GP.kernel_,
-#             GP.log_marginal_likelihood(GP.kernel_.theta)))
-#plt.show()
-#
-#fig = plt.figure()
-#plt.plot(trajectory[indexBegin:indexEnd,0:1],trajectory[indexBegin:indexEnd,1:2], 'r-', label=u'Hector SLAM')
-#plt.plot(y_pred[:,0:1], y_pred[:,1:2], 'b-', label=u'GP Smoothed')
-#plt.xlabel('$X [m]$')
-#plt.ylabel('$Y [m]$')
-#plt.legend(loc='lower left')
-#plt.show()
-
 xResidual = np.reshape(yPred[:,0],(numGrid,numGrid))
 yResidual = np.reshape(yPred[:,1],(numGrid,numGrid))
 

@@ -11,3 +11,14 @@ Note: If the y-axis is set to -1 it means we have a LHS and currently the code d
 - Change image observation y to -y
 - Change yp to -yp
 - Change p2 to -p2 (tangential component of the DLD)
+
+Input files:
+*.pho has the following headings in order
+- Target ID
+- Camera ID
+- x img measurement
+- y img measurement
+- x measurmeent noise
+- y measurement noise
+- x correction to be added
+- y correction to be added

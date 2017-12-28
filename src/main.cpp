@@ -200,16 +200,16 @@ int main(int argc, char** argv) {
     PyRun_SimpleString("print 'Start reading data' ");  
     std::ifstream inp;      
 
-    // Reading *.inp file
+    // Reading *.pho file
     PyRun_SimpleString("print '  Start reading image observations' ");  
     inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho");
     std::vector<int> imageTarget, imageStation;
-    std::vector<double> imageX, imageY, imageXStdDev, imageYStdDev;
+    std::vector<double> imageX, imageY, imageXStdDev, imageYStdDev, imageXCorr, imageYCorr;
     while (true) 
     {
         int c1, c2;
-        double c3, c4, c5, c6;
-        inp  >> c1 >> c2 >> c3 >> c4 >> c5 >> c6;
+        double c3, c4, c5, c6, c7, c8;
+        inp  >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8;
 
         imageTarget.push_back(c1);
         imageStation.push_back(c2);
@@ -217,6 +217,9 @@ int main(int argc, char** argv) {
         imageY.push_back(c4);
         imageXStdDev.push_back(c5);
         imageYStdDev.push_back(c6);
+        imageXCorr.push_back(c7);
+        imageYCorr.push_back(c8);
+
         if( inp.eof() ) 
             break;
     }
@@ -227,6 +230,8 @@ int main(int argc, char** argv) {
     imageY.pop_back();
     imageXStdDev.pop_back();
     imageYStdDev.pop_back();
+    imageXCorr.pop_back();
+    imageYCorr.pop_back();
     inp.close();
     std::cout << "    Number of observations read: "<< imageX.size() << std::endl;
     std::vector<int> imageFrameID;

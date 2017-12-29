@@ -31,6 +31,9 @@ outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
 
 outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho'
 outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho'
+
+chooseIncrement = 10
+
 ##########################################
 ### read in data
 ##########################################
@@ -41,7 +44,7 @@ eop = np.genfromtxt(inputEop, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4
 print "Number of original stations: ", len(eop)
 
 # ID of images to be used for testing. The remaining will be used for training.
-testingIndex  = range(0, len(eop), 10) # using 10% of the photos for testing
+testingIndex  = range(0, len(eop), chooseIncrement) # using 10% of the photos for testing
 trainingIndex = range(0, len(eop), 1)
 trainingIndex = np.setdiff1d(trainingIndex, testingIndex)
 

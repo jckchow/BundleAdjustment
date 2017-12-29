@@ -296,7 +296,10 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("print 'Start reading data' ");   
         // Reading *.pho file
         PyRun_SimpleString("print '  Start reading image observations' ");  
-        inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho");
+        if (iterNum == 0)
+            inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho");
+        else
+            inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho");
         std::vector<int> imageTarget, imageStation;
         std::vector<double> imageX, imageY, imageXStdDev, imageYStdDev, imageXCorr, imageYCorr;
         std::vector<std::vector<double> > MLP;

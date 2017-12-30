@@ -35,7 +35,7 @@ outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho'
 chooseIncrement = 10
 
 ##########################################
-### read in data
+### read and split the data
 ##########################################
 t0 = time()
 pho = np.genfromtxt(inputPho, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7))

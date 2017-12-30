@@ -31,11 +31,23 @@
 #define PI 3.141592653589793238462643383279502884197169399
 #define NUMITERATION 1
 #define DEBUGMODE 0
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
+
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pseudo observation of a constant
@@ -301,6 +313,7 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("print 'Start reading data' ");   
         // Reading *.pho file
         PyRun_SimpleString("print '  Start reading image observations' ");  
+        std::cout<<"  Input image filename: "<<INPUTIMAGEFILENAME<<std::endl;
         if (iterNum == 0)
             inp.open(INPUTIMAGEFILENAME);
         else
@@ -372,7 +385,8 @@ int main(int argc, char** argv) {
         }
 
         // Reading *.eop file
-        PyRun_SimpleString("print '  Start reading EOPs' ");  
+        PyRun_SimpleString("print '  Start reading EOPs' ");          
+        std::cout<<"  Input EOP filename: "<<INPUTEOPFILENAME<<std::endl;
         inp.open(INPUTEOPFILENAME);
         std::vector<int> eopStation, eopCamera;
         std::vector<double> eopXo, eopYo, eopZo, eopOmega, eopPhi, eopKappa;
@@ -433,7 +447,8 @@ int main(int argc, char** argv) {
 
 
     // Reading *.iop file
-        PyRun_SimpleString("print '  Start reading IOPs' ");  
+        PyRun_SimpleString("print '  Start reading IOPs' ");
+        std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;
         inp.open(INPUTIOPFILENAME);
         std::vector<int> iopCamera, iopAxis;
         std::vector<double> iopXMin, iopYMin, iopXMax, iopYMax, iopXp, iopYp, iopC, iopA1, iopA2, iopK1, iopK2, iopK3, iopP1, iopP2;
@@ -506,9 +521,9 @@ int main(int argc, char** argv) {
         std::cout << "    Number of IOPs read: "<< iopCamera.size() << std::endl;
 
 
-
         // Reading *.xyz file
         PyRun_SimpleString("print '  Start reading XYZ' ");  
+        std::cout<<"  Input XYZ filename: "<<INPUTXYZFILENAME<<std::endl;
         inp.open(INPUTXYZFILENAME);
         std::vector<int> xyzTarget;
         std::vector<double> xyzX, xyzY, xyzZ, xyzXStdDev, xyzYStdDev, xyzZStdDev;
@@ -674,8 +689,8 @@ int main(int argc, char** argv) {
 
         ceres::Solver::Options options;
         options.max_num_iterations = 50;
-        // options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY; // sparse solver
-        options.linear_solver_type = ceres::DENSE_QR;
+        options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY; // sparse solver
+        // options.linear_solver_type = ceres::DENSE_QR;
         options.minimizer_progress_to_stdout = true;
         options.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
         options.min_lm_diagonal = 1.0E-150;

@@ -30,7 +30,9 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 ### User defined parameters
 ##################################   
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFile = '/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho'
+#phoFile = '/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho'
+phoFile = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho'
+
 
 numGrid = 100
 ##########################################

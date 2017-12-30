@@ -29,8 +29,13 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 3
+#define NUMITERATION 1
 #define DEBUGMODE 0
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pseudo observation of a constant
@@ -297,9 +302,9 @@ int main(int argc, char** argv) {
         // Reading *.pho file
         PyRun_SimpleString("print '  Start reading image observations' ");  
         if (iterNum == 0)
-            inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho");
+            inp.open(INPUTIMAGEFILENAME);
         else
-            inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho");
+            inp.open(INPUTIMAGEFILENAMETEMP);
         std::vector<int> imageTarget, imageStation;
         std::vector<double> imageX, imageY, imageXStdDev, imageYStdDev, imageXCorr, imageYCorr;
         std::vector<std::vector<double> > MLP;
@@ -358,7 +363,7 @@ int main(int argc, char** argv) {
         if (iterNum == 0) // only do this for first iteration where we copy the file
         {
             std::cout<<"  Copying the *.pho file..."<<std::endl;
-            FILE *fout = fopen("/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho", "w");
+            FILE *fout = fopen(INPUTIMAGEFILENAMETEMP, "w");
             for(int i = 0; i < imageTarget.size(); ++i)
             {
                 fprintf(fout, "%i %i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", imageTarget[i], imageStation[i], imageX[i], imageY[i], imageXStdDev[i], imageYStdDev[i], imageXCorr[i], imageYCorr[i]);
@@ -368,7 +373,7 @@ int main(int argc, char** argv) {
 
         // Reading *.eop file
         PyRun_SimpleString("print '  Start reading EOPs' ");  
-        inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop");
+        inp.open(INPUTEOPFILENAME);
         std::vector<int> eopStation, eopCamera;
         std::vector<double> eopXo, eopYo, eopZo, eopOmega, eopPhi, eopKappa;
         std::vector<std::vector<double> > EOP;
@@ -429,7 +434,7 @@ int main(int argc, char** argv) {
 
     // Reading *.iop file
         PyRun_SimpleString("print '  Start reading IOPs' ");  
-        inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop");
+        inp.open(INPUTIOPFILENAME);
         std::vector<int> iopCamera, iopAxis;
         std::vector<double> iopXMin, iopYMin, iopXMax, iopYMax, iopXp, iopYp, iopC, iopA1, iopA2, iopK1, iopK2, iopK3, iopP1, iopP2;
         std::vector<std::vector<double> > IOP, AP;
@@ -504,7 +509,7 @@ int main(int argc, char** argv) {
 
         // Reading *.xyz file
         PyRun_SimpleString("print '  Start reading XYZ' ");  
-        inp.open("/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz");
+        inp.open(INPUTXYZFILENAME);
         std::vector<int> xyzTarget;
         std::vector<double> xyzX, xyzY, xyzZ, xyzXStdDev, xyzYStdDev, xyzZStdDev;
         std::vector<std::vector<double> > XYZ;

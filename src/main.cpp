@@ -26,6 +26,8 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
+//#include <pcl/point_types.h>
+//#include <pcl/filters/voxel_grid.h>
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
@@ -37,17 +39,17 @@
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pseudo observation of a constant
@@ -879,6 +881,73 @@ int main(int argc, char** argv) {
                 fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
             }
             fclose(fout);
+        }
+
+        if (true)
+        {
+            // // convert residuals to PCL point cloud format
+            // std::cout<<"  Downsampling residuals..."<<std::endl;
+            // pcl::PointCloud<pcl::PointXYZI>::Ptr downsampledCloud (new pcl::PointCloud<pcl::PointXYZI>);
+            // pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
+            // cloud->width = imageTarget.size();
+            // cloud->height = 1;
+            // cloud->is_dense = false;
+            // cloud->points.resize(cloud->width * cloud->height);
+            // std::cout<<"imageTarget size: "<<imageTarget.size()<<std::endl;
+            // std::cout<<"cloud size: "<<cloud->size()<<std::endl;
+            // for (int i = 0; i < cloud->size(); i++)
+            // {
+            //     cloud->points.at(i).x = imageX[i];
+            //     cloud->points.at(i).y = imageY[i];
+            //     cloud->points.at(i).z = imageResiduals(i,0);
+            //     cloud->points.at(i).intensity = imageResiduals(i,1);
+            // }
+
+            // // voxel downsampling
+            // std::cout<<"start voxelgrid..."<<std::endl;
+            // pcl::VoxelGrid<pcl::PointXYZ> vg;
+            // //vg.setDownsampleAllData(true);
+            // vg.setLeafSize(1.0, 1.0, 1.0);
+            // vg.setInputCloud(cloud);
+            // vg.filter(*downsampledCloud);
+            // std::cout<<"done voxelgrid..."<<std::endl;
+            // std::cout<<"  Downsampled residuals from "<<imageTarget.size()<<" to "<<downsampledCloud->size()<<std::endl;
+
+            // // convert residuals to PCL point cloud format
+            // std::cout<<"  Downsampling residuals..."<<std::endl;
+            // pcl::PointCloud<pcl::PointXYZI> downsampledCloud;
+            // pcl::PointCloud<pcl::PointXYZI> cloud;
+            // cloud.width = imageTarget.size();
+            // cloud.height = 1;
+            // cloud.is_dense = false;
+            // cloud.points.resize(cloud.width * cloud.height);
+            // std::cout<<"imageTarget size: "<<imageTarget.size()<<std::endl;
+            // std::cout<<"cloud size: "<<cloud.size()<<std::endl;
+            // for (int i = 0; i < cloud.size(); i++)
+            // {
+            //     cloud.points.at(i).x = imageX[i];
+            //     cloud.points.at(i).y = imageY[i];
+            //     cloud.points.at(i).z = imageResiduals(i,0);
+            //     cloud.points.at(i).intensity = imageResiduals(i,1);
+            // }
+
+            // // voxel downsampling
+            // std::cout<<"start voxelgrid..."<<std::endl;
+            // pcl::VoxelGrid<pcl::PointXYZI> downsample;
+            // //downsample.setDownsampleAllData(true);
+            // downsample.setLeafSize(1.0, 1.0, 100.0);
+            // downsample.setInputCloud(cloud);
+            // downsample.filter(downsampledCloud);
+            // std::cout<<"done voxelgrid..."<<std::endl;
+            // std::cout<<"  Downsampled residuals from "<<imageTarget.size()<<" to "<<downsampledCloud.size()<<std::endl;
+
+            // std::cout<<"  Writing downsampled residuals to file..."<<std::endl;
+            // FILE *fout = fopen("imageDownsampled.jck", "w");
+            // for(int i = 0; i < downsampledCloud->size(); ++i)
+            // {
+            //     fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", downsampledCloud->points.at(i).x, downsampledCloud->points.at(i).y, downsampledCloud->points.at(i).z, downsampledCloud->points.at(i).intensity);
+            // }
+            // fclose(fout);            
         }
 
         if (true)

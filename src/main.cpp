@@ -33,11 +33,11 @@
 #define PI 3.141592653589793238462643383279502884197169399
 #define NUMITERATION 1
 #define DEBUGMODE 0
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
@@ -45,11 +45,11 @@
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pseudo observation of a constant
@@ -310,6 +310,7 @@ int main(int argc, char** argv) {
     //////////////////////////////////////
     for (int iterNum = 0; iterNum < NUMITERATION; iterNum++)
     {
+
         std::cout<<"---------------------------------------- Global Iteration: " << iterNum <<"----------------------------------------"<<std::endl;
         PyRun_SimpleString("t0 = TIME.clock()");        
         PyRun_SimpleString("print 'Start reading data' ");   
@@ -445,8 +446,6 @@ int main(int argc, char** argv) {
         std::sort (eopCameraID.begin(), eopCameraID.end()); // must sort before the following unique function works
         eopCameraID.erase(std::unique(eopCameraID.begin(), eopCameraID.end()), eopCameraID.end());
         std::cout << "    Number of cameras read: "<< eopCameraID.size() << std::endl;
-
-
 
     // Reading *.iop file
         PyRun_SimpleString("print '  Start reading IOPs' ");
@@ -596,11 +595,13 @@ int main(int argc, char** argv) {
         // /// Set up cost functions
         // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
         PyRun_SimpleString("t0 = TIME.clock()");        
-        PyRun_SimpleString("print 'Start building Ceres-Solver cost functions' ");     
+        PyRun_SimpleString("print 'Start building Ceres-Solver cost functions' ");
     
+        std::vector<int> imageReferenceID; // for use when outting the residuals
+        imageReferenceID.resize(imageX.size());
         ceres::Problem problem;
         ceres::LossFunction* loss = NULL;
-        // loss = new ceres::HuberLoss(1.0);
+        loss = new ceres::HuberLoss(1.0);
         // loss = new ceres::CauchyLoss(0.5);
 
         // // Conventional collinearity condition
@@ -647,6 +648,9 @@ int main(int argc, char** argv) {
             int indexSensor = std::distance(iopCamera.begin(),it);
             // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
 
+            // for book keeping
+            imageReferenceID[n] = indexSensor;
+
             //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
             //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
@@ -655,12 +659,12 @@ int main(int argc, char** argv) {
                     new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
             problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
 
-            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
             problem.SetParameterBlockConstant(&MLP[n][0]);
         }
     
-        // define the datum by pseduo observations of the positions
+        // define the datum by pseduo observations of the positions for defining the datum
         if(true)
         {
             for(int n = 0; n < xyzTarget.size(); n++)
@@ -855,19 +859,21 @@ int main(int argc, char** argv) {
             }
         }
 
-        std::vector<double> residuals;
         double cost = 0.0;
-        problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, NULL);
+        std::vector<double> residuals;
+        ceres::CRSMatrix jacobian;
+        problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, &jacobian);
         Eigen::MatrixXd imageResiduals(imageX.size(), 2);
-        std::cout<<"Residuals:"<<std::endl;
         for (int n = 0; n<imageX.size(); n++)
         {
             imageResiduals(n,0) = residuals[2*n] * imageXStdDev[n];
             imageResiduals(n,1) = residuals[2*n+1] * imageYStdDev[n];
         }
         if(DEBUGMODE)
+        {
+            std::cout<<"Residuals:"<<std::endl;
             std::cout<<imageResiduals<<std::endl;
-
+        }
         // Output results to file
         PyRun_SimpleString("t0 = TIME.clock()");        
         PyRun_SimpleString("print 'Start outputting bundle adjustment results to file' ");     
@@ -878,77 +884,105 @@ int main(int argc, char** argv) {
             FILE *fout = fopen("image.jck", "w");
             for(int i = 0; i < imageTarget.size(); ++i)
             {
-                fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
+                fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
             }
             fclose(fout);
         }
 
         if (true)
         {
-            // // convert residuals to PCL point cloud format
-            // std::cout<<"  Downsampling residuals..."<<std::endl;
-            // pcl::PointCloud<pcl::PointXYZI>::Ptr downsampledCloud (new pcl::PointCloud<pcl::PointXYZI>);
-            // pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
-            // cloud->width = imageTarget.size();
-            // cloud->height = 1;
-            // cloud->is_dense = false;
-            // cloud->points.resize(cloud->width * cloud->height);
-            // std::cout<<"imageTarget size: "<<imageTarget.size()<<std::endl;
-            // std::cout<<"cloud size: "<<cloud->size()<<std::endl;
-            // for (int i = 0; i < cloud->size(); i++)
+            std::cout<<"  Compute jacobian matrix..."<<std::endl;
+            // int rowsA []   = { 0,      2,          5,     7};
+            // int colsA []   = { 1,  3,  1,  2,  3,  0,  1};
+            // double valuesA [] = {10.0,  4.0,  2.0, -3.0,  2.0,  1.0,  2.0};
+
+            // std::vector<int> rows (rowsA, rowsA + sizeof(rowsA) / sizeof(int) );
+            // std::vector<int> cols (colsA, colsA + sizeof(colsA) / sizeof(int) );
+            // std::vector<double> values (valuesA, valuesA + sizeof(valuesA) / sizeof(double) );
+
+            // Eigen::MatrixXd A(3,4);
+            // A.setZero();
+            // for (int i = 0; i < 3; i++)
             // {
-            //     cloud->points.at(i).x = imageX[i];
-            //     cloud->points.at(i).y = imageY[i];
-            //     cloud->points.at(i).z = imageResiduals(i,0);
-            //     cloud->points.at(i).intensity = imageResiduals(i,1);
+            //     for (int j = rows[i]; j < rows[i+1]; j++)
+            //     {
+            //     A(i,cols[j]) = values[j]; 
+            //     }
             // }
+            // std::cout<<"A: "<<std::endl;
+            // std::cout<<A<<std::endl;
 
-            // // voxel downsampling
-            // std::cout<<"start voxelgrid..."<<std::endl;
-            // pcl::VoxelGrid<pcl::PointXYZ> vg;
-            // //vg.setDownsampleAllData(true);
-            // vg.setLeafSize(1.0, 1.0, 1.0);
-            // vg.setInputCloud(cloud);
-            // vg.filter(*downsampledCloud);
-            // std::cout<<"done voxelgrid..."<<std::endl;
-            // std::cout<<"  Downsampled residuals from "<<imageTarget.size()<<" to "<<downsampledCloud->size()<<std::endl;
+            std::cout<<"rows: "<<jacobian.num_rows<<std::endl;
+            std::cout<<"cols: "<<jacobian.num_cols<<std::endl;
 
-            // // convert residuals to PCL point cloud format
-            // std::cout<<"  Downsampling residuals..."<<std::endl;
-            // pcl::PointCloud<pcl::PointXYZI> downsampledCloud;
-            // pcl::PointCloud<pcl::PointXYZI> cloud;
-            // cloud.width = imageTarget.size();
-            // cloud.height = 1;
-            // cloud.is_dense = false;
-            // cloud.points.resize(cloud.width * cloud.height);
-            // std::cout<<"imageTarget size: "<<imageTarget.size()<<std::endl;
-            // std::cout<<"cloud size: "<<cloud.size()<<std::endl;
-            // for (int i = 0; i < cloud.size(); i++)
-            // {
-            //     cloud.points.at(i).x = imageX[i];
-            //     cloud.points.at(i).y = imageY[i];
-            //     cloud.points.at(i).z = imageResiduals(i,0);
-            //     cloud.points.at(i).intensity = imageResiduals(i,1);
-            // }
-
-            // // voxel downsampling
-            // std::cout<<"start voxelgrid..."<<std::endl;
-            // pcl::VoxelGrid<pcl::PointXYZI> downsample;
-            // //downsample.setDownsampleAllData(true);
-            // downsample.setLeafSize(1.0, 1.0, 100.0);
-            // downsample.setInputCloud(cloud);
-            // downsample.filter(downsampledCloud);
-            // std::cout<<"done voxelgrid..."<<std::endl;
-            // std::cout<<"  Downsampled residuals from "<<imageTarget.size()<<" to "<<downsampledCloud.size()<<std::endl;
-
-            // std::cout<<"  Writing downsampled residuals to file..."<<std::endl;
-            // FILE *fout = fopen("imageDownsampled.jck", "w");
-            // for(int i = 0; i < downsampledCloud->size(); ++i)
-            // {
-            //     fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", downsampledCloud->points.at(i).x, downsampledCloud->points.at(i).y, downsampledCloud->points.at(i).z, downsampledCloud->points.at(i).intensity);
-            // }
-            // fclose(fout);            
         }
+
+        // if (true)
+        // {
+        //     // // convert residuals to PCL point cloud format
+        //     // std::cout<<"  Downsampling residuals..."<<std::endl;
+        //     // pcl::PointCloud<pcl::PointXYZI>::Ptr downsampledCloud (new pcl::PointCloud<pcl::PointXYZI>);
+        //     // pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
+        //     // cloud->width = imageTarget.size();
+        //     // cloud->height = 1;
+        //     // cloud->is_dense = false;
+        //     // cloud->points.resize(cloud->width * cloud->height);
+        //     // std::cout<<"imageTarget size: "<<imageTarget.size()<<std::endl;
+        //     // std::cout<<"cloud size: "<<cloud->size()<<std::endl;
+        //     // for (int i = 0; i < cloud->size(); i++)
+        //     // {
+        //     //     cloud->points.at(i).x = imageX[i];
+        //     //     cloud->points.at(i).y = imageY[i];
+        //     //     cloud->points.at(i).z = imageResiduals(i,0);
+        //     //     cloud->points.at(i).intensity = imageResiduals(i,1);
+        //     // }
+
+        //     // // voxel downsampling
+        //     // std::cout<<"start voxelgrid..."<<std::endl;
+        //     // pcl::VoxelGrid<pcl::PointXYZ> vg;
+        //     // //vg.setDownsampleAllData(true);
+        //     // vg.setLeafSize(1.0, 1.0, 1.0);
+        //     // vg.setInputCloud(cloud);
+        //     // vg.filter(*downsampledCloud);
+        //     // std::cout<<"done voxelgrid..."<<std::endl;
+        //     // std::cout<<"  Downsampled residuals from "<<imageTarget.size()<<" to "<<downsampledCloud->size()<<std::endl;
+
+        //     // // convert residuals to PCL point cloud format
+        //     // std::cout<<"  Downsampling residuals..."<<std::endl;
+        //     // pcl::PointCloud<pcl::PointXYZI> downsampledCloud;
+        //     // pcl::PointCloud<pcl::PointXYZI> cloud;
+        //     // cloud.width = imageTarget.size();
+        //     // cloud.height = 1;
+        //     // cloud.is_dense = false;
+        //     // cloud.points.resize(cloud.width * cloud.height);
+        //     // std::cout<<"imageTarget size: "<<imageTarget.size()<<std::endl;
+        //     // std::cout<<"cloud size: "<<cloud.size()<<std::endl;
+        //     // for (int i = 0; i < cloud.size(); i++)
+        //     // {
+        //     //     cloud.points.at(i).x = imageX[i];
+        //     //     cloud.points.at(i).y = imageY[i];
+        //     //     cloud.points.at(i).z = imageResiduals(i,0);
+        //     //     cloud.points.at(i).intensity = imageResiduals(i,1);
+        //     // }
+
+        //     // // voxel downsampling
+        //     // std::cout<<"start voxelgrid..."<<std::endl;
+        //     // pcl::VoxelGrid<pcl::PointXYZI> downsample;
+        //     // //downsample.setDownsampleAllData(true);
+        //     // downsample.setLeafSize(1.0, 1.0, 100.0);
+        //     // downsample.setInputCloud(cloud);
+        //     // downsample.filter(downsampledCloud);
+        //     // std::cout<<"done voxelgrid..."<<std::endl;
+        //     // std::cout<<"  Downsampled residuals from "<<imageTarget.size()<<" to "<<downsampledCloud.size()<<std::endl;
+
+        //     // std::cout<<"  Writing downsampled residuals to file..."<<std::endl;
+        //     // FILE *fout = fopen("imageDownsampled.jck", "w");
+        //     // for(int i = 0; i < downsampledCloud->size(); ++i)
+        //     // {
+        //     //     fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", downsampledCloud->points.at(i).x, downsampledCloud->points.at(i).y, downsampledCloud->points.at(i).z, downsampledCloud->points.at(i).intensity);
+        //     // }
+        //     // fclose(fout);            
+        // }
 
         if (true)
         {

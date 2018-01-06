@@ -1176,17 +1176,20 @@ int main(int argc, char** argv) {
         // copy it to make a symmetrical matrix
         Cx.triangularView<Eigen::Lower>() = Cx.transpose();
 
-        std::cout<<"  Writing Cx to file..."<<std::endl;
-        FILE *fout = fopen("Cx.jck", "w");
-        for(int i = 0; i < Cx.rows(); ++i)
+        if (true)
         {
-            for(int j = 0; j < Cx.cols(); ++j)
+            std::cout<<"  Writing Cx to file..."<<std::endl;
+            FILE *fout = fopen("Cx.jck", "w");
+            for(int i = 0; i < Cx.rows(); ++i)
             {
-                fprintf(fout, "%.6lf \t ", Cx(i,j));
+                for(int j = 0; j < Cx.cols(); ++j)
+                {
+                    fprintf(fout, "%.6lf \t ", Cx(i,j));
+                }
+                fprintf(fout, "\n");
             }
-            fprintf(fout, "\n");
+            fclose(fout);
         }
-        fclose(fout);
 
         PyRun_SimpleString("print 'Done computing covariance matrix:', round(TIME.clock()-t0, 3), 's' ");
 
@@ -1258,20 +1261,10 @@ int main(int argc, char** argv) {
             std::cout<<"Residuals:"<<std::endl;
             std::cout<<imageResiduals<<std::endl;
         }
-        // Output results to file
+
+
         PyRun_SimpleString("t0 = TIME.clock()");        
-        PyRun_SimpleString("print 'Start outputting bundle adjustment results to file' ");     
-        //Output results back to Python for plotting
-        if (true)
-        {
-            std::cout<<"  Writing residuals to file..."<<std::endl;
-            FILE *fout = fopen("image.jck", "w");
-            for(int i = 0; i < imageTarget.size(); ++i)
-            {
-                fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
-            }
-            fclose(fout);
-        }
+        PyRun_SimpleString("print 'Start computing covariance matrix of the residuals' ");  
 
         if (true)
         {
@@ -1296,9 +1289,50 @@ int main(int argc, char** argv) {
             // std::cout<<"A: "<<std::endl;
             // std::cout<<A<<std::endl;
 
-            std::cout<<"rows: "<<jacobian.num_rows<<std::endl;
-            std::cout<<"cols: "<<jacobian.num_cols<<std::endl;
+            std::cout<<"    A matrix rows: "<<jacobian.num_rows<<std::endl;
+            std::cout<<"    A matrix cols: "<<jacobian.num_cols<<std::endl;
 
+            Eigen::MatrixXd A(jacobian.num_rows,jacobian.num_cols);
+            A.setZero();
+            for (int i = 0; i < jacobian.num_rows; i++)
+            {
+                for (int j = jacobian.rows[i]; j < jacobian.rows[i+1]; j++)
+                {
+                A(i,jacobian.cols[j]) = jacobian.values[j]; 
+                }
+            }
+
+            std::cout<<"    Writing A to file..."<<std::endl;
+            FILE *fout = fopen("A.jck", "w");
+            for(int i = 0; i < A.rows(); ++i)
+            {
+                for(int j = 0; j < A.cols(); ++j)
+                {
+                    fprintf(fout, "%.6lf \t ", A(i,j));
+                }
+                fprintf(fout, "\n");
+            }
+            fclose(fout);
+        }
+
+
+
+        PyRun_SimpleString("print 'Done computing covariance matrix of the residuals:', round(TIME.clock()-t0, 3), 's' ");
+
+
+        // Output results to file
+        PyRun_SimpleString("t0 = TIME.clock()");        
+        PyRun_SimpleString("print 'Start outputting bundle adjustment results to file' ");     
+        //Output results back to Python for plotting
+        if (true)
+        {
+            std::cout<<"  Writing residuals to file..."<<std::endl;
+            FILE *fout = fopen("image.jck", "w");
+            for(int i = 0; i < imageTarget.size(); ++i)
+            {
+                fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
+            }
+            fclose(fout);
         }
 
         // if (true)

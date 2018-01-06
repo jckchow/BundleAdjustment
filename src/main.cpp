@@ -687,6 +687,26 @@ int main(int argc, char** argv) {
         std::vector<int> imageReferenceID; // for use when outting the residuals
         imageReferenceID.resize(imageX.size());
         ceres::Problem problem;
+
+
+        // define the parameters in the order we want
+        //       EOP XYZ IOP  AP  MLP
+        // EOP        *   *   *   *
+        // XYZ            *   *   *
+        // IOP                *   *
+        // AP                     *
+        // MLP
+        for(int n = 0; n < EOP.size(); n++) 
+            problem.AddParameterBlock(&EOP[n][0], 6);  
+        for(int n = 0; n < XYZ.size(); n++) 
+            problem.AddParameterBlock(&XYZ[n][0], 3);  
+        for(int n = 0; n < IOP.size(); n++) 
+            problem.AddParameterBlock(&IOP[n][0], 3);  
+        for(int n = 0; n < AP.size(); n++) 
+            problem.AddParameterBlock(&AP[n][0], 7);  
+        // for(int n = 0; n < MLP.size(); n++) 
+        //     problem.AddParameterBlock(&MLP[n][0], 2);  
+
         ceres::LossFunction* loss = NULL;
         //loss = new ceres::HuberLoss(1.0);
         // loss = new ceres::CauchyLoss(0.5);

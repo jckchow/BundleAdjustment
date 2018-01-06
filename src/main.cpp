@@ -1360,27 +1360,27 @@ int main(int argc, char** argv) {
 
             Eigen::Map<Eigen::VectorXd> temp(variances.data(), variances.size());
             Eigen::MatrixXd Cl = temp.asDiagonal();
-            Eigen::MatrixXd A2 = A.block<198,96>(0,0);
-            Eigen::MatrixXd Cx2 = (A2.transpose() * Cl.inverse() * A2).inverse();
+            // Eigen::MatrixXd A2 = A.block<198,96>(0,0);
+            // Eigen::MatrixXd Cx2 = (A2.transpose() * Cl.inverse() * A2).inverse();
 
 
-            if(true)
-            {
-                std::cout<<"    Writing Cx2 to file..."<<std::endl;
-                FILE *fout = fopen("Cx2.jck", "w");
-                for(int i = 0; i < Cx2.rows(); ++i)
-                {
-                    for(int j = 0; j < Cx2.cols(); ++j)
-                    {
-                        fprintf(fout, "%.6lf \t ", Cx2(i,j));
-                    }
-                    fprintf(fout, "\n");
-                }
-                fclose(fout);
-            }
+            // if(DEBUGMODE)
+            // {
+            //     std::cout<<"    Writing Cx2 to file..."<<std::endl;
+            //     FILE *fout = fopen("Cx2.jck", "w");
+            //     for(int i = 0; i < Cx2.rows(); ++i)
+            //     {
+            //         for(int j = 0; j < Cx2.cols(); ++j)
+            //         {
+            //             fprintf(fout, "%.6lf \t ", Cx2(i,j));
+            //         }
+            //         fprintf(fout, "\n");
+            //     }
+            //     fclose(fout);
+            // }
             // computing the covariance matrix of the adjusted observations
             std::cout<<"  Start computing Cv..."<<std::endl;
-            Eigen::MatrixXd Cl_hat = A2 * Cx2 * A2.transpose();
+            Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
 
             Cv = Cl - Cl_hat;
             std::cout<<"  Done computing Cv"<<std::endl;

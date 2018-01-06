@@ -686,15 +686,15 @@ int main(int argc, char** argv) {
     
         std::vector<int> imageReferenceID; // for use when outting the residuals
         imageReferenceID.resize(imageX.size());
+        std::vector<double> variances;
         ceres::Problem problem;
 
 
         // define the parameters in the order we want
-        //       EOP XYZ IOP  AP  MLP
-        // EOP        *   *   *   *
-        // XYZ            *   *   *
-        // IOP                *   *
-        // AP                     *
+        // EOP      
+        // XYZ          
+        // IOP                
+        // AP                    
         // MLP
         for(int n = 0; n < EOP.size(); n++) 
             problem.AddParameterBlock(&EOP[n][0], 6);  
@@ -778,6 +778,8 @@ int main(int argc, char** argv) {
             problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
+            variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
+            variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
         }
     
         // define the datum by pseduo observations of the positions for defining the datum
@@ -789,6 +791,11 @@ int main(int argc, char** argv) {
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
                         new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
                 problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
+
+
+                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
+                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
+                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
             }
         }
 
@@ -1321,19 +1328,47 @@ int main(int argc, char** argv) {
                 A(i,jacobian.cols[j]) = jacobian.values[j]; 
                 }
             }
+            std::cout<<"  Done computing jacobian matrix"<<std::endl;            
 
-            std::cout<<"    Writing A to file..."<<std::endl;
-            FILE *fout = fopen("A.jck", "w");
-            for(int i = 0; i < A.rows(); ++i)
+            if(DEBUGMODE)
             {
-                for(int j = 0; j < A.cols(); ++j)
+                std::cout<<"    Writing A to file..."<<std::endl;
+                FILE *fout = fopen("A.jck", "w");
+                for(int i = 0; i < A.rows(); ++i)
                 {
-                    fprintf(fout, "%.6lf \t ", A(i,j));
+                    for(int j = 0; j < A.cols(); ++j)
+                    {
+                        fprintf(fout, "%.6lf \t ", A(i,j));
+                    }
+                    fprintf(fout, "\n");
                 }
-                fprintf(fout, "\n");
+                fclose(fout);
             }
-            fclose(fout);
+
+            // computing the covariance matrix of the adjusted observations
+            std::cout<<"  Start computing Cv..."<<std::endl;
+            Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
+            Eigen::Map<Eigen::VectorXd> temp(variances.data(), variances.size());
+            Eigen::MatrixXd Cl = temp.asDiagonal();
+            Eigen::MatrixXd Cv = Cl - Cl_hat;
+            std::cout<<"  Done computing Cv"<<std::endl;
+
+            if(DEBUGMODE)
+            {
+                std::cout<<"    Writing Cl to file..."<<std::endl;
+                FILE *fout = fopen("Cl.jck", "w");
+                for(int i = 0; i < Cl.rows(); ++i)
+                {
+                    for(int j = 0; j < Cl.cols(); ++j)
+                    {
+                        fprintf(fout, "%.6lf \t ", Cl(i,j));
+                    }
+                    fprintf(fout, "\n");
+                }
+                fclose(fout);
+            }
         }
+
 
 
 

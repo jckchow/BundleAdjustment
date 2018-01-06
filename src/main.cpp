@@ -1293,6 +1293,7 @@ int main(int argc, char** argv) {
         double cost = 0.0;
         std::vector<double> residuals;
         ceres::CRSMatrix jacobian;
+        Eigen::VectorXd redundancyNumber(variances.size());
         Eigen::MatrixXd Cv; //covariance of the residuals
         problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, &jacobian);
 
@@ -1342,7 +1343,7 @@ int main(int argc, char** argv) {
             }
             std::cout<<"  Done computing jacobian matrix"<<std::endl;            
 
-            if(true)
+            if(DEBUGMODE)
             {
                 std::cout<<"    Writing A to file..."<<std::endl;
                 FILE *fout = fopen("A.jck", "w");
@@ -1356,7 +1357,6 @@ int main(int argc, char** argv) {
                 }
                 fclose(fout);
             }
-
 
             Eigen::Map<Eigen::VectorXd> temp(variances.data(), variances.size());
             Eigen::MatrixXd Cl = temp.asDiagonal();
@@ -1385,7 +1385,11 @@ int main(int argc, char** argv) {
             Cv = Cl - Cl_hat;
             std::cout<<"  Done computing Cv"<<std::endl;
 
-
+            // compute the redundancy numbers
+            for (int i = 0; i < variances.size(); i++)
+            {
+                redundancyNumber(i) = Cv(i,i) / Cl(i,i);
+            }
 
             if(DEBUGMODE)
             {
@@ -1402,7 +1406,7 @@ int main(int argc, char** argv) {
                 fclose(fout);
             }
 
-            if(true)
+            if(DEBUGMODE)
             {
                 std::cout<<"    Writing Cl_hat to file..."<<std::endl;
                 FILE *fout = fopen("Cl_hat.jck", "w");
@@ -1417,7 +1421,7 @@ int main(int argc, char** argv) {
                 fclose(fout);
             }
 
-            if(true)
+            if(DEBUGMODE)
             {
                 std::cout<<"    Writing Cv to file..."<<std::endl;
                 FILE *fout = fopen("Cv.jck", "w");
@@ -1438,10 +1442,14 @@ int main(int argc, char** argv) {
 
         Eigen::MatrixXd imageResiduals(imageX.size(), 2);
         Eigen::MatrixXd imageResidualsStdDev(imageX.size(), 2);
+        Eigen::MatrixXd imageRedundancy(imageX.size(), 2);
         for (int n = 0; n<imageX.size(); n++)
         {
             imageResiduals(n,0) = residuals[2*n] * imageXStdDev[n];
             imageResiduals(n,1) = residuals[2*n+1] * imageYStdDev[n];
+
+            imageRedundancy(n,0) = redundancyNumber(n*2);
+            imageRedundancy(n,1) = redundancyNumber(n*2+1);
 
             imageResidualsStdDev(n,0) = sqrt(Cv(n*2,n*2));
             imageResidualsStdDev(n,1) = sqrt(Cv(n*2+1,n*2+1));
@@ -1462,7 +1470,7 @@ int main(int argc, char** argv) {
             FILE *fout = fopen("image.jck", "w");
             for(int i = 0; i < imageTarget.size(); ++i)
             {
-                fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1), imageResidualsStdDev(i,0), imageResidualsStdDev(i,1));
+                fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.2lf %.2lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1), imageRedundancy(i,0), imageRedundancy(i,1), imageResidualsStdDev(i,0), imageResidualsStdDev(i,1));
             }
             fclose(fout);
         }

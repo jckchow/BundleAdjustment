@@ -205,7 +205,7 @@ struct collinearity {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Collinearity Equation With Machine Learned Parameters
+/// Collinearity Equation With Machine Learned Parameters as unknowns
 /// Input:    x       - x observation
 ///           y       - y observation
 ///           xStdDev - noise
@@ -288,6 +288,93 @@ struct collinearityMachineLearned {
   const double xp_;
   const double yp_;
 
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Collinearity Equation With Machine Learned Parameters as constants
+/// Input:    x       - x observation
+///           y       - y observation
+///           xStdDev - noise
+///           yStdDev - noise
+/// Unknowns: x      - some unknown parameter in the adjustment
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct collinearityMachineLearnedSimple {
+  
+  collinearityMachineLearnedSimple(double x, double y, double xStdDev, double yStdDev, double xp, double yp, double xMLP, double yMLP)
+        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp), xMLP_(xMLP), yMLP_(yMLP)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, T* residual) const {
+
+  // rotation from map to sensor
+  T r11 = cos(EOP[1]) * cos(EOP[2]);
+  T r12 = cos(EOP[0]) * sin(EOP[2]) + sin(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+  T r13 = sin(EOP[0]) * sin(EOP[2]) - cos(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+
+  T r21 = -cos(EOP[1]) * sin(EOP[2]);
+  T r22 = cos(EOP[0]) * cos(EOP[2]) - sin(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+  T r23 = sin(EOP[0]) * cos(EOP[2]) + cos(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+
+  T r31 = sin(EOP[1]);
+  T r32 = -sin(EOP[0]) * cos(EOP[1]);
+  T r33 = cos(EOP[0]) * cos(EOP[1]);
+
+  // rigid body transformation
+  T XTemp = r11 * ( XYZ[0] - EOP[3] ) + r12 * ( XYZ[1] - EOP[4] ) + r13 * ( XYZ[2] - EOP[5] );
+  T YTemp = r21 * ( XYZ[0] - EOP[3] ) + r22 * ( XYZ[1] - EOP[4] ) + r23 * ( XYZ[2] - EOP[5] );
+  T ZTemp = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
+
+//   std::cout<<"XYZ[0], XYZ[1], XYZ[2]: "<<XYZ[0]<<", "<<XYZ[1]<<", "<<XYZ[2]<<std::endl;
+//   std::cout<<"EOP[3], EOP[4], EOP[5]: "<<EOP[3]<<", "<<EOP[4]<<", "<<EOP[5]<<std::endl;
+//   std::cout<<"XTemp, YTemp, ZTemp: "<<XTemp<<", "<<YTemp<<", "<<ZTemp<<std::endl;
+
+//   sleep(10000000000);        
+
+  // collinearity condition
+  T x = -IOP[2] * XTemp / ZTemp;
+  T y = -IOP[2] * YTemp / ZTemp;
+
+//   std::cout<<"x, y: "<<x+T(xp_)<<", "<<y+T(yp_)<<std::endl;
+//   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
+
+
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  T x_bar = T(x_) - T(xp_);
+  T y_bar = T(y_) - T(yp_);
+  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
+
+  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+
+  T x_true = x + IOP[0] + delta_x + T(xMLP_); // MLP is the machine learned parameters
+  T y_true = y + IOP[1] + delta_y + T(yMLP_);
+
+  // actual cost function
+  residual[0] = x_true - T(x_); // x-residual
+  residual[1] = y_true - T(y_); // y-residual    
+
+//   std::cout<<"x_diff, y_diff: "<<residual[0]<<", "<<residual[1]<<std::endl;
+
+  residual[0] /= T(xStdDev_);
+  residual[1] /= T(yStdDev_);
+
+  return true;
+  }
+
+ private:
+  const double x_;
+  const double y_;
+  const double xStdDev_;
+  const double yStdDev_;
+  const double xp_;
+  const double yp_;
+  const double xMLP_;
+  const double yMLP_;
 };
 
 /////////////////////////
@@ -601,7 +688,7 @@ int main(int argc, char** argv) {
         imageReferenceID.resize(imageX.size());
         ceres::Problem problem;
         ceres::LossFunction* loss = NULL;
-        loss = new ceres::HuberLoss(1.0);
+        //loss = new ceres::HuberLoss(1.0);
         // loss = new ceres::CauchyLoss(0.5);
 
         // // Conventional collinearity condition
@@ -649,19 +736,28 @@ int main(int argc, char** argv) {
             // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
 
             // for book keeping
-            imageReferenceID[n] = indexSensor;
+            imageReferenceID[n] = iopCamera[indexSensor];
 
             //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
             //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
-            ceres::CostFunction* cost_function =
-                new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
-                    new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-            problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
+            // ceres::CostFunction* cost_function =
+            //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
+            //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+            // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
 
-            //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+            // problem.SetParameterBlockConstant(&MLP[n][0]);
+
+            ceres::CostFunction* cost_function =
+                new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                    new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+            problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
+            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-            problem.SetParameterBlockConstant(&MLP[n][0]);
+
         }
     
         // define the datum by pseduo observations of the positions for defining the datum
@@ -675,7 +771,6 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
             }
         }
-
 
         // if(DEBUGMODE)
         // {
@@ -714,20 +809,112 @@ int main(int argc, char** argv) {
         ceres::Covariance covariance(covarianceOoptions);
 
         std::vector<std::pair<const double*, const double*> > covariance_blocks;
-        // for(int i = 0; i < XYZ.size(); i++)
-        //     for(int j = 0; j < XYZ.size(); j++)
-                // covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[j][0]));
-        for(int i = 0; i < XYZ.size(); i++)
-            covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[i][0])); // do 3x3 block diagonal of the XYZ object space target points
 
-        for(int i = 0; i < EOP.size(); i++)
-            covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[i][0])); // do 6x6 block diagonal of the XYZ object space target points
+        // Estimating the main and most useful variances; only the main block diagonal
+        if (false)
+        {
+            for(int i = 0; i < EOP.size(); i++)
+                covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[i][0])); // do 6x6 block diagonal of the XYZ object space target points
 
-        for(int i = 0; i < IOP.size(); i++)
-            covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[i][0])); // do 3x3 block diagonal of the XYZ object space target points
+            for(int i = 0; i < XYZ.size(); i++)
+                covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[i][0])); // do 3x3 block diagonal of the XYZ object space target points
 
-        for(int i = 0; i < IOP.size(); i++)
-            covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
+            for(int i = 0; i < IOP.size(); i++)
+                covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[i][0])); // do 3x3 block diagonal of the XYZ object space target points
+
+            for(int i = 0; i < AP.size(); i++)
+                covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
+
+            // in the simple mode, MLP is just a constant not a parameter
+            // for(int i = 0; i < MLP.size(); i++)
+            //     covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[i][0])); 
+        }
+
+        // Estimate variances and covariances within the SAME group
+        if (true)
+        {
+
+            //       EOP XYZ IOP  AP  MLP
+            // EOP    *    
+            // XYZ        *   
+            // IOP            *    
+            // AP                 *    
+            // MLP                     *
+
+            for(int i = 0; i < EOP.size(); i++)
+                for(int j = 0; j < EOP.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[j][0]));
+
+            for(int i = 0; i < XYZ.size(); i++)
+                for(int j = 0; j < XYZ.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[j][0]));
+
+            for(int i = 0; i < IOP.size(); i++)
+                for(int j = 0; j < IOP.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[j][0]));
+
+            for(int i = 0; i < AP.size(); i++)
+                for(int j = 0; j < AP.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[j][0]));
+
+            // for(int i = 0; i < MLP.size(); i++)
+            //     for(int j = 0; j < MLP.size(); j++)
+            //         covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[j][0]));
+        }
+
+        // Additional covariances between DIFFERENT groups
+        if (true)
+        {
+            //       EOP XYZ IOP  AP  MLP
+            // EOP        *   *   *   *
+            // XYZ            *   *   *
+            // IOP                *   *
+            // AP                     *
+            // MLP
+
+            // covariances
+            for(int i = 0; i < EOP.size(); i++)
+            {
+                for(int j = 0; j < XYZ.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &XYZ[j][0]));
+
+                for(int j = 0; j < IOP.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &IOP[j][0]));
+
+                for(int j = 0; j < AP.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &AP[j][0]));
+
+                // for(int j = 0; j < MLP.size(); j++)
+                //     covariance_blocks.push_back(std::make_pair(&EOP[i][0], &MLP[j][0]));
+            }
+
+            for(int i = 0; i < XYZ.size(); i++)
+            {
+                for(int j = 0; j < IOP.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &IOP[j][0]));
+
+                for(int j = 0; j < AP.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &AP[j][0]));
+
+                // for(int j = 0; j < MLP.size(); j++)
+                //     covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &MLP[j][0]));
+            }
+
+            for(int i = 0; i < IOP.size(); i++)
+            {
+                for(int j = 0; j < AP.size(); j++)
+                    covariance_blocks.push_back(std::make_pair(&IOP[i][0], &AP[j][0]));
+
+                // for(int j = 0; j < MLP.size(); j++)
+                //     covariance_blocks.push_back(std::make_pair(&IOP[i][0], &MLP[j][0]));
+            }
+
+            for(int i = 0; i < AP.size(); i++)
+            {
+                // for(int j = 0; j < MLP.size(); j++)
+                //     covariance_blocks.push_back(std::make_pair(&AP[i][0], &MLP[j][0]));
+            }
+        }
 
         covariance.Compute(covariance_blocks, &problem);
 
@@ -758,6 +945,11 @@ int main(int argc, char** argv) {
         //  std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
         //  std::cout<<"covariance matrix: "<<std::endl;
         //  std::cout<<covariance_X<<std::endl;
+
+            // // store the full variance-covariance matrix
+            // for (int n = 0; n < covariance_X.rows(); n++)
+            //     for (int m = 0; m < covariance_X.cols(); m++)
+            //         Cx(i*3+n + 6*EOP.size(),i*3+m + 6*EOP.size()) = covariance_X(n,m);
         }
 
         Eigen::MatrixXd eopVariance(EOP.size(),6);
@@ -785,6 +977,11 @@ int main(int argc, char** argv) {
             iopVariance(i,0) = variance_X(0);
             iopVariance(i,1) = variance_X(1);
             iopVariance(i,2) = variance_X(2);
+
+            // // store the full variance-covariance matrix
+            // for (int n = 0; n < covariance_X.rows(); n++)
+            //     for (int m = 0; m < covariance_X.cols(); m++)
+            //         Cx(i*3+n + 6*EOP.size()+3*XYZ.size(),i*3+m + 6*EOP.size()+3*XYZ.size()) = covariance_X(n,m);
         }
 
         Eigen::MatrixXd apVariance(AP.size(),7);
@@ -801,8 +998,195 @@ int main(int argc, char** argv) {
             apVariance(i,4) = variance_X(4);
             apVariance(i,5) = variance_X(5);
             apVariance(i,6) = variance_X(6);
+
+            // // store the full variance-covariance matrix
+            // for (int n = 0; n < covariance_X.rows(); n++)
+            //     for (int m = 0; m < covariance_X.cols(); m++)
+            //         Cx(i*7+n + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),i*7+m + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X(n,m);
         }
 
+        Eigen::MatrixXd mlpVariance(MLP.size(),2);
+        for(int i = 0; i < MLP.size(); i++)
+        {
+            // Eigen::MatrixXd covariance_X(2, 2);
+            // covariance.GetCovarianceBlock(&MLP[i][0], &MLP[i][0], covariance_X.data());
+            // Eigen::VectorXd variance_X(2);
+            // variance_X = covariance_X.diagonal();
+            // mlpVariance(i,0) = variance_X(0);
+            // mlpVariance(i,1) = variance_X(1);
+
+            // // store the full variance-covariance matrix
+            // for (int n = 0; n < covariance_X.rows(); n++)
+            //     for (int m = 0; m < covariance_X.cols(); m++)
+            //         Cx(i*2+n + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),i*2+m + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X(n,m);
+        }
+
+        //       EOP XYZ IOP  AP  MLP
+        // EOP    x   x   x    x   x    
+        // XYZ        x   x    x   x
+        // IOP            x    x   x
+        // AP                  x   x        
+        // MLP                     x
+        Eigen::MatrixXd Cx(summary.num_parameters,summary.num_parameters);
+
+        if (true)
+        {
+            // Get the full variance-covariance matrix Cx
+            for(int i = 0; i < EOP.size(); i++)
+            {
+                for(int j = 0; j < EOP.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(6, 6);
+                    covariance.GetCovarianceBlock(&EOP[i][0], &EOP[j][0], covariance_X.data());
+
+                    // // store the full variance-covariance matrix
+                    // for (int n = 0; n < covariance_X.rows(); n++)
+                    //     for (int m = 0; m < covariance_X.cols(); m++)
+                    //         Cx(i*6+n,i*6+m) = covariance_X(n,m);
+
+                    Cx.block<6,6>(i*6,j*6) = covariance_X;
+                }
+
+                for(int j = 0; j < XYZ.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(6, 3);
+                    covariance.GetCovarianceBlock(&EOP[i][0], &XYZ[j][0], covariance_X.data());
+
+                    Cx.block<6,3>(i*6,j*3 + 6*EOP.size()) = covariance_X;
+                }
+
+                for(int j = 0; j < IOP.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(6, 3);
+                    covariance.GetCovarianceBlock(&EOP[i][0], &IOP[j][0], covariance_X.data());
+
+                    Cx.block<6,3>(i*6,j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X;
+                }
+
+                for(int j = 0; j < AP.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(6, 7);
+                    covariance.GetCovarianceBlock(&EOP[i][0], &AP[j][0], covariance_X.data());
+
+                    Cx.block<6,7>(i*6,j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X;
+                }
+
+                // for(int j = 0; j < MLP.size(); j++)
+                // {
+                //     Eigen::MatrixXd covariance_X(6, 2);
+                //     covariance.GetCovarianceBlock(&EOP[i][0], &MLP[j][0], covariance_X.data());
+
+                //     Cx.block<6,2>(i*6,j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X;
+                // }
+            }
+
+            for(int i = 0; i < XYZ.size(); i++)
+            {
+                for(int j = 0; j < XYZ.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(3, 3);
+                    covariance.GetCovarianceBlock(&XYZ[i][0], &XYZ[j][0], covariance_X.data());
+
+                    Cx.block<3,3>(i*3 + 6*EOP.size(),j*3 + 6*EOP.size()) = covariance_X;
+                }
+
+                for(int j = 0; j < IOP.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(3, 3);
+                    covariance.GetCovarianceBlock(&XYZ[i][0], &IOP[j][0], covariance_X.data());
+
+                    Cx.block<3,3>(i*3 + 6*EOP.size(),j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X;
+                }
+
+                for(int j = 0; j < AP.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(3, 7);
+                    covariance.GetCovarianceBlock(&XYZ[i][0], &AP[j][0], covariance_X.data());
+
+                    Cx.block<3,7>(i*3 + 6*EOP.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X;
+                }
+
+                // for(int j = 0; j < MLP.size(); j++)
+                // {
+                //     Eigen::MatrixXd covariance_X(3, 2);
+                //     covariance.GetCovarianceBlock(&XYZ[i][0], &MLP[j][0], covariance_X.data());
+
+                //     Cx.block<3,2>(i*3 + 6*EOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X;
+                // }
+            }
+
+            for(int i = 0; i < IOP.size(); i++)
+            {
+                for(int j = 0; j < IOP.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(3, 3);
+                    covariance.GetCovarianceBlock(&IOP[i][0], &IOP[j][0], covariance_X.data());
+
+                    Cx.block<3,3>(i*3 + 6*EOP.size()+3*XYZ.size(),j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X;
+                }
+
+                for(int j = 0; j < AP.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(3, 7);
+                    covariance.GetCovarianceBlock(&IOP[i][0], &AP[j][0], covariance_X.data());
+
+                    Cx.block<3,7>(i*3 + 6*EOP.size()+3*XYZ.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X;
+                }
+
+                // for(int j = 0; j < MLP.size(); j++)
+                // {
+                //     Eigen::MatrixXd covariance_X(3, 2);
+                //     covariance.GetCovarianceBlock(&IOP[i][0], &MLP[j][0], covariance_X.data());
+
+                //     Cx.block<3,2>(i*3 + 6*EOP.size()+3*XYZ.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X;
+                // }
+            }
+
+            for(int i = 0; i < AP.size(); i++)
+            {
+                for(int j = 0; j < AP.size(); j++)
+                {
+                    Eigen::MatrixXd covariance_X(7, 7);
+                    covariance.GetCovarianceBlock(&AP[i][0], &AP[j][0], covariance_X.data());
+
+                    Cx.block<7,7>(i*3 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X;
+                }
+
+                // for(int j = 0; j < MLP.size(); j++)
+                // {
+                //     Eigen::MatrixXd covariance_X(7, 2);
+                //     covariance.GetCovarianceBlock(&AP[i][0], &MLP[j][0], covariance_X.data());
+
+                //     Cx.block<7,2>(i*3 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X;
+                // }
+            }
+
+            for(int i = 0; i < MLP.size(); i++)
+            {
+                // for(int j = 0; j < MLP.size(); j++)
+                // {
+                //     Eigen::MatrixXd covariance_X(2, 2);
+                //     covariance.GetCovarianceBlock(&MLP[i][0], &MLP[j][0], covariance_X.data());
+
+                //     Cx.block<2,2>(i*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X;
+                // }
+            }
+        }
+
+        // copy it to make a symmetrical matrix
+        Cx.triangularView<Eigen::Lower>() = Cx.transpose();
+
+        std::cout<<"  Writing Cx to file..."<<std::endl;
+        FILE *fout = fopen("Cx.jck", "w");
+        for(int i = 0; i < Cx.rows(); ++i)
+        {
+            for(int j = 0; j < Cx.cols(); ++j)
+            {
+                fprintf(fout, "%.6lf \t ", Cx(i,j));
+            }
+            fprintf(fout, "\n");
+        }
+        fclose(fout);
 
         PyRun_SimpleString("print 'Done computing covariance matrix:', round(TIME.clock()-t0, 3), 's' ");
 

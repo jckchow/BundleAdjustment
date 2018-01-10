@@ -31,7 +31,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1
+#define NUMITERATION 500
 #define DEBUGMODE 0
 #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -265,8 +265,8 @@ struct collinearityMachineLearned {
   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
 
-  T x_true = x + IOP[0] + delta_x + MLP[0]; // MLP is the machine learned parameters
-  T y_true = y + IOP[1] + delta_y + MLP[1];
+  T x_true = x + IOP[0] + delta_x - MLP[0]; // MLP is the machine learned parameters
+  T y_true = y + IOP[1] + delta_y - MLP[1];
 
   // actual cost function
   residual[0] = x_true - T(x_); // x-residual
@@ -351,8 +351,8 @@ struct collinearityMachineLearnedSimple {
   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
 
-  T x_true = x + IOP[0] + delta_x + T(xMLP_); // MLP is the machine learned parameters
-  T y_true = y + IOP[1] + delta_y + T(yMLP_);
+  T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
+  T y_true = y + IOP[1] + delta_y - T(yMLP_);
 
   // actual cost function
   residual[0] = x_true - T(x_); // x-residual
@@ -391,7 +391,7 @@ int main(int argc, char** argv) {
      
     std::ifstream inp;      
     std::vector<double> leastSquaresCost;
-
+    std::vector<double> machineLearnedCost;
     //////////////////////////////////////
     /// Read in the data from files
     //////////////////////////////////////
@@ -1435,7 +1435,6 @@ int main(int argc, char** argv) {
                 }
                 fclose(fout);
             }
-
         }
 
         PyRun_SimpleString("print 'Done computing covariance matrix of the residuals:', round(TIME.clock()-t0, 3), 's' ");
@@ -1581,10 +1580,33 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("t0 = TIME.clock()");        
         PyRun_SimpleString("print 'Start doing machine learning in Python' ");    
 
-        system("python ~/BundleAdjustment/python/gaussianProcess.py");
+        //system("python ~/BundleAdjustment/python/gaussianProcess.py");
+        system("python ~/BundleAdjustment/python/nearestNeighbour.py");
 
         PyRun_SimpleString("print 'Done doing machine learning regression:', round(TIME.clock()-t0, 3), 's' ");
 
+        // read in the machine learned cost
+        inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
+        std::vector<double> MLCost;
+        while (true) 
+        {
+            int c1, c3;
+            double c2;
+            inp >> c1 >> c2 >> c3;
+            // double c1;
+            // inp >> c1;
+
+            MLCost.push_back(c2);
+
+            if( inp.eof() )
+                break;
+        }
+        
+        MLCost.pop_back();
+
+        inp.close();
+
+        machineLearnedCost.push_back(MLCost[0]);
     }
 
     if (true)
@@ -1593,10 +1615,10 @@ int main(int argc, char** argv) {
             FILE *fout = fopen("costs.jck", "w");
             for(int i = 0; i < leastSquaresCost.size(); ++i)
             {
-                fprintf(fout, "%i %.6lf\n", i, leastSquaresCost[i]);
+                fprintf(fout, "%.6lf %.6lf\n", leastSquaresCost[i], machineLearnedCost[i] );
             }
             fclose(fout);
-        }   
+        }
 
     PyRun_SimpleString("print '----------------------------Program Successful ^-^, Total Run Time:', round(TIME.clock()-totalTime, 3), 's', '----------------------------', ");
     return 0;

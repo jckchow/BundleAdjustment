@@ -32,7 +32,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 5
+#define NUMITERATION 1
 #define DEBUGMODE 0
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
@@ -41,17 +41,17 @@
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
+
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pseudo observation of a constant
@@ -393,7 +393,9 @@ int main(int argc, char** argv) {
      
     std::ifstream inp;      
     std::vector<double> leastSquaresCost;
+    std::vector<double> leastSquaresRedundancy;
     std::vector<double> machineLearnedCost;
+    std::vector<double> machineLearnedRedundancy;    
     //////////////////////////////////////
     /// Read in the data from files
     //////////////////////////////////////
@@ -609,7 +611,14 @@ int main(int argc, char** argv) {
 
         inp.close();
         std::cout << "    Number of IOPs read: "<< iopCamera.size() << std::endl;
-
+        if(true)
+        {
+            std::cout << "      IOP: " <<std::endl;
+            for (int i = 0; i < iopCamera.size(); i++)
+            {
+                std::cout<<iopCamera[i]<<" \t "<<iopAxis[i]<<" \t "<<iopXMin[i]<<" \t "<<iopYMin[i]<<" \t "<<iopXMax[i]<<" \t "<<iopYMax[i]<<" \t "<<iopXp[i]<<" \t "<<iopYp[i]<<" \t "<<iopC[i]<<std::endl;
+            }
+        }
 
         // Reading *.xyz file
         PyRun_SimpleString("print '  Start reading XYZ' ");  
@@ -710,7 +719,8 @@ int main(int argc, char** argv) {
         //     problem.AddParameterBlock(&MLP[n][0], 2);  
 
         ceres::LossFunction* loss = NULL;
-        //loss = new ceres::HuberLoss(1.0);
+        loss = new ceres::HuberLoss(1.0);
+
         // loss = new ceres::CauchyLoss(0.5);
 
         // // Conventional collinearity condition
@@ -775,7 +785,7 @@ int main(int argc, char** argv) {
             ceres::CostFunction* cost_function =
                 new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
                     new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-            problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+            problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
             problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
@@ -1220,7 +1230,7 @@ int main(int argc, char** argv) {
         }
 
         // copy it to make a symmetrical matrix
-        Cx.triangularView<Eigen::Lower>() = Cx.transpose();
+        //Cx.triangularView<Eigen::Lower>() = Cx.transpose();
 
         if (DEBUGMODE)
         {
@@ -1415,7 +1425,23 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("print '    Converting matrices:', round(TIME.clock()-t0, 3), 's' ");      
             PyRun_SimpleString("t0 = TIME.clock()");        
             // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
-            Eigen::SparseMatrix<double> Cl_hat = A * (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
+            Eigen::SparseMatrix<double> CxAT = (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
+            PyRun_SimpleString("print '    Multiplying first matrices:', round(TIME.clock()-t0, 3), 's' ");
+            PyRun_SimpleString("t0 = TIME.clock()");        
+            // Eigen::SparseMatrix<double> Cl_hat = A * (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
+
+            Eigen::SparseMatrix<double> Cl_hat;
+            Cl_hat.resize(variances.size(), variances.size());
+            std::vector< Eigen::Triplet<double> > tripletCl_hat(variances.size());
+	        int indexTripletCl_hat = 0;
+            for (int i = 0; i < variances.size(); i++)
+            {
+                Eigen::MatrixXd temp = Eigen::MatrixXd((A.row(i) * CxAT.col(i)));
+                tripletCl_hat[indexTripletCl_hat] = Eigen::Triplet<double>(i,i, temp(0,0));
+                indexTripletCl_hat++;                
+            }            
+            Cl.setFromTriplets(tripletCl.begin(), tripletCl.end());
+
             //Eigen::SparseMatrix<double> D = ttt.sparseView();
             // Eigen::SparseMatrix<double> Cl_hat = A * Cx.selfadjointView<Eigen::Upper>() * A.transpose();
             PyRun_SimpleString("print '    Multiplying matrices:', round(TIME.clock()-t0, 3), 's' ");
@@ -1424,19 +1450,23 @@ int main(int argc, char** argv) {
             // Eigen::SparseMatrix<double> Cl_hat = A * Cx * A.transpose();
 
             PyRun_SimpleString("t0 = TIME.clock()");        
-            Cv.noalias() = Eigen::MatrixXd(Cl) - Eigen::MatrixXd(Cl_hat);
+            // Cv.noalias() = Eigen::MatrixXd(Cl) - Eigen::MatrixXd(Cl_hat);
+            Cv.noalias() = Eigen::MatrixXd(Cl - Cl_hat);
             PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.clock()-t0, 3), 's' ");
 
             // Cv = Cl - Cl_hat;
             std::cout<<"  Done computing Cv"<<std::endl;
 
             // compute the redundancy numbers
-            for (int i = 0; i < variances.size(); i++)
+            double sumRedundancyNumber = 0.0;
+            for (int i = 0; i < variances.size(); i++) // includes the variance for defining the datum
             {
                 // redundancyNumber(i) = Cv(i,i) / Cl(i,i);
                 redundancyNumber(i) = Cv(i,i) / variances[i];
+                sumRedundancyNumber += redundancyNumber(i);
             }
-
+            leastSquaresRedundancy.push_back(sumRedundancyNumber);
+            std::cout<<"  Sum of redudancy numbers: "<<sumRedundancyNumber<<std::endl;
             // if(DEBUGMODE)
             // {
             //     std::cout<<"    Writing Cl to file..."<<std::endl;
@@ -1634,25 +1664,26 @@ int main(int argc, char** argv) {
         // read in the machine learned cost
         inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
         std::vector<double> MLCost;
+        std::vector<double> MLRedundancy;
         while (true) 
         {
-            int c1, c3;
-            double c2;
-            inp >> c1 >> c2 >> c3;
-            // double c1;
-            // inp >> c1;
+            double c1, c2;
+            inp >> c1 >> c2;
 
-            MLCost.push_back(c2);
+            MLCost.push_back(c1);
+            MLRedundancy.push_back(c2);
 
             if( inp.eof() )
                 break;
         }
         
         MLCost.pop_back();
+        MLRedundancy.pop_back();
 
         inp.close();
 
         machineLearnedCost.push_back(MLCost[0]);
+        machineLearnedRedundancy.push_back(MLRedundancy[0]);
     }
 
     if (true)
@@ -1661,7 +1692,7 @@ int main(int argc, char** argv) {
             FILE *fout = fopen("costs.jck", "w");
             for(int i = 0; i < leastSquaresCost.size(); ++i)
             {
-                fprintf(fout, "%.6lf %.6lf\n", leastSquaresCost[i], machineLearnedCost[i] );
+                fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", 2.0*leastSquaresCost[i], leastSquaresRedundancy[i], machineLearnedCost[i], machineLearnedRedundancy[i] );
             }
             fclose(fout);
         }

@@ -68,11 +68,16 @@ prevCorr = np.delete(pho, outlierIndex[:,0], axis=0)
 sensorsUnique = np.unique(image[:,0])
 
 cost = 0.0
+numSamples = 0.0
 errors = []
+outputCost = []
 ##########################################
 ### Learn for each sensor separately
 ##########################################
 for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
+    
+    sensorCost = 0.0
+    avgSensorCost = 0.0
     
     sensorID = sensorsUnique[iter] #currently sensor ID
     indexImage = np.argwhere(inliers[:,0] == sensorID) #image residuals that are inliers
@@ -101,7 +106,9 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform')
     reg.fit(features_train, labels_train)
-    
+
+    # save the learned NN model
+    joblib.dump(reg, 'NNModel'+str(sensorID)+'.pkl')     
     ##########################################
     ### Prediction
     ########################################## 
@@ -128,17 +135,27 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     ### x component
     v = (np.reshape(labels_train[:,0],(-1,1)) - np.reshape(reg.predict(features_train)[:,0],(-1,1))) / inliers[indexImage,7]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
-    cost += weightedScore
+    sensorCost += weightedScore
+    avgSensorCost += cost/len(indexImage)
     print "  Weighted x score: ", weightedScore
+    print "  Average weighted x score: ", weightedScore/len(indexImage)
 
     v = (np.reshape(labels_train[:,1],(-1,1)) - np.reshape(reg.predict(features_train)[:,1],(-1,1))) / inliers[indexImage,8]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
-    cost += weightedScore
+    sensorCost += weightedScore
+    avgSensorCost += cost/len(indexImage)
     print "  Weighted y score: ", weightedScore
-    print "  Weighted total score: ", cost    
-    print "  Done calculating error:", round(time()-t0, 3), "s"    
+    print "  Average weighted y score: ", weightedScore/len(indexImage)
+    print "    Weighted total score: ", sensorCost    
+    print "    Average weighted total score: ", avgSensorCost    
+    print "    Number of samples: ", len(indexImage)
+    print "  Done calculating error:", round(time()-t0, 3), "s"  
     
-    errors.append([sensorID, cost, regCV.best_estimator_.n_neighbors])
+    # log total cost and total number of samples for output
+    cost += sensorCost
+    numSamples += 2*len(indexImage)
+    
+    errors.append([sensorID, sensorCost, 2*len(indexImage), regCV.best_estimator_.n_neighbors])
 #    ##########################################
 #    ### Plotting
 #    ##########################################
@@ -283,14 +300,21 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 #    plt.ylabel('y residuals')
 #    plt.legend(loc="best")    
 
-    
+errors = np.asarray(errors)
+print "SensorID, Cost, NumSamples, K"
+print errors
+ 
 ############################
 ### Output predicted corrections
 ############################
-errors = np.asarray(errors)
+outputCost.append([cost, numSamples])
+outputCost = np.asarray(outputCost)
+
 t0 = time()
 np.savetxt(phoFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
 print "outputting KNNCost.jck"
-print errors
-np.savetxt('/home/jckchow/BundleAdjustment/build/kNNCost.jck', errors, '%i %f %i', delimiter=' ', newline='\n')
+
+print "TotalCost, Redundancy"
+print outputCost
+np.savetxt('/home/jckchow/BundleAdjustment/build/kNNCost.jck', outputCost, '%f %f', delimiter=' ', newline='\n')
 print"Done outputting results:", round(time()-t0, 3), "s"

@@ -1440,11 +1440,11 @@ int main(int argc, char** argv) {
                 tripletCl_hat[indexTripletCl_hat] = Eigen::Triplet<double>(i,i, temp(0,0));
                 indexTripletCl_hat++;                
             }            
-            Cl.setFromTriplets(tripletCl.begin(), tripletCl.end());
+            Cl_hat.setFromTriplets(tripletCl_hat.begin(), tripletCl_hat.end());
 
             //Eigen::SparseMatrix<double> D = ttt.sparseView();
             // Eigen::SparseMatrix<double> Cl_hat = A * Cx.selfadjointView<Eigen::Upper>() * A.transpose();
-            PyRun_SimpleString("print '    Multiplying matrices:', round(TIME.clock()-t0, 3), 's' ");
+            PyRun_SimpleString("print '    Multiplying second matrices:', round(TIME.clock()-t0, 3), 's' ");
 
             // Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
             // Eigen::SparseMatrix<double> Cl_hat = A * Cx * A.transpose();

@@ -26,18 +26,20 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
+#include <Eigen/Sparse>
 //#include <pcl/point_types.h>
 //#include <pcl/filters/voxel_grid.h>
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 500
+#define NUMITERATION 5
 #define DEBUGMODE 0
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
+
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
@@ -45,11 +47,11 @@
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pseudo observation of a constant
@@ -1202,7 +1204,7 @@ int main(int argc, char** argv) {
         }
 
 
-        if (true)
+        if (DEBUGMODE)
         {
             std::cout<<"  Writing Cx_before to file..."<<std::endl;
             FILE *fout = fopen("Cx_before.jck", "w");
@@ -1220,7 +1222,7 @@ int main(int argc, char** argv) {
         // copy it to make a symmetrical matrix
         Cx.triangularView<Eigen::Lower>() = Cx.transpose();
 
-        if (true)
+        if (DEBUGMODE)
         {
             std::cout<<"  Writing Cx to file..."<<std::endl;
             FILE *fout = fopen("Cx.jck", "w");
@@ -1327,39 +1329,67 @@ int main(int argc, char** argv) {
             std::cout<<"    A matrix cols: "<<jacobian.num_cols<<std::endl;
             std::cout<<"    Cl parameters: "<<variances.size()<<std::endl;
 
-            Eigen::MatrixXd A(jacobian.num_rows,jacobian.num_cols);
-            //Eigen::MatrixXd J(jacobian.num_rows,jacobian.num_cols);
-            A.setZero();
+            // Eigen::MatrixXd ADense(jacobian.num_rows,jacobian.num_cols);
+            // //Eigen::MatrixXd J(jacobian.num_rows,jacobian.num_cols);
+            // ADense.setZero();
+            // for (int i = 0; i < jacobian.num_rows; i++)
+            // {
+            //     double weight = sqrt(variances[i]);
+            //     for (int j = jacobian.rows[i]; j < jacobian.rows[i+1]; j++)
+            //     {
+            //         ADense(i,jacobian.cols[j]) = jacobian.values[j];                    
+            //         ADense(i,jacobian.cols[j]) *= weight; // undo the weighting during cost functions
+            //         //J(i,jacobian.cols[j]) = jacobian.values[j]; 
+
+            //     }
+            // }
+
+            Eigen::SparseMatrix<double> A;
+            A.resize(jacobian.num_rows,jacobian.num_cols);
+            std::vector< Eigen::Triplet<double> > tripletA(jacobian.values.size());
+	        int indexTripletA = 0;
             for (int i = 0; i < jacobian.num_rows; i++)
             {
                 double weight = sqrt(variances[i]);
                 for (int j = jacobian.rows[i]; j < jacobian.rows[i+1]; j++)
                 {
-                    A(i,jacobian.cols[j]) = jacobian.values[j];                    
-                    A(i,jacobian.cols[j]) *= weight; // undo the weighting during cost functions
-                    //J(i,jacobian.cols[j]) = jacobian.values[j]; 
-
+                    tripletA[indexTripletA] = Eigen::Triplet<double>(i,jacobian.cols[j], jacobian.values[j]*weight);
+                    indexTripletA++;
                 }
-            }
+            }            
+            A.setFromTriplets(tripletA.begin(), tripletA.end());
+
             std::cout<<"  Done computing jacobian matrix"<<std::endl;            
 
-            if(DEBUGMODE)
-            {
-                std::cout<<"    Writing A to file..."<<std::endl;
-                FILE *fout = fopen("A.jck", "w");
-                for(int i = 0; i < A.rows(); ++i)
-                {
-                    for(int j = 0; j < A.cols(); ++j)
-                    {
-                        fprintf(fout, "%.6lf \t ", A(i,j));
-                    }
-                    fprintf(fout, "\n");
-                }
-                fclose(fout);
-            }
+            // if(DEBUGMODE)
+            // {
+            //     std::cout<<"    Writing A to file..."<<std::endl;
+            //     FILE *fout = fopen("A.jck", "w");
+            //     for(int i = 0; i < A.rows(); ++i)
+            //     {
+            //         for(int j = 0; j < A.cols(); ++j)
+            //         {
+            //             fprintf(fout, "%.6lf \t ", A(i,j));
+            //         }
+            //         fprintf(fout, "\n");
+            //     }
+            //     fclose(fout);
+            // }
 
-            Eigen::Map<Eigen::VectorXd> temp(variances.data(), variances.size());
-            Eigen::MatrixXd Cl = temp.asDiagonal();
+            // Eigen::Map<Eigen::VectorXd> temp(variances.data(), variances.size());
+            // Eigen::MatrixXd Cl = temp.asDiagonal();
+
+            Eigen::SparseMatrix<double> Cl;
+            Cl.resize(variances.size(), variances.size());
+            std::vector< Eigen::Triplet<double> > tripletCl(variances.size());
+	        int indexTripletCl = 0;
+            for (int i = 0; i < variances.size(); i++)
+            {
+                tripletCl[indexTripletCl] = Eigen::Triplet<double>(i,i,variances[i]);
+                indexTripletCl++;                
+            }            
+            Cl.setFromTriplets(tripletCl.begin(), tripletCl.end());
+
             // Eigen::MatrixXd A2 = A.block<198,96>(0,0);
             // Eigen::MatrixXd Cx2 = (A2.transpose() * Cl.inverse() * A2).inverse();
 
@@ -1380,46 +1410,62 @@ int main(int argc, char** argv) {
             // }
             // computing the covariance matrix of the adjusted observations
             std::cout<<"  Start computing Cv..."<<std::endl;
-            Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
+            PyRun_SimpleString("t0 = TIME.clock()");        
+            Eigen::SparseMatrix<double> CxSparse = Cx.sparseView();
+            PyRun_SimpleString("print '    Converting matrices:', round(TIME.clock()-t0, 3), 's' ");      
+            PyRun_SimpleString("t0 = TIME.clock()");        
+            // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
+            Eigen::SparseMatrix<double> Cl_hat = A * (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
+            //Eigen::SparseMatrix<double> D = ttt.sparseView();
+            // Eigen::SparseMatrix<double> Cl_hat = A * Cx.selfadjointView<Eigen::Upper>() * A.transpose();
+            PyRun_SimpleString("print '    Multiplying matrices:', round(TIME.clock()-t0, 3), 's' ");
 
-            Cv = Cl - Cl_hat;
+            // Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
+            // Eigen::SparseMatrix<double> Cl_hat = A * Cx * A.transpose();
+
+            PyRun_SimpleString("t0 = TIME.clock()");        
+            Cv.noalias() = Eigen::MatrixXd(Cl) - Eigen::MatrixXd(Cl_hat);
+            PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.clock()-t0, 3), 's' ");
+
+            // Cv = Cl - Cl_hat;
             std::cout<<"  Done computing Cv"<<std::endl;
 
             // compute the redundancy numbers
             for (int i = 0; i < variances.size(); i++)
             {
-                redundancyNumber(i) = Cv(i,i) / Cl(i,i);
+                // redundancyNumber(i) = Cv(i,i) / Cl(i,i);
+                redundancyNumber(i) = Cv(i,i) / variances[i];
             }
 
-            if(DEBUGMODE)
-            {
-                std::cout<<"    Writing Cl to file..."<<std::endl;
-                FILE *fout = fopen("Cl.jck", "w");
-                for(int i = 0; i < Cl.rows(); ++i)
-                {
-                    for(int j = 0; j < Cl.cols(); ++j)
-                    {
-                        fprintf(fout, "%.6lf \t ", Cl(i,j));
-                    }
-                    fprintf(fout, "\n");
-                }
-                fclose(fout);
-            }
+            // if(DEBUGMODE)
+            // {
+            //     std::cout<<"    Writing Cl to file..."<<std::endl;
+            //     FILE *fout = fopen("Cl.jck", "w");
+            //     for(int i = 0; i < Cl.rows(); ++i)
+            //     {
+            //         for(int j = 0; j < Cl.cols(); ++j)
+            //         {
+            //             fprintf(fout, "%.6lf \t ", Cl(i,j));
+            //         }
+            //         fprintf(fout, "\n");
+            //     }
+            //     fclose(fout);
+            // }
 
-            if(DEBUGMODE)
-            {
-                std::cout<<"    Writing Cl_hat to file..."<<std::endl;
-                FILE *fout = fopen("Cl_hat.jck", "w");
-                for(int i = 0; i < Cl_hat.rows(); ++i)
-                {
-                    for(int j = 0; j < Cl_hat.cols(); ++j)
-                    {
-                        fprintf(fout, "%.6lf \t ", Cl_hat(i,j));
-                    }
-                    fprintf(fout, "\n");
-                }
-                fclose(fout);
-            }
+            // if(DEBUGMODE)
+            // {
+            //     std::cout<<"    Writing Cl_hat to file..."<<std::endl;
+            //     FILE *fout = fopen("Cl_hat.jck", "w");
+            //     for(int i = 0; i < Cl_hat.rows(); ++i)
+            //     {
+            //         for(int j = 0; j < Cl_hat.cols(); ++j)
+            //         {
+            //             fprintf(fout, "%.6lf \t ", Cl_hat(i,j));
+            //         }
+            //         fprintf(fout, "\n");
+            //     }
+            //     fclose(fout);
+            // }
 
             if(DEBUGMODE)
             {

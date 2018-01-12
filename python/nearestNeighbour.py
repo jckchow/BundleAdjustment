@@ -32,10 +32,15 @@ from matplotlib.colors import ListedColormap
 ##################################
 ### User defined parameters
 ##################################   
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop'
+
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -54,7 +59,7 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 1.96
+outlierThreshold = 3.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)
@@ -87,7 +92,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     # score = clf.score(features_test, labels_test)    
     
     t0 = time()
-    param_grid = [ {'n_neighbors' : range(3,10)} ]
+    param_grid = [ {'n_neighbors' : range(3,50)} ]
     regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
     regCV.fit(features_train, labels_train)
     print "  Best in sample score: ", regCV.best_score_

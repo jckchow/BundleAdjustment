@@ -37,10 +37,16 @@ from matplotlib.colors import ListedColormap
 #iopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop'
 
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
+
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
+
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -108,7 +114,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     reg.fit(features_train, labels_train)
 
     # save the learned NN model
-    joblib.dump(reg, 'NNModel'+str(sensorID)+'.pkl')     
+    joblib.dump(reg, 'NNModel'+str(sensorID.astype(int))+'.pkl')     
     ##########################################
     ### Prediction
     ########################################## 
@@ -153,9 +159,9 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     # log total cost and total number of samples for output
     cost += sensorCost
-    numSamples += 2*len(indexImage)
+    numSamples += 2.0*len(indexImage)
     
-    errors.append([sensorID, sensorCost, 2*len(indexImage), regCV.best_estimator_.n_neighbors])
+    errors.append([sensorID, sensorCost, 2.0*len(indexImage), regCV.best_estimator_.n_neighbors])
 #    ##########################################
 #    ### Plotting
 #    ##########################################

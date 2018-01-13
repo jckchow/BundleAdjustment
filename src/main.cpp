@@ -32,7 +32,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1
+#define NUMITERATION 50
 #define DEBUGMODE 0
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
@@ -42,15 +42,16 @@
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop"
 #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -700,7 +701,6 @@ int main(int argc, char** argv) {
         std::vector<double> variances;
         ceres::Problem problem;
 
-
         // define the parameters in the order we want
         // EOP      
         // XYZ          
@@ -761,11 +761,11 @@ int main(int argc, char** argv) {
 
             it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
             int indexPose = std::distance(eopStation.begin(),it);
-            // std::cout<<"index: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+            // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
 
             it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
             int indexSensor = std::distance(iopCamera.begin(),it);
-            // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
+            // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
 
             // for book keeping
             imageReferenceID[n] = iopCamera[indexSensor];
@@ -803,7 +803,6 @@ int main(int argc, char** argv) {
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
                         new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
                 problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
-
 
                 variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
                 variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
@@ -1669,6 +1668,14 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("print 'Done outputting bundle adjustment results to file:', round(TIME.clock()-t0, 3), 's' ");
 
 
+        // condition for terminating least squares
+        if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
+        {
+            std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
+            std::cout<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
+            break;
+        }
+
         PyRun_SimpleString("t0 = TIME.clock()");        
         PyRun_SimpleString("print 'Start doing machine learning in Python' ");    
 
@@ -1701,6 +1708,8 @@ int main(int argc, char** argv) {
         machineLearnedCost.push_back(MLCost[0]);
         machineLearnedRedundancy.push_back(MLRedundancy[0]);
     }
+
+
 
     if (true)
         {

@@ -41,17 +41,17 @@
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
-
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz"
+
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pseudo observation of a constant
@@ -1306,7 +1306,8 @@ int main(int argc, char** argv) {
         std::vector<double> residuals;
         ceres::CRSMatrix jacobian;
         Eigen::VectorXd redundancyNumber(variances.size());
-        Eigen::MatrixXd Cv; //covariance of the residuals
+        // Eigen::MatrixXd Cv; //covariance of the residuals
+        Eigen::VectorXd CvDiag;
         problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, &jacobian);
 
         PyRun_SimpleString("t0 = TIME.clock()");        
@@ -1423,36 +1424,47 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("t0 = TIME.clock()");        
             Eigen::SparseMatrix<double> CxSparse = Cx.sparseView();
             PyRun_SimpleString("print '    Converting matrices:', round(TIME.clock()-t0, 3), 's' ");      
-            PyRun_SimpleString("t0 = TIME.clock()");        
-            // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
+            PyRun_SimpleString("t0 = TIME.clock()");  
+
+            // Eigen::SparseMatrix<double> Cl_hat = A * (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
+
+            // // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
             Eigen::SparseMatrix<double> CxAT = (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
             PyRun_SimpleString("print '    Multiplying first matrices:', round(TIME.clock()-t0, 3), 's' ");
             PyRun_SimpleString("t0 = TIME.clock()");        
-            // Eigen::SparseMatrix<double> Cl_hat = A * (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
 
-            Eigen::SparseMatrix<double> Cl_hat;
-            Cl_hat.resize(variances.size(), variances.size());
-            std::vector< Eigen::Triplet<double> > tripletCl_hat(variances.size());
-	        int indexTripletCl_hat = 0;
+
+            CvDiag.resize(jacobian.num_rows);
             for (int i = 0; i < variances.size(); i++)
             {
-                Eigen::MatrixXd temp = Eigen::MatrixXd((A.row(i) * CxAT.col(i)));
-                tripletCl_hat[indexTripletCl_hat] = Eigen::Triplet<double>(i,i, temp(0,0));
-                indexTripletCl_hat++;                
-            }            
-            Cl_hat.setFromTriplets(tripletCl_hat.begin(), tripletCl_hat.end());
+                Eigen::SparseMatrix<double> temp = (A.row(i) * CxAT.col(i));
+                //std::cout<<"temp: "<<temp.rows()<<", "<<temp.cols()<<" = "<<temp.coeff(0,0)<<std::endl;
+                CvDiag(i) = variances[i] - temp.coeff(0,0);
+            }
+
+            // Eigen::SparseMatrix<double> Cl_hat;
+            // Cl_hat.resize(variances.size(), variances.size());
+            // std::vector< Eigen::Triplet<double> > tripletCl_hat(variances.size());
+	        // int indexTripletCl_hat = 0;
+            // for (int i = 0; i < variances.size(); i++)
+            // {
+            //     Eigen::SparseMatix<double> temp = (A.row(i) * CxAT.col(i));
+            //     tripletCl_hat[indexTripletCl_hat] = Eigen::Triplet<double>(i,i, temp.coeff(0, 0));
+            //     indexTripletCl_hat++;                
+            // }            
+            // Cl_hat.setFromTriplets(tripletCl_hat.begin(), tripletCl_hat.end());
 
             //Eigen::SparseMatrix<double> D = ttt.sparseView();
             // Eigen::SparseMatrix<double> Cl_hat = A * Cx.selfadjointView<Eigen::Upper>() * A.transpose();
-            PyRun_SimpleString("print '    Multiplying second matrices:', round(TIME.clock()-t0, 3), 's' ");
+            PyRun_SimpleString("print '    Multiplying matrices:', round(TIME.clock()-t0, 3), 's' ");
 
             // Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
             // Eigen::SparseMatrix<double> Cl_hat = A * Cx * A.transpose();
 
-            PyRun_SimpleString("t0 = TIME.clock()");        
+            //PyRun_SimpleString("t0 = TIME.clock()");        
             // Cv.noalias() = Eigen::MatrixXd(Cl) - Eigen::MatrixXd(Cl_hat);
-            Cv.noalias() = Eigen::MatrixXd(Cl - Cl_hat);
-            PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.clock()-t0, 3), 's' ");
+            // Cv.noalias() = Eigen::MatrixXd(Cl - Cl_hat);
+            //PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.clock()-t0, 3), 's' ");
 
             // Cv = Cl - Cl_hat;
             std::cout<<"  Done computing Cv"<<std::endl;
@@ -1462,11 +1474,12 @@ int main(int argc, char** argv) {
             for (int i = 0; i < variances.size(); i++) // includes the variance for defining the datum
             {
                 // redundancyNumber(i) = Cv(i,i) / Cl(i,i);
-                redundancyNumber(i) = Cv(i,i) / variances[i];
+                // redundancyNumber(i) = Cv(i,i) / variances[i];
+                redundancyNumber(i) = CvDiag(i) / variances[i];
                 sumRedundancyNumber += redundancyNumber(i);
             }
             leastSquaresRedundancy.push_back(sumRedundancyNumber);
-            std::cout<<"  Sum of redudancy numbers: "<<sumRedundancyNumber<<std::endl;
+            std::cout<<"    Sum of redundancy numbers: "<<sumRedundancyNumber<<std::endl;
             // if(DEBUGMODE)
             // {
             //     std::cout<<"    Writing Cl to file..."<<std::endl;
@@ -1497,20 +1510,20 @@ int main(int argc, char** argv) {
             //     fclose(fout);
             // }
 
-            if(DEBUGMODE)
-            {
-                std::cout<<"    Writing Cv to file..."<<std::endl;
-                FILE *fout = fopen("Cv.jck", "w");
-                for(int i = 0; i < Cv.rows(); ++i)
-                {
-                    for(int j = 0; j < Cv.cols(); ++j)
-                    {
-                        fprintf(fout, "%.6lf \t ", Cv(i,j));
-                    }
-                    fprintf(fout, "\n");
-                }
-                fclose(fout);
-            }
+            // if(DEBUGMODE)
+            // {
+            //     std::cout<<"    Writing Cv to file..."<<std::endl;
+            //     FILE *fout = fopen("Cv.jck", "w");
+            //     for(int i = 0; i < Cv.rows(); ++i)
+            //     {
+            //         for(int j = 0; j < Cv.cols(); ++j)
+            //         {
+            //             fprintf(fout, "%.6lf \t ", Cv(i,j));
+            //         }
+            //         fprintf(fout, "\n");
+            //     }
+            //     fclose(fout);
+            // }
         }
 
         PyRun_SimpleString("print 'Done computing covariance matrix of the residuals:', round(TIME.clock()-t0, 3), 's' ");
@@ -1526,8 +1539,11 @@ int main(int argc, char** argv) {
             imageRedundancy(n,0) = redundancyNumber(n*2);
             imageRedundancy(n,1) = redundancyNumber(n*2+1);
 
-            imageResidualsStdDev(n,0) = sqrt(Cv(n*2,n*2));
-            imageResidualsStdDev(n,1) = sqrt(Cv(n*2+1,n*2+1));
+            // imageResidualsStdDev(n,0) = sqrt(Cv(n*2,n*2));
+            // imageResidualsStdDev(n,1) = sqrt(Cv(n*2+1,n*2+1));
+
+            imageResidualsStdDev(n,0) = sqrt(CvDiag(n*2));
+            imageResidualsStdDev(n,1) = sqrt(CvDiag(n*2+1));
         }
         if(DEBUGMODE)
         {

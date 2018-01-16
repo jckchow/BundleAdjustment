@@ -29,7 +29,6 @@ Created on Fri Jan 12 18:27:18 2018
 import numpy as np
 from time import time
 from sklearn import neighbors
-from sklearn.grid_search import GridSearchCV
 from sklearn.externals import joblib
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
@@ -46,9 +45,9 @@ from matplotlib.colors import ListedColormap
 #iopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop'
 
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop'
-outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.pho'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.eop'
+outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_B/xray1TrainingCalibrated.pho'
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -80,7 +79,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
     print "Processing sensor: ", sensorID
     
-    reg = joblib.load("/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/NNModel" + str(sensorID.astype(int)) + ".pkl")
+    reg = joblib.load("//home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_B/NNModel" + str(sensorID.astype(int)) + ".pkl")
     
     #########################################
     ### Predicting per eop

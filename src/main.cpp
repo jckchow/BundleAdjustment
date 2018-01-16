@@ -32,7 +32,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1
+#define NUMITERATION 100
 #define DEBUGMODE 0
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
@@ -41,52 +41,57 @@
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated_separate.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated_separate.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
 
-// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_A/xray1TrainingCalibrated.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_A/xray1TrainingCalibrated.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_B/xray1TrainingCalibrated.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_B/xray1TrainingCalibrated.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -868,6 +873,7 @@ int main(int argc, char** argv) {
         options.minimizer_progress_to_stdout = true;
         options.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
         options.min_lm_diagonal = 1.0E-150;
+        options.max_num_iterations = 200;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
@@ -1703,13 +1709,6 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("print 'Done outputting bundle adjustment results to file:', round(TIME.clock()-t0, 3), 's' ");
 
 
-        // condition for terminating least squares
-        if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        {
-            std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
-            std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
-            break;
-        }
 
         // Do quality control
         if(true)
@@ -1740,8 +1739,6 @@ int main(int argc, char** argv) {
             XYZTruth.pop_back();
             inp.close();
 
-            std::cout<<"done reading"<<std::endl;
-
             std::cout << "  Number of XYZ Ground Truth Read: "<< XYZTruth.size() << std::endl;
             std::cout << "  Number of XYZ estimated        : "<< XYZ.size() << std::endl;
 
@@ -1765,6 +1762,14 @@ int main(int argc, char** argv) {
             std::cout<<"    RMSE X, Y, Z: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<std::endl;
             PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
         }   
+
+        // condition for terminating least squares
+        if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
+        {
+            std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
+            std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
+            break;
+        }
 
         PyRun_SimpleString("t0 = TIME.clock()");        
         PyRun_SimpleString("print 'Start doing machine learning in Python' ");    
@@ -1798,8 +1803,6 @@ int main(int argc, char** argv) {
         machineLearnedCost.push_back(MLCost[0]);
         machineLearnedRedundancy.push_back(MLRedundancy[0]);
     }
-
-
 
     if (true)
         {

@@ -32,7 +32,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 100
+#define NUMITERATION 1
 #define DEBUGMODE 0
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
@@ -41,9 +41,11 @@
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated_separate.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1Training_CalibratedAB.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1Training_CalibratedSeparate.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop"
@@ -53,16 +55,20 @@
 
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.pho"
-// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_A/xray1TrainingCalibrated.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_A/xray1TrainingCalibrated.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1TrainingA_CalibratedA.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingA_CalibratedA_IOP.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_A/iop.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_B/xray1TrainingCalibrated.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1TrainingB_CalibratedAB.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.eop"
@@ -78,13 +84,13 @@
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
@@ -827,13 +833,27 @@ int main(int argc, char** argv) {
                     new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
             problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
             variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
             variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
         }
-    
+
+        // if(true)
+        // {
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixIOP;
+        //         fixIOP.push_back(0); //xp
+        //         fixIOP.push_back(1); //yp
+        //         fixIOP.push_back(2); //c
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixIOP);
+        //         problem.SetParameterization(&IOP[n][0], subset_parameterization);
+        //     }
+        // }
+
         // define the datum by pseduo observations of the positions for defining the datum
         if(true)
         {
@@ -849,6 +869,25 @@ int main(int argc, char** argv) {
                 variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
             }
         }
+
+        // prior on the IOP
+        // if (true)
+        // {
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         double xpStdDev = 10.0;
+        //         double ypStdDev = 10.0;
+        //         double cStdDev  = 10.0;
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+        //                 new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
+        //         problem.AddResidualBlock(cost_function, NULL, &IOP[n][0]);
+
+        //         variances.push_back(xpStdDev*xpStdDev);
+        //         variances.push_back(ypStdDev*ypStdDev);
+        //         variances.push_back(cStdDev*cStdDev);
+        //     }
+        // }
 
         // if(DEBUGMODE)
         // {
@@ -867,17 +906,28 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("print 'Done building Ceres-Solver cost functions:', round(TIME.clock()-t0, 3), 's' ");
 
         ceres::Solver::Options options;
-        options.max_num_iterations = 50;
         options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY; // sparse solver
         // options.linear_solver_type = ceres::DENSE_QR;
         options.minimizer_progress_to_stdout = true;
-        options.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
-        options.min_lm_diagonal = 1.0E-150;
+        // options.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
+        // options.min_lm_diagonal = 1.0E-150;
         options.max_num_iterations = 200;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
         std::cout << summary.FullReport() << "\n";
+
+
+
+        // condition for terminating least squares
+        if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
+        {
+            std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
+            std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
+            break;
+        }
+
+
 
         // storing it for comparison in this EM like routine
         leastSquaresCost.push_back(summary.final_cost);
@@ -1763,13 +1813,6 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
         }   
 
-        // condition for terminating least squares
-        if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        {
-            std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
-            std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
-            break;
-        }
 
         PyRun_SimpleString("t0 = TIME.clock()");        
         PyRun_SimpleString("print 'Start doing machine learning in Python' ");    

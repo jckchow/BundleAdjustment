@@ -34,10 +34,7 @@
 #define PI 3.141592653589793238462643383279502884197169399
 #define NUMITERATION 1000
 #define DEBUGMODE 0
-#define ROP 1 // 1 for true, 0 for false
-
-std::vector<std::vector<int> >ropID;
-
+#define ROPMODE 1 // 1 for true, 0 for false
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -80,13 +77,15 @@ std::vector<std::vector<int> >ropID;
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+#define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
+
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
@@ -96,13 +95,34 @@ std::vector<std::vector<int> >ropID;
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+
+
+// function for calculating the median
+double calcMedian(std::vector<double> scores)
+{
+  double median;
+  size_t size = scores.size();
+
+  sort(scores.begin(), scores.end());
+
+  if (size  % 2 == 0)
+  {
+      median = (scores[size / 2 - 1] + scores[size / 2]) / 2;
+  }
+  else 
+  {
+      median = scores[size / 2];
+  }
+
+  return median;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Pseudo observation of a constant
@@ -589,9 +609,157 @@ int main(int argc, char** argv) {
         eopCameraID.erase(std::unique(eopCameraID.begin(), eopCameraID.end()), eopCameraID.end());
         std::cout << "    Number of cameras read: "<< eopCameraID.size() << std::endl;
 
-        // Checking for ROP constraints
+        std::vector<std::vector<double> > ROP;
+        std::vector<std::vector<int> >ropID;
+        std::vector<double> ropXo, ropYo, ropZo, ropOmega, ropPhi, ropKappa;
+        if(ROPMODE)
+        {
+            // Checking for ROP constraints
+            PyRun_SimpleString("print '  Start reading ROPs' ");          
+            std::cout<<"  Input ROP filename: "<<INPUTROPFILENAME<<std::endl;
+            inp.open(INPUTROPFILENAME);
 
+            while (true) 
+            {
+                int c1, c2, c3;
+                inp  >> c1 >> c2 >> c3;
 
+                std::vector<int> temp;
+                temp.resize(3);
+                temp[0] = c1; // reference camera
+                temp[1] = c2; // slave camera
+                temp[2] = c3; // offset in ID to get slave to master camera
+                ropID.push_back(temp);
+
+                if( inp.eof() ) 
+                    break;
+            }
+            
+            ropID.pop_back();
+
+            inp.close();
+            std::cout << "    Number of ROPs read: "<< ropID.size() << std::endl;
+            std::cout << "      ROP ID: " <<std::endl;
+            for (int i = 0; i < ropID.size(); i++)
+            {
+                std::cout<<" \t " <<ropID[i][0]<<" <-- "<<ropID[i][1]<<" = "<<ropID[i][2]<<std::endl;
+            }
+
+            // establish what the initial ROP should be
+            for(int i = 0; i < ropID.size(); i++)
+            {
+                // we store them temporarily to get the median value and use that initial values
+                std::vector<double> listOmega;
+                std::vector<double> listPhi;
+                std::vector<double> listKappa;
+                std::vector<double> listXo;
+                std::vector<double> listYo;
+                std::vector<double> listZo;
+
+                for(int n = 0; n < eopStation.size(); n++) // loop through all EOPS
+                {
+                    // std::cout<<eopCamera[n]<<" ?= "<<ropID[i][0]<<std::endl;
+                    if(eopCamera[n] == ropID[i][0]) // find the right master camera
+                    {
+                        for(int m = 0; m < eopStation.size(); m++) // find matching slave EOP based on ROP ID
+                        {
+                            if( eopCamera[m] == ropID[i][1] && (eopStation[n] == eopStation[m] - ropID[i][2]) ) // find the right slave camera
+                            {
+                                // we found the matching EOPs
+                                // n is the index of the reference
+                                // m is the index of the slave
+                                Eigen::MatrixXd R1(3,3);
+                                Eigen::MatrixXd R2(3,3);
+                                Eigen::MatrixXd T(3,1);
+                                double Tx, Ty, Tz;
+
+                                R1(0,0) = cos(eopPhi[n]) * cos(eopKappa[n]);
+                                R1(0,1) = cos(eopOmega[n]) * sin(eopKappa[n]) + sin(eopOmega[n]) * sin(eopPhi[n]) * cos(eopKappa[n]);
+                                R1(0,2) = sin(eopOmega[n]) * sin(eopKappa[n]) - cos(eopOmega[n]) * sin(eopPhi[n]) * cos(eopKappa[n]);
+
+                                R1(1,0) = -cos(eopPhi[n]) * sin(eopKappa[n]);
+                                R1(1,1) = cos(eopOmega[n]) * cos(eopKappa[n]) - sin(eopOmega[n]) * sin(eopPhi[n]) * sin(eopKappa[n]);
+                                R1(1,2) = sin(eopOmega[n]) * cos(eopKappa[n]) + cos(eopOmega[n]) * sin(eopPhi[n]) * sin(eopKappa[n]);
+
+                                R1(2,0) = sin(eopPhi[n]);
+                                R1(2,1) = -sin(eopOmega[n]) * cos(eopPhi[n]);
+                                R1(2,2) = cos(eopOmega[n]) * cos(eopPhi[n]);
+
+                                R2(0,0) = cos(eopPhi[m]) * cos(eopKappa[m]);
+                                R2(0,1) = cos(eopOmega[m]) * sin(eopKappa[m]) + sin(eopOmega[m]) * sin(eopPhi[m]) * cos(eopKappa[m]);
+                                R2(0,2) = sin(eopOmega[m]) * sin(eopKappa[m]) - cos(eopOmega[m]) * sin(eopPhi[m]) * cos(eopKappa[m]);
+
+                                R2(1,0) = -cos(eopPhi[m]) * sin(eopKappa[m]);
+                                R2(1,1) = cos(eopOmega[m]) * cos(eopKappa[m]) - sin(eopOmega[m]) * sin(eopPhi[m]) * sin(eopKappa[m]);
+                                R2(1,2) = sin(eopOmega[m]) * cos(eopKappa[m]) + cos(eopOmega[m]) * sin(eopPhi[m]) * sin(eopKappa[m]);
+
+                                R2(2,0) = sin(eopPhi[m]);
+                                R2(2,1) = -sin(eopOmega[m]) * cos(eopPhi[m]);
+                                R2(2,2) = cos(eopOmega[m]) * cos(eopPhi[m]);
+
+                                Tx = eopXo[m] - eopXo[n]; // leverarm in the frame of master, a vector pointing to the slave
+                                Ty = eopYo[m] - eopYo[n];
+                                Tz = eopZo[m] - eopZo[n];
+
+                                T(0,0) = Tx;
+                                T(1,0) = Ty;
+                                T(2,0) = Tz;
+
+                                Eigen::MatrixXd deltaR = R1 * R2.transpose();
+
+                                double deltaOmega = atan2(-deltaR(2,1), deltaR(2,2));
+                                double deltaPhi   = asin (deltaR(2,0));
+                                double deltaKappa = atan2(-deltaR(1,0), deltaR(0,0));
+
+                                Eigen::MatrixXd b = R1 * T;
+
+                                listOmega.push_back(deltaOmega);
+                                listPhi.push_back(deltaPhi);
+                                listKappa.push_back(deltaKappa);
+                                listXo.push_back(b(0,0));
+                                listYo.push_back(b(1,0));
+                                listZo.push_back(b(2,0));
+
+                                // std::cout<< deltaOmega * 180.0/PI<<", "<<deltaPhi * 180.0/PI<<", "<<deltaKappa * 180.0/PI<<", " <<b(0,0) <<", "<< b(1,0)<<", "<<b(2,0)<<std::endl;
+                            }
+                        }
+                    }
+                }
+                double tempOmega = calcMedian(listOmega);
+                double tempPhi = calcMedian(listPhi);
+                double tempKappa = calcMedian(listKappa);
+                double tempXo = calcMedian(listXo);
+                double tempYo = calcMedian(listYo);
+                double tempZo = calcMedian(listZo);
+
+                std::cout<<"      Median boresight and leverarm: "<<std::endl;
+                std::cout<<"        "<<tempOmega * 180.0/PI<<", "<< tempPhi * 180.0/PI << ", " << tempKappa * 180.0/PI << ", " << tempXo << ", " << tempYo << ", " << tempZo << std::endl;
+                std::cout<<"      Mean boresight and leverarm:" <<std::endl;
+                std::cout<<"        "<<std::accumulate( listOmega.begin(), listOmega.end(), 0.0)/listOmega.size() * 180.0/PI<<", "<< std::accumulate( listPhi.begin(), listPhi.end(), 0.0)/listPhi.size() * 180.0/PI << ", " << std::accumulate( listKappa.begin(), listKappa.end(), 0.0)/listKappa.size() * 180.0/PI << ", " << std::accumulate( listXo.begin(), listXo.end(), 0.0)/listXo.size() <<", " << std::accumulate( listYo.begin(), listYo.end(), 0.0)/listYo.size() << ", " << std::accumulate( listZo.begin(), listZo.end(), 0.0)/listZo.size() <<std::endl;
+                // std::cout<<"      Std. Dev. boresight and leverarm:" <<std::endl;
+
+                ropOmega.push_back(tempOmega);
+                ropPhi.push_back(tempPhi);
+                ropKappa.push_back(tempKappa);
+                ropXo.push_back(tempXo);
+                ropYo.push_back(tempYo);
+                ropZo.push_back(tempZo);
+
+                std::vector<double> tempROP;
+                tempROP.resize(6);
+                tempROP[0] = tempOmega;
+                tempROP[1] = tempPhi;
+                tempROP[2] = tempKappa;
+                tempROP[3] = tempXo;
+                tempROP[4] = tempYo;
+                tempROP[5] = tempZo;
+
+                ROP.push_back(tempROP);
+
+            }
+        }
+
+        sleep(100000000);
         // Reading *.iop file
         PyRun_SimpleString("print '  Start reading IOPs' ");
         std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;
@@ -670,7 +838,7 @@ int main(int argc, char** argv) {
             std::cout << "      IOP: " <<std::endl;
             for (int i = 0; i < iopCamera.size(); i++)
             {
-                std::cout<<iopCamera[i]<<" \t "<<iopAxis[i]<<" \t "<<iopXMin[i]<<" \t "<<iopYMin[i]<<" \t "<<iopXMax[i]<<" \t "<<iopYMax[i]<<" \t "<<iopXp[i]<<" \t "<<iopYp[i]<<" \t "<<iopC[i]<<std::endl;
+                std::cout<<" \t " <<iopCamera[i]<<" \t "<<iopAxis[i]<<" \t "<<iopXMin[i]<<" \t "<<iopYMin[i]<<" \t "<<iopXMax[i]<<" \t "<<iopYMax[i]<<" \t "<<iopXp[i]<<" \t "<<iopYp[i]<<" \t "<<iopC[i]<<std::endl;
             }
         }
 
@@ -846,6 +1014,72 @@ int main(int argc, char** argv) {
             variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
             variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
         }
+
+        // if(ROPMODE)
+        // {
+
+        //     for(int i = 0; i < ropID.size(); i++)
+        //     {
+        //         for(int n = 0; n < eopStation.size(); n++) // loop through all EOPS
+        //         {
+        //             if(eopCamera[n] == ropID[i][0]) // find the right master camera
+        //             {
+        //                 int indexMasterEOP = n;
+        //                 for(int m = 0; m < eopStation.size(); m++) // find matching slave EOP based on ROP ID
+        //                 {
+        //                     if( eopCamera[m] == ropID[i][1] && (eopStation[n] == eopStation[m] - ropID[i][2]) ) // find the right slave camera
+        //                     {
+        //                         // we found the matching EOPs
+        //                         Eigen::MatrixXd R1(3,3);
+        //                         Eigen::MatrixXd R2(3,3);
+        //                         double Tx, Ty, Tz;
+        //                         Tx = eopXo
+        //                         std::cout<<
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     std::vector<int>::iterator it;
+        //     it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+        //     int indexPoint = std::distance(xyzTarget.begin(),it);
+        //     // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+
+        //     it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+        //     int indexPose = std::distance(eopStation.begin(),it);
+        //     // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+
+        //     it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+        //     int indexSensor = std::distance(iopCamera.begin(),it);
+        //     // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
+
+        //     // for book keeping
+        //     imageReferenceID[n] = iopCamera[indexSensor];
+
+        //     //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+        //     //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+
+        //     // ceres::CostFunction* cost_function =
+        //     //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
+        //     //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+        //     // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
+
+        //     // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+        //     // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+        //     // problem.SetParameterBlockConstant(&MLP[n][0]);
+
+        //     ceres::CostFunction* cost_function =
+        //         new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+        //             new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+        //     problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
+        //     //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+        //     problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+
+        //     variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
+        //     variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
+
+        // }
 
         // if(true)
         // {

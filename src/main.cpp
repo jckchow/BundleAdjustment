@@ -697,7 +697,7 @@ int main(int argc, char** argv) {
                                 R2(2,1) = -sin(eopOmega[m]) * cos(eopPhi[m]);
                                 R2(2,2) = cos(eopOmega[m]) * cos(eopPhi[m]);
 
-                                Tx = eopXo[m] - eopXo[n]; // leverarm in the frame of master, a vector pointing to the slave
+                                Tx = eopXo[m] - eopXo[n]; // leverarm in the frame of master, a vector pointing to the slave from the master
                                 Ty = eopYo[m] - eopYo[n];
                                 Tz = eopZo[m] - eopZo[n];
 
@@ -711,6 +711,20 @@ int main(int argc, char** argv) {
                                 double deltaPhi   = asin (deltaR(2,0));
                                 double deltaKappa = atan2(-deltaR(1,0), deltaR(0,0));
 
+                                double deltaR21 = R1(2,0)*R2(1,0) + R1(2,1)*R2(1,1) + R1(2,2)*R2(1,2);
+                                double deltaR22 = R1(2,0)*R2(2,0) + R1(2,1)*R2(2,1) + R1(2,2)*R2(2,2);
+                                double deltaR20 = R1(2,0)*R2(0,0) + R1(2,1)*R2(0,1) + R1(2,2)*R2(0,2);
+                                double deltaR10 = R1(1,0)*R2(0,0) + R1(1,1)*R2(0,1) + R1(1,2)*R2(0,2);
+                                double deltaR00 = R1(0,0)*R2(0,0) + R1(0,1)*R2(0,1) + R1(0,2)*R2(0,2);
+
+                                // manually calculate the boresight and leverarm
+                                double deltaOmega2 = atan2(-deltaR21, deltaR22);
+                                double deltaPhi2   = asin(deltaR20);
+                                double deltaKappa2 = atan2(-deltaR10, deltaR00);
+                                double bx = R1(0,0)*Tx + R1(0,1)*Ty + R1(0,2)*Tz;
+                                double by = R1(1,0)*Tx + R1(1,1)*Ty + R1(1,2)*Tz;
+                                double bz = R1(2,0)*Tx + R1(2,1)*Ty + R1(2,2)*Tz;
+
                                 Eigen::MatrixXd b = R1 * T;
 
                                 listOmega.push_back(deltaOmega);
@@ -720,6 +734,7 @@ int main(int argc, char** argv) {
                                 listYo.push_back(b(1,0));
                                 listZo.push_back(b(2,0));
 
+                                // std::cout<< deltaOmega2 * 180.0/PI<<", "<<deltaPhi2 * 180.0/PI<<", "<<deltaKappa2 * 180.0/PI<<", "<<bx<<", "<<by<<", "<<bz<<std::endl;
                                 // std::cout<< deltaOmega * 180.0/PI<<", "<<deltaPhi * 180.0/PI<<", "<<deltaKappa * 180.0/PI<<", " <<b(0,0) <<", "<< b(1,0)<<", "<<b(2,0)<<std::endl;
                             }
                         }
@@ -755,11 +770,9 @@ int main(int argc, char** argv) {
                 tempROP[5] = tempZo;
 
                 ROP.push_back(tempROP);
-
             }
         }
 
-        sleep(100000000);
         // Reading *.iop file
         PyRun_SimpleString("print '  Start reading IOPs' ");
         std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;

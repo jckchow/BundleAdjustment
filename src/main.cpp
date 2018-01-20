@@ -450,6 +450,101 @@ struct collinearityMachineLearnedSimple {
   const double yMLP_;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ROP constraint
+/// Input:    omegaStdDev
+///           phiStdDev
+///           kappaStdDev
+///           XoStdDev
+///           YoStdDev
+///           ZoStdDev
+/// Unknowns: EOP1     - EOP of master
+///           EOP2     - EOP of slave
+///           ROP      - boresight angles followed by the leverarm
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct ropConstraint {
+  
+  ropConstraint(double omegaStdDev, double phiStdDev, double kappaStdDev, double XoStdDev, double YoStdDev, double ZoStdDev)
+        : omegaStdDev_(omegaStdDev), phiStdDev_(phiStdDev), kappaStdDev_(kappaStdDev), XoStdDev_(XoStdDev), YoStdDev_(YoStdDev), ZoStdDev_(ZoStdDev) {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP1, const T* const EOP2, const T* const ROP, T* residual) const {
+
+  // rotation from map to sensor 1
+  T r11 = cos(EOP1[1]) * cos(EOP1[2]);
+  T r12 = cos(EOP1[0]) * sin(EOP1[2]) + sin(EOP1[0]) * sin(EOP1[1]) * cos(EOP1[2]);
+  T r13 = sin(EOP1[0]) * sin(EOP1[2]) - cos(EOP1[0]) * sin(EOP1[1]) * cos(EOP1[2]);
+
+  T r21 = -cos(EOP1[1]) * sin(EOP1[2]);
+  T r22 = cos(EOP1[0]) * cos(EOP1[2]) - sin(EOP1[0]) * sin(EOP1[1]) * sin(EOP1[2]);
+  T r23 = sin(EOP1[0]) * cos(EOP1[2]) + cos(EOP1[0]) * sin(EOP1[1]) * sin(EOP1[2]);
+
+  T r31 = sin(EOP1[1]);
+  T r32 = -sin(EOP1[0]) * cos(EOP1[1]);
+  T r33 = cos(EOP1[0]) * cos(EOP1[1]); 
+
+  // rotation from map to sensor 2
+  T m11 = cos(EOP2[1]) * cos(EOP2[2]);
+  T m12 = cos(EOP2[0]) * sin(EOP2[2]) + sin(EOP2[0]) * sin(EOP2[1]) * cos(EOP2[2]);
+  T m13 = sin(EOP2[0]) * sin(EOP2[2]) - cos(EOP2[0]) * sin(EOP2[1]) * cos(EOP2[2]);
+
+  T m21 = -cos(EOP2[1]) * sin(EOP2[2]);
+  T m22 = cos(EOP2[0]) * cos(EOP2[2]) - sin(EOP2[0]) * sin(EOP2[1]) * sin(EOP2[2]);
+  T m23 = sin(EOP2[0]) * cos(EOP2[2]) + cos(EOP2[0]) * sin(EOP2[1]) * sin(EOP2[2]);
+
+  T m31 = sin(EOP2[1]);
+  T m32 = -sin(EOP2[0]) * cos(EOP2[1]);
+  T m33 = cos(EOP2[0]) * cos(EOP2[1]); 
+
+    T Tx = EOP2[3] - EOP1[3];
+    T Ty = EOP2[4] - EOP1[4];
+    T Tz = EOP2[5] - EOP1[5];
+
+    // manually calculate the boresight and leverarm
+    T deltaR32 = r31*m21 + r32*m22 + r33*m23;
+    T deltaR33 = r31*m31 + r32*m32 + r33*m33;
+    T deltaR31 = r31*m11 + r32*m12 + r33*m13;
+    T deltaR21 = r21*m11 + r22*m12 + r23*m13;
+    T deltaR11 = r11*m11 + r12*m12 + r13*m13;
+
+    T deltaOmega = atan2(-deltaR32, deltaR33);
+    T deltaPhi   = asin(deltaR31);
+    T deltaKappa = atan2(-deltaR21, deltaR11);
+
+    T bx = r11*Tx + r12*Ty + r13*Tz;
+    T by = r21*Tx + r22*Ty + r23*Tz;
+    T bz = r31*Tx + r32*Ty + r33*Tz;
+
+
+  // actual cost function
+  residual[0] = deltaOmega - ROP[0]; // delta omega
+  residual[1] = deltaPhi   - ROP[1]; // delta phi 
+  residual[2] = deltaKappa - ROP[2]; // delta kappa 
+  residual[3] = bx - ROP[3]; // delta Xo 
+  residual[4] = by - ROP[4]; // delta Yo 
+  residual[5] = bz - ROP[5]; // delta Zo 
+
+  residual[0] /= T(omegaStdDev_);
+  residual[1] /= T(phiStdDev_);
+  residual[2] /= T(kappaStdDev_);
+  residual[3] /= T(XoStdDev_);
+  residual[4] /= T(YoStdDev_);
+  residual[5] /= T(ZoStdDev_);
+
+
+  return true;
+  }
+
+ private:
+  const double omegaStdDev_;
+  const double phiStdDev_;
+  const double kappaStdDev_;
+  const double XoStdDev_;
+  const double YoStdDev_;
+  const double ZoStdDev_;
+};
+
 /////////////////////////
 /// MAIN CERES-SOLVER ///
 /////////////////////////
@@ -711,21 +806,21 @@ int main(int argc, char** argv) {
                                 double deltaPhi   = asin (deltaR(2,0));
                                 double deltaKappa = atan2(-deltaR(1,0), deltaR(0,0));
 
+                                Eigen::MatrixXd b = R1 * T;
+
+                                // manually calculate the boresight and leverarm
                                 double deltaR21 = R1(2,0)*R2(1,0) + R1(2,1)*R2(1,1) + R1(2,2)*R2(1,2);
                                 double deltaR22 = R1(2,0)*R2(2,0) + R1(2,1)*R2(2,1) + R1(2,2)*R2(2,2);
                                 double deltaR20 = R1(2,0)*R2(0,0) + R1(2,1)*R2(0,1) + R1(2,2)*R2(0,2);
                                 double deltaR10 = R1(1,0)*R2(0,0) + R1(1,1)*R2(0,1) + R1(1,2)*R2(0,2);
                                 double deltaR00 = R1(0,0)*R2(0,0) + R1(0,1)*R2(0,1) + R1(0,2)*R2(0,2);
 
-                                // manually calculate the boresight and leverarm
                                 double deltaOmega2 = atan2(-deltaR21, deltaR22);
                                 double deltaPhi2   = asin(deltaR20);
                                 double deltaKappa2 = atan2(-deltaR10, deltaR00);
                                 double bx = R1(0,0)*Tx + R1(0,1)*Ty + R1(0,2)*Tz;
                                 double by = R1(1,0)*Tx + R1(1,1)*Ty + R1(1,2)*Tz;
                                 double bz = R1(2,0)*Tx + R1(2,1)*Ty + R1(2,2)*Tz;
-
-                                Eigen::MatrixXd b = R1 * T;
 
                                 listOmega.push_back(deltaOmega);
                                 listPhi.push_back(deltaPhi);

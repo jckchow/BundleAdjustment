@@ -32,9 +32,9 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1000
+#define NUMITERATION 1
 #define DEBUGMODE 0
-#define ROPMODE 1 // 1 for true, 0 for false
+#define ROPMODE 1 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -472,55 +472,80 @@ struct ropConstraint {
   bool operator()(const T* const EOP1, const T* const EOP2, const T* const ROP, T* residual) const {
 
   // rotation from map to sensor 1
-  T r11 = cos(EOP1[1]) * cos(EOP1[2]);
-  T r12 = cos(EOP1[0]) * sin(EOP1[2]) + sin(EOP1[0]) * sin(EOP1[1]) * cos(EOP1[2]);
-  T r13 = sin(EOP1[0]) * sin(EOP1[2]) - cos(EOP1[0]) * sin(EOP1[1]) * cos(EOP1[2]);
+  T a11 = cos(EOP1[1]) * cos(EOP1[2]);
+  T a12 = cos(EOP1[0]) * sin(EOP1[2]) + sin(EOP1[0]) * sin(EOP1[1]) * cos(EOP1[2]);
+  T a13 = sin(EOP1[0]) * sin(EOP1[2]) - cos(EOP1[0]) * sin(EOP1[1]) * cos(EOP1[2]);
 
-  T r21 = -cos(EOP1[1]) * sin(EOP1[2]);
-  T r22 = cos(EOP1[0]) * cos(EOP1[2]) - sin(EOP1[0]) * sin(EOP1[1]) * sin(EOP1[2]);
-  T r23 = sin(EOP1[0]) * cos(EOP1[2]) + cos(EOP1[0]) * sin(EOP1[1]) * sin(EOP1[2]);
+  T a21 = -cos(EOP1[1]) * sin(EOP1[2]);
+  T a22 = cos(EOP1[0]) * cos(EOP1[2]) - sin(EOP1[0]) * sin(EOP1[1]) * sin(EOP1[2]);
+  T a23 = sin(EOP1[0]) * cos(EOP1[2]) + cos(EOP1[0]) * sin(EOP1[1]) * sin(EOP1[2]);
 
-  T r31 = sin(EOP1[1]);
-  T r32 = -sin(EOP1[0]) * cos(EOP1[1]);
-  T r33 = cos(EOP1[0]) * cos(EOP1[1]); 
+  T a31 = sin(EOP1[1]);
+  T a32 = -sin(EOP1[0]) * cos(EOP1[1]);
+  T a33 = cos(EOP1[0]) * cos(EOP1[1]); 
 
   // rotation from map to sensor 2
-  T m11 = cos(EOP2[1]) * cos(EOP2[2]);
-  T m12 = cos(EOP2[0]) * sin(EOP2[2]) + sin(EOP2[0]) * sin(EOP2[1]) * cos(EOP2[2]);
-  T m13 = sin(EOP2[0]) * sin(EOP2[2]) - cos(EOP2[0]) * sin(EOP2[1]) * cos(EOP2[2]);
+  T b11 = cos(EOP2[1]) * cos(EOP2[2]);
+  T b12 = cos(EOP2[0]) * sin(EOP2[2]) + sin(EOP2[0]) * sin(EOP2[1]) * cos(EOP2[2]);
+  T b13 = sin(EOP2[0]) * sin(EOP2[2]) - cos(EOP2[0]) * sin(EOP2[1]) * cos(EOP2[2]);
 
-  T m21 = -cos(EOP2[1]) * sin(EOP2[2]);
-  T m22 = cos(EOP2[0]) * cos(EOP2[2]) - sin(EOP2[0]) * sin(EOP2[1]) * sin(EOP2[2]);
-  T m23 = sin(EOP2[0]) * cos(EOP2[2]) + cos(EOP2[0]) * sin(EOP2[1]) * sin(EOP2[2]);
+  T b21 = -cos(EOP2[1]) * sin(EOP2[2]);
+  T b22 = cos(EOP2[0]) * cos(EOP2[2]) - sin(EOP2[0]) * sin(EOP2[1]) * sin(EOP2[2]);
+  T b23 = sin(EOP2[0]) * cos(EOP2[2]) + cos(EOP2[0]) * sin(EOP2[1]) * sin(EOP2[2]);
 
-  T m31 = sin(EOP2[1]);
-  T m32 = -sin(EOP2[0]) * cos(EOP2[1]);
-  T m33 = cos(EOP2[0]) * cos(EOP2[1]); 
+  T b31 = sin(EOP2[1]);
+  T b32 = -sin(EOP2[0]) * cos(EOP2[1]);
+  T b33 = cos(EOP2[0]) * cos(EOP2[1]); 
+
+  // rotation from sensor 2 to sensor 1
+  T r11 = cos(ROP[1]) * cos(ROP[2]);
+  T r12 = cos(ROP[0]) * sin(ROP[2]) + sin(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+  T r13 = sin(ROP[0]) * sin(ROP[2]) - cos(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+
+  T r21 = -cos(ROP[1]) * sin(ROP[2]);
+  T r22 = cos(ROP[0]) * cos(ROP[2]) - sin(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
+  T r23 = sin(ROP[0]) * cos(ROP[2]) + cos(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
+
+  T r31 = sin(ROP[1]);
+  T r32 = -sin(ROP[0]) * cos(ROP[1]);
+  T r33 = cos(ROP[0]) * cos(ROP[1]); 
+
+    // R_1To2 = R_mTo2 * R_1Tom 
+  T m11 = b11 * a11 + b12 * a12 + b13 * a13;
+  T m12 = b11 * a21 + b12 * a22 + b13 * a23;
+  T m13 = b11 * a31 + b12 * a32 + b13 * a33;
+
+  T m21 = b21 * a11 + b22 * a12 + b23 * a13;
+  T m22 = b21 * a21 + b22 * a22 + b23 * a23;
+  T m23 = b21 * a31 + b22 * a32 + b23 * a33;
+
+  T m31 = b31 * a11 + b32 * a12 + b33 * a13;
+  T m32 = b31 * a21 + b32 * a22 + b33 * a23;
+  T m33 = b31 * a31 + b32 * a32 + b33 * a33;
 
     T Tx = EOP2[3] - EOP1[3];
     T Ty = EOP2[4] - EOP1[4];
     T Tz = EOP2[5] - EOP1[5];
 
-    // manually calculate the boresight and leverarm
-    T deltaR32 = r31*m21 + r32*m22 + r33*m23;
-    T deltaR33 = r31*m31 + r32*m32 + r33*m33;
-    T deltaR31 = r31*m11 + r32*m12 + r33*m13;
-    T deltaR21 = r21*m11 + r22*m12 + r23*m13;
-    T deltaR11 = r11*m11 + r12*m12 + r13*m13;
+    // I = boresight_2To1 * R_1To2
+    T deltaR32 = r31*m12 + r32*m22 + r33*m32;
+    T deltaR33 = r31*m13 + r32*m23 + r33*m33;
+    T deltaR31 = r31*m11 + r32*m21 + r33*m31;
+    T deltaR21 = r21*m11 + r22*m21 + r23*m31;
+    T deltaR11 = r11*m11 + r12*m21 + r13*m31;
 
     T deltaOmega = atan2(-deltaR32, deltaR33);
     T deltaPhi   = asin(deltaR31);
     T deltaKappa = atan2(-deltaR21, deltaR11);
 
-    T bx = r11*Tx + r12*Ty + r13*Tz;
-    T by = r21*Tx + r22*Ty + r23*Tz;
-    T bz = r31*Tx + r32*Ty + r33*Tz;
-
+    T bx = a11*Tx + a12*Ty + a13*Tz;
+    T by = a21*Tx + a22*Ty + a23*Tz;
+    T bz = a31*Tx + a32*Ty + a33*Tz;
 
   // actual cost function
-  residual[0] = deltaOmega - ROP[0]; // delta omega
-  residual[1] = deltaPhi   - ROP[1]; // delta phi 
-  residual[2] = deltaKappa - ROP[2]; // delta kappa 
+  residual[0] = deltaOmega; // delta omega
+  residual[1] = deltaPhi; // delta phi 
+  residual[2] = deltaKappa; // delta kappa 
   residual[3] = bx - ROP[3]; // delta Xo 
   residual[4] = by - ROP[4]; // delta Yo 
   residual[5] = bz - ROP[5]; // delta Zo 
@@ -831,6 +856,73 @@ int main(int argc, char** argv) {
 
                                 // std::cout<< deltaOmega2 * 180.0/PI<<", "<<deltaPhi2 * 180.0/PI<<", "<<deltaKappa2 * 180.0/PI<<", "<<bx<<", "<<by<<", "<<bz<<std::endl;
                                 // std::cout<< deltaOmega * 180.0/PI<<", "<<deltaPhi * 180.0/PI<<", "<<deltaKappa * 180.0/PI<<", " <<b(0,0) <<", "<< b(1,0)<<", "<<b(2,0)<<std::endl;
+
+                                /////////////////////////////////////////////////////////
+                                // check my own math
+                                std::vector<double> ROP(3);
+                                ROP[0] = deltaOmega2;
+                                ROP[1] = deltaPhi2;
+                                ROP[2] = deltaKappa2;
+                                // rotation from sensor 2 to sensor 1
+                                double r11 = cos(ROP[1]) * cos(ROP[2]);
+                                double r12 = cos(ROP[0]) * sin(ROP[2]) + sin(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+                                double r13 = sin(ROP[0]) * sin(ROP[2]) - cos(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+
+                                double r21 = -cos(ROP[1]) * sin(ROP[2]);
+                                double r22 = cos(ROP[0]) * cos(ROP[2]) - sin(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
+                                double r23 = sin(ROP[0]) * cos(ROP[2]) + cos(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
+
+                                double r31 = sin(ROP[1]);
+                                double r32 = -sin(ROP[0]) * cos(ROP[1]);
+                                double r33 = cos(ROP[0]) * cos(ROP[1]); 
+
+                                // R_1To2 = R_mTo2 * R_1Tom 
+                                double a11 = R1(0,0);
+                                double a12 = R1(0,1);
+                                double a13 = R1(0,2);
+                                double a21 = R1(1,0);
+                                double a22 = R1(1,1);
+                                double a23 = R1(1,2);
+                                double a31 = R1(2,0);
+                                double a32 = R1(2,1);
+                                double a33 = R1(2,2);
+
+                                double b11 = R2(0,0);
+                                double b12 = R2(0,1);
+                                double b13 = R2(0,2);
+                                double b21 = R2(1,0);
+                                double b22 = R2(1,1);
+                                double b23 = R2(1,2);
+                                double b31 = R2(2,0);
+                                double b32 = R2(2,1);
+                                double b33 = R2(2,2);
+
+                                double m11 = b11 * a11 + b12 * a12 + b13 * a13;
+                                double m12 = b11 * a21 + b12 * a22 + b13 * a23;
+                                double m13 = b11 * a31 + b12 * a32 + b13 * a33;
+
+                                double m21 = b21 * a11 + b22 * a12 + b23 * a13;
+                                double m22 = b21 * a21 + b22 * a22 + b23 * a23;
+                                double m23 = b21 * a31 + b22 * a32 + b23 * a33;
+
+                                double m31 = b31 * a11 + b32 * a12 + b33 * a13;
+                                double m32 = b31 * a21 + b32 * a22 + b33 * a23;
+                                double m33 = b31 * a31 + b32 * a32 + b33 * a33;
+
+                                    // I = boresight_2To1 * R_1To2
+                                    double dR32 = r31*m12 + r32*m22 + r33*m32;
+                                    double dR33 = r31*m13 + r32*m23 + r33*m33;
+                                    double dR31 = r31*m11 + r32*m21 + r33*m31;
+                                    double dR21 = r21*m11 + r22*m21 + r23*m31;
+                                    double dR11 = r11*m11 + r12*m21 + r13*m31;
+
+                                    double deltaOmega3 = atan2(-dR32, dR33);
+                                    double deltaPhi3   = asin(dR31);
+                                    double deltaKappa3 = atan2(-dR21, dR11);
+
+                                    // std::cout<<"Should be EXACTLY to zero: "<<deltaOmega3 * 180.0/PI <<", "<<deltaPhi3 * 180.0/PI <<", "<<deltaKappa3 * 180.0/PI <<std::endl;
+
+
                             }
                         }
                     }
@@ -1046,6 +1138,11 @@ int main(int argc, char** argv) {
             problem.AddParameterBlock(&AP[n][0], 7);  
         // for(int n = 0; n < MLP.size(); n++) 
         //     problem.AddParameterBlock(&MLP[n][0], 2);  
+        if(ROPMODE)
+        {
+            for(int n = 0; n < ROP.size(); n++) 
+                problem.AddParameterBlock(&ROP[n][0], 6);  
+        }
 
         ceres::LossFunction* loss = NULL;
         loss = new ceres::HuberLoss(1.0);
@@ -1123,72 +1220,6 @@ int main(int argc, char** argv) {
             variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
         }
 
-        // if(ROPMODE)
-        // {
-
-        //     for(int i = 0; i < ropID.size(); i++)
-        //     {
-        //         for(int n = 0; n < eopStation.size(); n++) // loop through all EOPS
-        //         {
-        //             if(eopCamera[n] == ropID[i][0]) // find the right master camera
-        //             {
-        //                 int indexMasterEOP = n;
-        //                 for(int m = 0; m < eopStation.size(); m++) // find matching slave EOP based on ROP ID
-        //                 {
-        //                     if( eopCamera[m] == ropID[i][1] && (eopStation[n] == eopStation[m] - ropID[i][2]) ) // find the right slave camera
-        //                     {
-        //                         // we found the matching EOPs
-        //                         Eigen::MatrixXd R1(3,3);
-        //                         Eigen::MatrixXd R2(3,3);
-        //                         double Tx, Ty, Tz;
-        //                         Tx = eopXo
-        //                         std::cout<<
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     std::vector<int>::iterator it;
-        //     it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
-        //     int indexPoint = std::distance(xyzTarget.begin(),it);
-        //     // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
-
-        //     it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
-        //     int indexPose = std::distance(eopStation.begin(),it);
-        //     // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
-
-        //     it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
-        //     int indexSensor = std::distance(iopCamera.begin(),it);
-        //     // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
-
-        //     // for book keeping
-        //     imageReferenceID[n] = iopCamera[indexSensor];
-
-        //     //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
-        //     //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
-
-        //     // ceres::CostFunction* cost_function =
-        //     //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
-        //     //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-        //     // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
-
-        //     // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-        //     // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-        //     // problem.SetParameterBlockConstant(&MLP[n][0]);
-
-        //     ceres::CostFunction* cost_function =
-        //         new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
-        //             new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-        //     problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
-
-        //     //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-        //     problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-
-        //     variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
-        //     variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
-
-        // }
-
         // if(true)
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
@@ -1217,6 +1248,46 @@ int main(int argc, char** argv) {
                 variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
                 variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
             }
+        }
+
+        if(ROPMODE)
+        {
+            double boresightStdDev = 1E-6 * PI/180.0;
+            double leverarmStdDev = 1E-3;
+
+            for(int i = 0; i < ropID.size(); i++)
+            {
+                for(int n = 0; n < eopStation.size(); n++) // loop through all EOPS
+                {
+                    if(eopCamera[n] == ropID[i][0]) // find the right master camera, index n will point to it
+                    {
+                        int indexMasterEOP = n;
+                        for(int m = 0; m < eopStation.size(); m++) // find matching slave EOP based on ROP ID
+                        {
+                            if( eopCamera[m] == ropID[i][1] && (eopStation[n] == eopStation[m] - ropID[i][2]) ) // find the right slave camera
+                            {
+                                int indexSlaveEOP = m;
+                                // we found the matching EOPs
+                                std::cout<<"Matched ROP: "<<indexMasterEOP<<", "<<indexSlaveEOP<<", "<<i<<std::endl;
+                                ceres::CostFunction* cost_function =
+                                    new ceres::AutoDiffCostFunction<ropConstraint, 6, 6, 6, 6>(
+                                        new ropConstraint(boresightStdDev, boresightStdDev, boresightStdDev, leverarmStdDev, leverarmStdDev, leverarmStdDev));
+                                            problem.AddResidualBlock(cost_function, loss, &EOP[indexMasterEOP][0], &EOP[indexSlaveEOP][0], &ROP[i][0]); 
+
+                                //problem.SetParameterBlockConstant(&ROP[i][0]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            variances.push_back(boresightStdDev*boresightStdDev);
+            variances.push_back(boresightStdDev*boresightStdDev);
+            variances.push_back(boresightStdDev*boresightStdDev);
+            variances.push_back(leverarmStdDev*leverarmStdDev);
+            variances.push_back(leverarmStdDev*leverarmStdDev);
+            variances.push_back(leverarmStdDev*leverarmStdDev);
+
         }
 
         // prior on the IOP
@@ -1308,6 +1379,12 @@ int main(int argc, char** argv) {
             // in the simple mode, MLP is just a constant not a parameter
             // for(int i = 0; i < MLP.size(); i++)
             //     covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[i][0])); 
+
+            if (ROPMODE)
+            {
+                for(int i = 0; i < ROP.size(); i++)
+                    covariance_blocks.push_back(std::make_pair(&ROP[i][0], &ROP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
+            }
         }
 
         // Estimate variances and covariances within the SAME group
@@ -1340,6 +1417,13 @@ int main(int argc, char** argv) {
             // for(int i = 0; i < MLP.size(); i++)
             //     for(int j = i; j < MLP.size(); j++)
             //         covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[j][0]));
+
+            if (ROPMODE)
+            {
+                for(int i = 0; i < ROP.size(); i++)
+                    for(int j = i; j < ROP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&ROP[i][0], &ROP[j][0]));
+            }
         }
 
         // Additional covariances between DIFFERENT groups
@@ -1366,6 +1450,12 @@ int main(int argc, char** argv) {
 
                 // for(int j = 0; j < MLP.size(); j++)
                 //     covariance_blocks.push_back(std::make_pair(&EOP[i][0], &MLP[j][0]));
+
+                if(ROPMODE)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&EOP[i][0], &ROP[j][0]));
+                }
             }
 
             for(int i = 0; i < XYZ.size(); i++)
@@ -1378,6 +1468,12 @@ int main(int argc, char** argv) {
 
                 // for(int j = 0; j < MLP.size(); j++)
                 //     covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &MLP[j][0]));
+
+                if(ROPMODE)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &ROP[j][0]));
+                }
             }
 
             for(int i = 0; i < IOP.size(); i++)
@@ -1387,12 +1483,23 @@ int main(int argc, char** argv) {
 
                 // for(int j = 0; j < MLP.size(); j++)
                 //     covariance_blocks.push_back(std::make_pair(&IOP[i][0], &MLP[j][0]));
+                if(ROPMODE)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&IOP[i][0], &ROP[j][0]));
+                }
             }
 
             for(int i = 0; i < AP.size(); i++)
             {
                 // for(int j = 0; j < MLP.size(); j++)
                 //     covariance_blocks.push_back(std::make_pair(&AP[i][0], &MLP[j][0]));
+
+                if(ROPMODE)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&AP[i][0], &ROP[j][0]));
+                }
             }
         }
 
@@ -1501,6 +1608,24 @@ int main(int argc, char** argv) {
             //         Cx(i*2+n + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),i*2+m + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X(n,m);
         }
 
+        Eigen::MatrixXd ropVariance(ROP.size(),6);
+        if(ROPMODE)
+        {
+            for(int i = 0; i < ROP.size(); i++)
+            {
+                Eigen::MatrixXd covariance_X(6, 6);
+                covariance.GetCovarianceBlock(&ROP[i][0], &ROP[i][0], covariance_X.data());
+                Eigen::VectorXd variance_X(6);
+                variance_X = covariance_X.diagonal();
+                ropVariance(i,0) = variance_X(0);
+                ropVariance(i,1) = variance_X(1);
+                ropVariance(i,2) = variance_X(2);
+                ropVariance(i,3) = variance_X(3);
+                ropVariance(i,4) = variance_X(4);
+                ropVariance(i,5) = variance_X(5);
+            }
+        }
+
         //       EOP XYZ IOP  AP  MLP
         // EOP    x   x   x    x   x    
         // XYZ        x   x    x   x
@@ -1559,6 +1684,18 @@ int main(int argc, char** argv) {
 
                 //     Cx.block<6,2>(i*6,j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                 // }
+
+                if(ROPMODE)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(6, 6);
+                        covariance.GetCovarianceBlock(&EOP[i][0], &ROP[j][0], covariance_X.data());
+
+                        Cx.block<6,6>(i*6,j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    }
+                        
+                }
             }
 
             for(int i = 0; i < XYZ.size(); i++)
@@ -1594,6 +1731,17 @@ int main(int argc, char** argv) {
 
                 //     Cx.block<3,2>(i*3 + 6*EOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                 // }
+
+                if(ROPMODE)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(6, 3);
+                        covariance.GetCovarianceBlock(&XYZ[i][0], &ROP[j][0], covariance_X.data());
+
+                        Cx.block<3,6>(i*3 + 6*EOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    }    
+                }
             }
 
             for(int i = 0; i < IOP.size(); i++)
@@ -1621,6 +1769,18 @@ int main(int argc, char** argv) {
 
                 //     Cx.block<3,2>(i*3 + 6*EOP.size()+3*XYZ.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                 // }
+
+                if(ROPMODE)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(6, 3);
+                        covariance.GetCovarianceBlock(&IOP[i][0], &ROP[j][0], covariance_X.data());
+
+                        Cx.block<3,6>(i*3 + 6*EOP.size()+3*XYZ.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    }
+                        
+                }
             }
 
             for(int i = 0; i < AP.size(); i++)
@@ -1635,11 +1795,23 @@ int main(int argc, char** argv) {
 
                 // for(int j = 0; j < MLP.size(); j++)
                 // {
-                //     Eigen::MatrixXd covariance_X(7, 2);
+                //     Eigen::MatrixXd covariance_X(2, 7);
                 //     covariance.GetCovarianceBlock(&AP[i][0], &MLP[j][0], covariance_X.data());
 
-                //     Cx.block<7,2>(i*3 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                //     Cx.block<7,2>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                 // }
+
+                if(ROPMODE)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(6, 7);
+                        covariance.GetCovarianceBlock(&AP[i][0], &ROP[j][0], covariance_X.data());
+
+                        Cx.block<7,6>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    }
+                        
+                }
             }
 
             for(int i = 0; i < MLP.size(); i++)
@@ -2103,6 +2275,17 @@ int main(int argc, char** argv) {
             for(int i = 0; i < IOP.size(); ++i)
             {
                 fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", iopCamera[i], IOP[i][0], IOP[i][1], IOP[i][2], sqrt(iopVariance(i,0)), sqrt(iopVariance(i,1)), sqrt(iopVariance(i,2)) );
+            }
+            fclose(fout);
+        }
+
+        if (true)
+        {
+            std::cout<<"  Writing ROPs to file..."<<std::endl;
+            FILE *fout = fopen("ROP.jck", "w");
+            for(int i = 0; i < ROP.size(); ++i)
+            {
+                fprintf(fout, "%i <-- %i: %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", ropID[i][0], ropID[i][1], ROP[i][0]*180.0/PI, ROP[i][1]*180.0/PI, ROP[i][2]*180.0/PI, ROP[i][3], ROP[i][4], ROP[i][5], sqrt(ropVariance(i,0))*180.0/PI, sqrt(ropVariance(i,1))*180.0/PI, sqrt(ropVariance(i,2))*180.0/PI, sqrt(ropVariance(i,3)), sqrt(ropVariance(i,4)), sqrt(ropVariance(i,5)) );
             }
             fclose(fout);
         }

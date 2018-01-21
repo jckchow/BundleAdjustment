@@ -528,24 +528,29 @@ struct ropConstraint {
     T Tz = EOP2[5] - EOP1[5];
 
     // I = boresight_2To1 * R_1To2
-    T deltaR32 = r31*m12 + r32*m22 + r33*m32;
+    // T deltaR32 = r31*m12 + r32*m22 + r33*m32;
     T deltaR33 = r31*m13 + r32*m23 + r33*m33;
-    T deltaR31 = r31*m11 + r32*m21 + r33*m31;
-    T deltaR21 = r21*m11 + r22*m21 + r23*m31;
+    // T deltaR31 = r31*m11 + r32*m21 + r33*m31;
+    // T deltaR21 = r21*m11 + r22*m21 + r23*m31;
     T deltaR11 = r11*m11 + r12*m21 + r13*m31;
 
-    T deltaOmega = atan2(-deltaR32, deltaR33);
-    T deltaPhi   = asin(deltaR31);
-    T deltaKappa = atan2(-deltaR21, deltaR11);
+    T deltaR22 = r21*m12 + r22*m22 + r23*m32;
+
+    // T deltaOmega = atan2(-deltaR32, deltaR33);
+    // T deltaPhi   = asin(deltaR31);
+    // T deltaKappa = atan2(-deltaR21, deltaR11);
 
     T bx = a11*Tx + a12*Ty + a13*Tz;
     T by = a21*Tx + a22*Ty + a23*Tz;
     T bz = a31*Tx + a32*Ty + a33*Tz;
 
   // actual cost function
-  residual[0] = deltaOmega; // delta omega
-  residual[1] = deltaPhi; // delta phi 
-  residual[2] = deltaKappa; // delta kappa 
+//   residual[0] = deltaOmega; // delta omega
+//   residual[1] = deltaPhi; // delta phi 
+//   residual[2] = deltaKappa; // delta kappa 
+  residual[0] = deltaR11 - 1.0;
+  residual[1] = deltaR22 - 1.0;
+  residual[2] = deltaR33 - 1.0;
   residual[3] = bx - ROP[3]; // delta Xo 
   residual[4] = by - ROP[4]; // delta Yo 
   residual[5] = bz - ROP[5]; // delta Zo 
@@ -565,6 +570,99 @@ struct ropConstraint {
   const double omegaStdDev_;
   const double phiStdDev_;
   const double kappaStdDev_;
+  const double XoStdDev_;
+  const double YoStdDev_;
+  const double ZoStdDev_;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ROP constraint
+/// Input:    omegaStdDev
+///           phiStdDev
+///           kappaStdDev
+///           XoStdDev
+///           YoStdDev
+///           ZoStdDev
+/// Unknowns: EOP1     - EOP of master
+///           EOP2     - EOP of slave
+///           ROP      - boresight angles followed by the leverarm
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct ropConstraintVector {
+  
+  ropConstraintVector(double XoStdDev, double YoStdDev, double ZoStdDev)
+        : XoStdDev_(XoStdDev), YoStdDev_(YoStdDev), ZoStdDev_(ZoStdDev) {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP1, const T* const EOP2, const T* const ROP, T* residual) const {
+
+  // rotation from map to sensor 1
+  T a11 = cos(EOP1[1]) * cos(EOP1[2]);
+  T a12 = cos(EOP1[0]) * sin(EOP1[2]) + sin(EOP1[0]) * sin(EOP1[1]) * cos(EOP1[2]);
+  T a13 = sin(EOP1[0]) * sin(EOP1[2]) - cos(EOP1[0]) * sin(EOP1[1]) * cos(EOP1[2]);
+
+  T a21 = -cos(EOP1[1]) * sin(EOP1[2]);
+  T a22 = cos(EOP1[0]) * cos(EOP1[2]) - sin(EOP1[0]) * sin(EOP1[1]) * sin(EOP1[2]);
+  T a23 = sin(EOP1[0]) * cos(EOP1[2]) + cos(EOP1[0]) * sin(EOP1[1]) * sin(EOP1[2]);
+
+  T a31 = sin(EOP1[1]);
+  T a32 = -sin(EOP1[0]) * cos(EOP1[1]);
+  T a33 = cos(EOP1[0]) * cos(EOP1[1]); 
+
+  // rotation from map to sensor 2
+  T b11 = cos(EOP2[1]) * cos(EOP2[2]);
+  T b12 = cos(EOP2[0]) * sin(EOP2[2]) + sin(EOP2[0]) * sin(EOP2[1]) * cos(EOP2[2]);
+  T b13 = sin(EOP2[0]) * sin(EOP2[2]) - cos(EOP2[0]) * sin(EOP2[1]) * cos(EOP2[2]);
+
+  T b21 = -cos(EOP2[1]) * sin(EOP2[2]);
+  T b22 = cos(EOP2[0]) * cos(EOP2[2]) - sin(EOP2[0]) * sin(EOP2[1]) * sin(EOP2[2]);
+  T b23 = sin(EOP2[0]) * cos(EOP2[2]) + cos(EOP2[0]) * sin(EOP2[1]) * sin(EOP2[2]);
+
+  T b31 = sin(EOP2[1]);
+  T b32 = -sin(EOP2[0]) * cos(EOP2[1]);
+  T b33 = cos(EOP2[0]) * cos(EOP2[1]); 
+
+  // rotation from sensor 2 to sensor 1
+  T r11 = cos(ROP[1]) * cos(ROP[2]);
+  T r12 = cos(ROP[0]) * sin(ROP[2]) + sin(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+  T r13 = sin(ROP[0]) * sin(ROP[2]) - cos(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+
+  T r21 = -cos(ROP[1]) * sin(ROP[2]);
+  T r22 = cos(ROP[0]) * cos(ROP[2]) - sin(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
+  T r23 = sin(ROP[0]) * cos(ROP[2]) + cos(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
+
+  T r31 = sin(ROP[1]);
+  T r32 = -sin(ROP[0]) * cos(ROP[1]);
+  T r33 = cos(ROP[0]) * cos(ROP[1]); 
+
+    // Method 2: Summation of vectors in a triangle is zero
+    T pX = b11 * EOP2[3] + b12 * EOP2[4] + b13 * EOP2[5];
+    T pY = b21 * EOP2[3] + b22 * EOP2[4] + b23 * EOP2[5];
+    T pZ = b31 * EOP2[3] + b32 * EOP2[4] + b33 * EOP2[5];
+
+    T rX = r11 * pX + r12 * pY + r13 * pZ;
+    T rY = r21 * pX + r22 * pY + r23 * pZ;
+    T rZ = r31 * pX + r32 * pY + r33 * pZ;
+
+    T qX = a11 * EOP1[3] + a12 * EOP1[4] + a13 * EOP1[5] + ROP[3];
+    T qY = a21 * EOP1[3] + a22 * EOP1[4] + a23 * EOP1[5] + ROP[4];
+    T qZ = a31 * EOP1[3] + a32 * EOP1[4] + a33 * EOP1[5] + ROP[5];
+
+  // actual cost function
+  residual[0] = rX - qX;
+  residual[1] = rY - qY;
+  residual[2] = rZ - qZ;
+
+
+  residual[0] /= T(XoStdDev_);
+  residual[1] /= T(YoStdDev_);
+  residual[2] /= T(ZoStdDev_);
+
+
+  return true;
+  }
+
+ private:
   const double XoStdDev_;
   const double YoStdDev_;
   const double ZoStdDev_;
@@ -921,7 +1019,20 @@ int main(int argc, char** argv) {
                                     double deltaKappa3 = atan2(-dR21, dR11);
 
                                     // std::cout<<"Should be EXACTLY to zero: "<<deltaOmega3 * 180.0/PI <<", "<<deltaPhi3 * 180.0/PI <<", "<<deltaKappa3 * 180.0/PI <<std::endl;
+                                // Method 2: Summation of vectors
+                                double pX = b11 * eopXo[m] + b12 * eopYo[m] + b13 * eopZo[m];
+                                double pY = b21 * eopXo[m] + b22 * eopYo[m] + b23 * eopZo[m];
+                                double pZ = b31 * eopXo[m] + b32 * eopYo[m] + b33 * eopZo[m];
 
+                                double qX = a11 * eopXo[n] + a12 * eopYo[n] + a13 * eopZo[n] + bx;
+                                double qY = a21 * eopXo[n] + a22 * eopYo[n] + a23 * eopZo[n] + by;
+                                double qZ = a31 * eopXo[n] + a32 * eopYo[n] + a33 * eopZo[n] + bz;
+
+                                double rX = r11 * pX + r12 * pY + r13 * pZ;
+                                double rY = r21 * pX + r22 * pY + r23 * pZ;
+                                double rZ = r31 * pX + r32 * pY + r33 * pZ;
+                             
+                                //std::cout<<"r should equal q: "<<rX<<", "<<rY<<", "<<rZ<<" = "<<qX<<", "<<qY<<", "<<qZ<<std::endl;
 
                             }
                         }
@@ -1269,25 +1380,28 @@ int main(int argc, char** argv) {
                                 int indexSlaveEOP = m;
                                 // we found the matching EOPs
                                 std::cout<<"Matched ROP: "<<indexMasterEOP<<", "<<indexSlaveEOP<<", "<<i<<std::endl;
+                                // ceres::CostFunction* cost_function =
+                                //     new ceres::AutoDiffCostFunction<ropConstraint, 6, 6, 6, 6>(
+                                //         new ropConstraint(boresightStdDev, boresightStdDev, boresightStdDev, leverarmStdDev, leverarmStdDev, leverarmStdDev));
+                                //             problem.AddResidualBlock(cost_function, NULL, &EOP[indexMasterEOP][0], &EOP[indexSlaveEOP][0], &ROP[i][0]); 
                                 ceres::CostFunction* cost_function =
-                                    new ceres::AutoDiffCostFunction<ropConstraint, 6, 6, 6, 6>(
-                                        new ropConstraint(boresightStdDev, boresightStdDev, boresightStdDev, leverarmStdDev, leverarmStdDev, leverarmStdDev));
-                                            problem.AddResidualBlock(cost_function, loss, &EOP[indexMasterEOP][0], &EOP[indexSlaveEOP][0], &ROP[i][0]); 
+                                    new ceres::AutoDiffCostFunction<ropConstraintVector, 3, 6, 6, 6>(
+                                        new ropConstraintVector(leverarmStdDev, leverarmStdDev, leverarmStdDev));
+                                            problem.AddResidualBlock(cost_function, NULL, &EOP[indexMasterEOP][0], &EOP[indexSlaveEOP][0], &ROP[i][0]); 
 
                                 //problem.SetParameterBlockConstant(&ROP[i][0]);
                             }
                         }
                     }
                 }
+
+                // variances.push_back(boresightStdDev*boresightStdDev);
+                // variances.push_back(boresightStdDev*boresightStdDev);
+                // variances.push_back(boresightStdDev*boresightStdDev);
+                variances.push_back(leverarmStdDev*leverarmStdDev);
+                variances.push_back(leverarmStdDev*leverarmStdDev);
+                variances.push_back(leverarmStdDev*leverarmStdDev);
             }
-
-            variances.push_back(boresightStdDev*boresightStdDev);
-            variances.push_back(boresightStdDev*boresightStdDev);
-            variances.push_back(boresightStdDev*boresightStdDev);
-            variances.push_back(leverarmStdDev*leverarmStdDev);
-            variances.push_back(leverarmStdDev*leverarmStdDev);
-            variances.push_back(leverarmStdDev*leverarmStdDev);
-
         }
 
         // prior on the IOP
@@ -1331,7 +1445,7 @@ int main(int argc, char** argv) {
         options.minimizer_progress_to_stdout = true;
         // options.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
         // options.min_lm_diagonal = 1.0E-150;
-        options.max_num_iterations = 200;
+        options.max_num_iterations = 500;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
@@ -1341,15 +1455,13 @@ int main(int argc, char** argv) {
 
         // condition for terminating least squares
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 1 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 100 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
             std::cout<<"  LSA Cost Increased: "<<(summary.final_cost)<< " > " << (leastSquaresCost[leastSquaresCost.size()-1]) <<std::endl;
             break;
         }
-
-
 
         // storing it for comparison in this EM like routine
         leastSquaresCost.push_back(summary.final_cost);
@@ -2279,13 +2391,14 @@ int main(int argc, char** argv) {
             fclose(fout);
         }
 
-        if (true)
+        if (ROPMODE)
         {
             std::cout<<"  Writing ROPs to file..."<<std::endl;
             FILE *fout = fopen("ROP.jck", "w");
             for(int i = 0; i < ROP.size(); ++i)
             {
                 fprintf(fout, "%i <-- %i: %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", ropID[i][0], ropID[i][1], ROP[i][0]*180.0/PI, ROP[i][1]*180.0/PI, ROP[i][2]*180.0/PI, ROP[i][3], ROP[i][4], ROP[i][5], sqrt(ropVariance(i,0))*180.0/PI, sqrt(ropVariance(i,1))*180.0/PI, sqrt(ropVariance(i,2))*180.0/PI, sqrt(ropVariance(i,3)), sqrt(ropVariance(i,4)), sqrt(ropVariance(i,5)) );
+                std::cout<<ropID[i][0]<<" <-- "<< ropID[i][1]<<": "<<ROP[i][0]*180.0/PI<<", "<< ROP[i][1]*180.0/PI<<", "<< ROP[i][2]*180.0/PI <<", "<< ROP[i][3]<<", "<< ROP[i][4]<<", "<< ROP[i][5]<<". Distance: "<< sqrt(ROP[i][3]*ROP[i][3] + ROP[i][4]*ROP[i][4] + ROP[i][5]*ROP[i][5]) <<std::endl;
             }
             fclose(fout);
         }

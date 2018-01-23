@@ -1464,15 +1464,15 @@ int main(int argc, char** argv) {
             {
                 it = std::find(eopStation.begin(), eopStation.end(), imageStation[n] - ropID[indexROPSlave][2]);
                 int indexPoseMaster = std::distance(eopStation.begin(),it);
-                std::cout<<"indexPoseMaster: "<<indexPoseMaster<<", ID: "<< imageStation[n] - ropID[indexROPSlave][2]<<std::endl;
-                std::cout<<"indexROP: "<< indexROPSlave<<std::endl;        
+                // std::cout<<"indexPoseMaster: "<<indexPoseMaster<<", ID: "<< imageStation[n] - ropID[indexROPSlave][2]<<std::endl;
+                // std::cout<<"indexROP: "<< indexROPSlave<<std::endl;        
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<collinearityMachineLearnedROP, 2, 6, 6, 3, 3, 7>(
                         new collinearityMachineLearnedROP(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPoseMaster][0], &ROP[indexROPSlave][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
             
-                problem.SetParameterBlockConstant(&ROP[indexROPSlave][0]);
+                //problem.SetParameterBlockConstant(&ROP[indexROPSlave][0]);
 
             }
             // else if(eopCamera[indexPose] != ropSlave[indexROPSlave]) // not a slave in ROP constraint
@@ -1563,203 +1563,6 @@ int main(int argc, char** argv) {
             }
         }
 
-        // if(ROPMODE)
-        // {
-        //     double boresightStdDev = 1E-6 * PI/180.0;
-        //     double leverarmStdDev = 1E0;
-
-        //     for(int i = 0; i < ropID.size(); i++)
-        //     {
-        //         for(int n = 0; n < eopStation.size(); n++) // loop through all EOPS
-        //         {
-        //             if(eopCamera[n] == ropID[i][0]) // find the right master camera, index n will point to it
-        //             {
-        //                 int indexMasterEOP = n;
-        //                 for(int m = 0; m < eopStation.size(); m++) // find matching slave EOP based on ROP ID
-        //                 {
-        //                     if( eopCamera[m] == ropID[i][1] && (eopStation[n] == eopStation[m] - ropID[i][2]) ) // find the right slave camera
-        //                     {
-        //                         int indexSlaveEOP = m;
-        //                         // we found the matching EOPs
-        //                         std::cout<<"Matched ROP: "<<indexMasterEOP<<", "<<indexSlaveEOP<<", "<<i<<std::endl;
-        //                         // Method 1: boresight and leverarm
-        //                         // ceres::CostFunction* cost_function =
-        //                         //     new ceres::AutoDiffCostFunction<ropConstraint, 6, 6, 6, 6>(
-        //                         //         new ropConstraint(boresightStdDev, boresightStdDev, boresightStdDev, leverarmStdDev, leverarmStdDev, leverarmStdDev));
-        //                         //             problem.AddResidualBlock(cost_function, NULL, &EOP[indexMasterEOP][0], &EOP[indexSlaveEOP][0], &ROP[i][0]); 
-                                
-        //                         // // Method 2: Summation of vectors
-        //                         // ceres::CostFunction* cost_function =
-        //                         //     new ceres::AutoDiffCostFunction<ropConstraintVector, 3, 6, 6, 6>(
-        //                         //         new ropConstraintVector(leverarmStdDev, leverarmStdDev, leverarmStdDev));
-        //                         //             problem.AddResidualBlock(cost_function, NULL, &EOP[indexMasterEOP][0], &EOP[indexSlaveEOP][0], &ROP[i][0]); 
-
-        //                         // Method 3: Summation of vectors
-        //                         ceres::CostFunction* cost_function =
-        //                             new ceres::AutoDiffCostFunction<ropConstraintVector, 1, 6, 6, 6>(
-        //                                 new ropConstraintVector(leverarmStdDev, leverarmStdDev, leverarmStdDev));
-        //                                     problem.AddResidualBlock(cost_function, NULL, &EOP[indexMasterEOP][0], &EOP[indexSlaveEOP][0], &ROP[i][0]); 
-
-        //                         //problem.SetParameterBlockConstant(&ROP[i][0]);
-
-
-        //                         /*
-
-        //                         /////////////////////////////////////////////////////////////////////////////////
-        //                         // we found the matching EOPs
-        //                         // n is the index of the reference
-        //                         // m is the index of the slave
-        //                         Eigen::MatrixXd R1(3,3);
-        //                         Eigen::MatrixXd R2(3,3);
-        //                         Eigen::MatrixXd T(3,1);
-        //                         double Tx, Ty, Tz;
-
-        //                         R1(0,0) = cos(EOP[indexMasterEOP][1]) * cos(EOP[indexMasterEOP][2]);
-        //                         R1(0,1) = cos(EOP[indexMasterEOP][0]) * sin(EOP[indexMasterEOP][2]) + sin(EOP[indexMasterEOP][0]) * sin(EOP[indexMasterEOP][1]) * cos(EOP[indexMasterEOP][2]);
-        //                         R1(0,2) = sin(EOP[indexMasterEOP][0]) * sin(EOP[indexMasterEOP][2]) - cos(EOP[indexMasterEOP][0]) * sin(EOP[indexMasterEOP][1]) * cos(EOP[indexMasterEOP][2]);
-
-        //                         R1(1,0) = -cos(EOP[indexMasterEOP][1]) * sin(EOP[indexMasterEOP][2]);
-        //                         R1(1,1) = cos(EOP[indexMasterEOP][0]) * cos(EOP[indexMasterEOP][2]) - sin(EOP[indexMasterEOP][0]) * sin(EOP[indexMasterEOP][1]) * sin(EOP[indexMasterEOP][2]);
-        //                         R1(1,2) = sin(EOP[indexMasterEOP][0]) * cos(EOP[indexMasterEOP][2]) + cos(EOP[indexMasterEOP][0]) * sin(EOP[indexMasterEOP][1]) * sin(EOP[indexMasterEOP][2]);
-
-        //                         R1(2,0) = sin(EOP[indexMasterEOP][1]);
-        //                         R1(2,1) = -sin(EOP[indexMasterEOP][0]) * cos(EOP[indexMasterEOP][1]);
-        //                         R1(2,2) = cos(EOP[indexMasterEOP][0]) * cos(EOP[indexMasterEOP][1]);
-
-        //                         R2(0,0) = cos(EOP[indexSlaveEOP][1]) * cos(EOP[indexSlaveEOP][2]);
-        //                         R2(0,1) = cos(EOP[indexSlaveEOP][0]) * sin(EOP[indexSlaveEOP][2]) + sin(EOP[indexSlaveEOP][0]) * sin(EOP[indexSlaveEOP][1]) * cos(EOP[indexSlaveEOP][2]);
-        //                         R2(0,2) = sin(EOP[indexSlaveEOP][0]) * sin(EOP[indexSlaveEOP][2]) - cos(EOP[indexSlaveEOP][0]) * sin(EOP[indexSlaveEOP][1]) * cos(EOP[indexSlaveEOP][2]);
-
-        //                         R2(1,0) = -cos(EOP[indexSlaveEOP][1]) * sin(EOP[indexSlaveEOP][2]);
-        //                         R2(1,1) = cos(EOP[indexSlaveEOP][0]) * cos(EOP[indexSlaveEOP][2]) - sin(EOP[indexSlaveEOP][0]) * sin(EOP[indexSlaveEOP][1]) * sin(EOP[indexSlaveEOP][2]);
-        //                         R2(1,2) = sin(EOP[indexSlaveEOP][0]) * cos(EOP[indexSlaveEOP][2]) + cos(EOP[indexSlaveEOP][0]) * sin(EOP[indexSlaveEOP][1]) * sin(EOP[indexSlaveEOP][2]);
-
-        //                         R2(2,0) = sin(EOP[indexSlaveEOP][1]);
-        //                         R2(2,1) = -sin(EOP[indexSlaveEOP][0]) * cos(EOP[indexSlaveEOP][1]);
-        //                         R2(2,2) = cos(EOP[indexSlaveEOP][0]) * cos(EOP[indexSlaveEOP][1]);
-
-        //                         Tx = EOP[indexSlaveEOP][3] - EOP[indexMasterEOP][3]; // leverarm in the frame of master, a vector pointing to the slave from the master
-        //                         Ty = EOP[indexSlaveEOP][4] - EOP[indexMasterEOP][4];
-        //                         Tz = EOP[indexSlaveEOP][5] - EOP[indexMasterEOP][5];
-
-        //                         T(0,0) = Tx;
-        //                         T(1,0) = Ty;
-        //                         T(2,0) = Tz;
-
-        //                         Eigen::MatrixXd deltaR = R1 * R2.transpose();
-
-        //                         double deltaOmega = atan2(-deltaR(2,1), deltaR(2,2));
-        //                         double deltaPhi   = asin (deltaR(2,0));
-        //                         double deltaKappa = atan2(-deltaR(1,0), deltaR(0,0));
-
-        //                         Eigen::MatrixXd b = R1 * T;
-
-        //                         // manually calculate the boresight and leverarm
-        //                         double deltaR21 = R1(2,0)*R2(1,0) + R1(2,1)*R2(1,1) + R1(2,2)*R2(1,2);
-        //                         double deltaR22 = R1(2,0)*R2(2,0) + R1(2,1)*R2(2,1) + R1(2,2)*R2(2,2);
-        //                         double deltaR20 = R1(2,0)*R2(0,0) + R1(2,1)*R2(0,1) + R1(2,2)*R2(0,2);
-        //                         double deltaR10 = R1(1,0)*R2(0,0) + R1(1,1)*R2(0,1) + R1(1,2)*R2(0,2);
-        //                         double deltaR00 = R1(0,0)*R2(0,0) + R1(0,1)*R2(0,1) + R1(0,2)*R2(0,2);
-
-        //                         double deltaOmega2 = atan2(-deltaR21, deltaR22);
-        //                         double deltaPhi2   = asin(deltaR20);
-        //                         double deltaKappa2 = atan2(-deltaR10, deltaR00);
-        //                         double bx = R1(0,0)*Tx + R1(0,1)*Ty + R1(0,2)*Tz;
-        //                         double by = R1(1,0)*Tx + R1(1,1)*Ty + R1(1,2)*Tz;
-        //                         double bz = R1(2,0)*Tx + R1(2,1)*Ty + R1(2,2)*Tz;
-
-
-        //                         /////////////////////////////////////////////////////////
-        //                         // check my own math
-        //                         // rotation from sensor 2 to sensor 1
-        //                         double r11 = cos(ROP[i][1]) * cos(ROP[i][2]);
-        //                         double r12 = cos(ROP[i][0]) * sin(ROP[i][2]) + sin(ROP[i][0]) * sin(ROP[i][1]) * cos(ROP[i][2]);
-        //                         double r13 = sin(ROP[i][0]) * sin(ROP[i][2]) - cos(ROP[i][0]) * sin(ROP[i][1]) * cos(ROP[i][2]);
-
-        //                         double r21 = -cos(ROP[i][1]) * sin(ROP[i][2]);
-        //                         double r22 = cos(ROP[i][0]) * cos(ROP[i][2]) - sin(ROP[i][0]) * sin(ROP[i][1]) * sin(ROP[i][2]);
-        //                         double r23 = sin(ROP[i][0]) * cos(ROP[i][2]) + cos(ROP[i][0]) * sin(ROP[i][1]) * sin(ROP[i][2]);
-
-        //                         double r31 = sin(ROP[i][1]);
-        //                         double r32 = -sin(ROP[i][0]) * cos(ROP[i][1]);
-        //                         double r33 = cos(ROP[i][0]) * cos(ROP[i][1]); 
-
-        //                         // R_1To2 = R_mTo2 * R_1Tom 
-        //                         double a11 = R1(0,0);
-        //                         double a12 = R1(0,1);
-        //                         double a13 = R1(0,2);
-        //                         double a21 = R1(1,0);
-        //                         double a22 = R1(1,1);
-        //                         double a23 = R1(1,2);
-        //                         double a31 = R1(2,0);
-        //                         double a32 = R1(2,1);
-        //                         double a33 = R1(2,2);
-
-        //                         double b11 = R2(0,0);
-        //                         double b12 = R2(0,1);
-        //                         double b13 = R2(0,2);
-        //                         double b21 = R2(1,0);
-        //                         double b22 = R2(1,1);
-        //                         double b23 = R2(1,2);
-        //                         double b31 = R2(2,0);
-        //                         double b32 = R2(2,1);
-        //                         double b33 = R2(2,2);
-
-        //                         double m11 = b11 * a11 + b12 * a12 + b13 * a13;
-        //                         double m12 = b11 * a21 + b12 * a22 + b13 * a23;
-        //                         double m13 = b11 * a31 + b12 * a32 + b13 * a33;
-
-        //                         double m21 = b21 * a11 + b22 * a12 + b23 * a13;
-        //                         double m22 = b21 * a21 + b22 * a22 + b23 * a23;
-        //                         double m23 = b21 * a31 + b22 * a32 + b23 * a33;
-
-        //                         double m31 = b31 * a11 + b32 * a12 + b33 * a13;
-        //                         double m32 = b31 * a21 + b32 * a22 + b33 * a23;
-        //                         double m33 = b31 * a31 + b32 * a32 + b33 * a33;
-
-        //                             // I = boresight_2To1 * R_1To2
-        //                             double dR32 = r31*m12 + r32*m22 + r33*m32;
-        //                             double dR33 = r31*m13 + r32*m23 + r33*m33;
-        //                             double dR31 = r31*m11 + r32*m21 + r33*m31;
-        //                             double dR21 = r21*m11 + r22*m21 + r23*m31;
-        //                             double dR11 = r11*m11 + r12*m21 + r13*m31;
-
-        //                             double deltaOmega3 = atan2(-dR32, dR33);
-        //                             double deltaPhi3   = asin(dR31);
-        //                             double deltaKappa3 = atan2(-dR21, dR11);
-
-        //                             // std::cout<<"Should be EXACTLY to zero: "<<deltaOmega3 * 180.0/PI <<", "<<deltaPhi3 * 180.0/PI <<", "<<deltaKappa3 * 180.0/PI <<std::endl;
-        //                         // Method 2: Summation of vectors
-        //                         double pX = b11 * eopXo[m] + b12 * eopYo[m] + b13 * eopZo[m];
-        //                         double pY = b21 * eopXo[m] + b22 * eopYo[m] + b23 * eopZo[m];
-        //                         double pZ = b31 * eopXo[m] + b32 * eopYo[m] + b33 * eopZo[m];
-
-        //                         double qX = a11 * eopXo[n] + a12 * eopYo[n] + a13 * eopZo[n] + bx;
-        //                         double qY = a21 * eopXo[n] + a22 * eopYo[n] + a23 * eopZo[n] + by;
-        //                         double qZ = a31 * eopXo[n] + a32 * eopYo[n] + a33 * eopZo[n] + bz;
-
-        //                         double rX = r11 * pX + r12 * pY + r13 * pZ;
-        //                         double rY = r21 * pX + r22 * pY + r23 * pZ;
-        //                         double rZ = r31 * pX + r32 * pY + r33 * pZ;
-
-        //                         //std::cout<<"check: "<<rX - qX<<", "<<rY - qY<<", "<<rZ - qZ<<std::endl;
-        //                         ////////////////////////////////////////////////////////////////////////////////
-
-        //                         */
-        //                     }
-        //                 }
-        //             }
-        //         }
-
-        //         // variances.push_back(boresightStdDev*boresightStdDev);
-        //         // variances.push_back(boresightStdDev*boresightStdDev);
-        //         // variances.push_back(boresightStdDev*boresightStdDev);
-        //         variances.push_back(leverarmStdDev*leverarmStdDev);
-        //         variances.push_back(leverarmStdDev*leverarmStdDev);
-        //         variances.push_back(leverarmStdDev*leverarmStdDev);
-        //     }
-        // }
-
         // prior on the IOP
         // if (true)
         // {
@@ -1802,12 +1605,12 @@ int main(int argc, char** argv) {
         // options.linear_solver_type = ceres::CGNR;
         // options.linear_solver_type = ceres::ITERATIVE_SCHUR;
         options.minimizer_progress_to_stdout = true;
-        options.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
-        options.min_lm_diagonal = 1.0E-150;
+        // options.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
+        // options.min_lm_diagonal = 1.0E-150;
         // options.minimizer_type = ceres::LINE_SEARCH;
         // options.line_search_direction_type = ceres::BFGS;
         // options.trust_region_strategy_type = ceres::DOGLEG;
-        options.max_num_iterations = 10;
+        options.max_num_iterations = 200;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
@@ -2100,12 +1903,13 @@ int main(int argc, char** argv) {
             }
         }
 
-        //       EOP XYZ IOP  AP  MLP
-        // EOP    x   x   x    x   x    
-        // XYZ        x   x    x   x
-        // IOP            x    x   x
-        // AP                  x   x        
-        // MLP                     x
+        //       EOP XYZ IOP  AP  MLP  ROP
+        // EOP    x   x   x    x   x    x
+        // XYZ        x   x    x   x    x
+        // IOP            x    x   x    x
+        // AP                  x   x    x      
+        // MLP                     x    x
+        // ROP                          x
         Eigen::MatrixXd Cx(summary.num_parameters,summary.num_parameters);
         Cx.setZero();
 
@@ -2297,6 +2101,20 @@ int main(int argc, char** argv) {
 
                 //     Cx.block<2,2>(i*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                 // }
+            }
+
+            if(ROPMODE)
+            {
+                for(int i = 0; i < ROP.size(); i++)
+                {
+                    for(int j = 0; j < ROP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(6, 6);
+                        covariance.GetCovarianceBlock(&ROP[i][0], &ROP[j][0], covariance_X.data());
+
+                        Cx.block<6,6>(i*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    }
+                }
             }
         }
 

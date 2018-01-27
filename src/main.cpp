@@ -32,7 +32,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1
+#define NUMITERATION 1000
 #define DEBUGMODE 0
 #define ROPMODE 1 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 
@@ -1483,7 +1483,7 @@ int main(int argc, char** argv) {
                         new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
             }
-            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
             variances.push_back(imageXStdDev[n]*imageXStdDev[n]);

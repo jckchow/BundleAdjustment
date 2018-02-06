@@ -1,20 +1,143 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jan 26 19:07:52 2018
+/////////////////////////////////////////////////////////////////////////////
+//
+//   Project/Path:      %M%
+//   Last Change Set:   %L% (%G% %U%)
+//
+/////////////////////////////////////////////////////////////////////////////
+//
+//   COPYRIGHT Vusion Technologies, all rights reserved.
+//
+//   No part of this software may be reproduced or modified in any
+//   form or by any means - electronic, mechanical, photocopying,
+//   recording, or otherwise - without the prior written consent of
+//   Vusion Technologies.
+//
 
-@author: jckchow
+@author: jacky.chow
 """
 
 import numpy as np
 from time import time
 from matplotlib import pyplot as plt
 
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP_ROP/EOP.jck'
-eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
+##########################################
+### Functions 
+##########################################
+def integrateAbsAngles(R, opk):
+
+    #integrate the absolute angles
+    opk1 = np.fabs(opk)
+    
+    ## rotation from map to sensor1
+    deltaR = np.zeros((3,3))
+    deltaR[0,0] = np.cos(opk1[1]) * np.cos(opk1[2]);
+    deltaR[0,1] = np.cos(opk1[0]) * np.sin(opk1[2]) + np.sin(opk1[0]) * np.sin(opk1[1]) * np.cos(opk1[2]);
+    deltaR[0,2] = np.sin(opk1[0]) * np.sin(opk1[2]) - np.cos(opk1[0]) * np.sin(opk1[1]) * np.cos(opk1[2]);
+    
+    deltaR[1,0] = -np.cos(opk1[1]) * np.sin(opk1[2]);
+    deltaR[1,1] = np.cos(opk1[0]) * np.cos(opk1[2]) - np.sin(opk1[0]) * np.sin(opk1[1]) * np.sin(opk1[2]);
+    deltaR[1,2] = np.sin(opk1[0]) * np.cos(opk1[2]) + np.cos(opk1[0]) * np.sin(opk1[1]) * np.sin(opk1[2]);
+    
+    deltaR[2,0] = np.sin(opk1[1]);
+    deltaR[2,1] = -np.sin(opk1[0]) * np.cos(opk1[1]);
+    deltaR[2,2] = np.cos(opk1[0]) * np.cos(opk1[1]);
+    
+    # deltaR_1to2
+    M = np.matmul(deltaR, R)
+    
+    return M
+    
+    
+def calculateChangeAngles(opk1, opk2):
+    
+    ## rotation from map to sensor1
+    R1 = np.zeros((3,3))
+    R1[0,0] = np.cos(opk1[1]) * np.cos(opk1[2]);
+    R1[0,1] = np.cos(opk1[0]) * np.sin(opk1[2]) + np.sin(opk1[0]) * np.sin(opk1[1]) * np.cos(opk1[2]);
+    R1[0,2] = np.sin(opk1[0]) * np.sin(opk1[2]) - np.cos(opk1[0]) * np.sin(opk1[1]) * np.cos(opk1[2]);
+    
+    R1[1,0] = -np.cos(opk1[1]) * np.sin(opk1[2]);
+    R1[1,1] = np.cos(opk1[0]) * np.cos(opk1[2]) - np.sin(opk1[0]) * np.sin(opk1[1]) * np.sin(opk1[2]);
+    R1[1,2] = np.sin(opk1[0]) * np.cos(opk1[2]) + np.cos(opk1[0]) * np.sin(opk1[1]) * np.sin(opk1[2]);
+    
+    R1[2,0] = np.sin(opk1[1]);
+    R1[2,1] = -np.sin(opk1[0]) * np.cos(opk1[1]);
+    R1[2,2] = np.cos(opk1[0]) * np.cos(opk1[1]);
+    
+
+    ## rotation from map to sensor2
+    R2 = np.zeros((3,3))
+    R2[0,0] = np.cos(opk2[1]) * np.cos(opk2[2]);
+    R2[0,1] = np.cos(opk2[0]) * np.sin(opk2[2]) + np.sin(opk2[0]) * np.sin(opk2[1]) * np.cos(opk2[2]);
+    R2[0,2] = np.sin(opk2[0]) * np.sin(opk2[2]) - np.cos(opk2[0]) * np.sin(opk2[1]) * np.cos(opk2[2]);
+    
+    R2[1,0] = -np.cos(opk2[1]) * np.sin(opk2[2]);
+    R2[1,1] = np.cos(opk2[0]) * np.cos(opk2[2]) - np.sin(opk2[0]) * np.sin(opk2[1]) * np.sin(opk2[2]);
+    R2[1,2] = np.sin(opk2[0]) * np.cos(opk2[2]) + np.cos(opk2[0]) * np.sin(opk2[1]) * np.sin(opk2[2]);
+    
+    R2[2,0] = np.sin(opk2[1]);
+    R2[2,1] = -np.sin(opk2[0]) * np.cos(opk2[1]);
+    R2[2,2] = np.cos(opk2[0]) * np.cos(opk2[1]);
+    
+    # deltaR_1to2
+    deltaR_1to2 = np.matmul(R2, R1.transpose())
+    
+    deltaOPK12 = np.zeros(3)
+    deltaOPK12[0] = np.arctan2(-deltaR_1to2[2,1],deltaR_1to2[2,2])
+    deltaOPK12[1] = np.arcsin(deltaR_1to2[2,0])
+    deltaOPK12[2] = np.arctan2(-deltaR_1to2[1,0],deltaR_1to2[0,0])
+
+    # rotation angles from 1 to 2
+    return deltaOPK12
 
 ##########################################
-### read in data
+### user defined parameteres
+##########################################
+
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP_ROP/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/EOP.jck'
+eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
+
+numSamples = 15
+
+##########################################
+### Process eop data
 ##########################################
 eop = np.genfromtxt(eopFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7,8,9,10,11,12))
 eopTruth = np.genfromtxt(eopTruthFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6))
+
+ID  = eop[0:numSamples,(0)].astype(int)
+XYZ = eop[0:numSamples,(4,5,6)]
+OPK = eop[0:numSamples,(1,2,3)] * np.pi/180.0
+
+IDTrue  = eopTruth[:,(0)].astype(int)
+XYZTrue = eopTruth[:,(1,2,3)]
+OPKTrue = eopTruth[:,(4,5,6)] * np.pi/180.0
+
+# computer error in camera position
+diffXYZ = np.zeros((len(ID),3))
+for n in range(0,len(ID)):
+    index = np.argwhere(ID[n] == IDTrue)
+#    print XYZTrue[index,:]
+#    print XYZ[n,:]
+    diffXYZ[n,:] = XYZ[n,:] - XYZTrue[index,:]
+
+print 'RMSE Xo, Yo, Zo: ', np.sqrt( np.mean(diffXYZ**2,axis=0) )
+
+# computer error in camera position
+diffR = np.identity(3)
+for n in range(0,len(ID)):
+    index = np.argwhere(ID[n] == IDTrue)
+    diffOPK =  calculateChangeAngles(OPK[n,:],OPKTrue[index,:].flatten())
+    print diffOPK
+    diffR = integrateAbsAngles(diffR, diffOPK)
+    
+deltaOPK = np.zeros(3)
+deltaOPK[0] = np.arctan2(-diffR[2,1],diffR[2,2])
+deltaOPK[1] = np.arcsin(diffR[2,0])
+deltaOPK[2] = np.arctan2(-diffR[1,0],diffR[0,0])
+
+print 'RMSE omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi
+    

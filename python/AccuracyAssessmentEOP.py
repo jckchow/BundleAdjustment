@@ -96,11 +96,11 @@ def calculateChangeAngles(opk1, opk2):
 ### user defined parameteres
 ##########################################
 
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP_ROP/EOP.jck'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/NewResults/TrainAB/EOP.jck'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/EOP.jck'
 eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
 
-numSamples = 15
+numSamples = 30
 
 ##########################################
 ### Process eop data
@@ -117,6 +117,7 @@ XYZTrue = eopTruth[:,(1,2,3)]
 OPKTrue = eopTruth[:,(4,5,6)] * np.pi/180.0
 
 # computer error in camera position
+print 'Start computing errors in camera position...'
 diffXYZ = np.zeros((len(ID),3))
 for n in range(0,len(ID)):
     index = np.argwhere(ID[n] == IDTrue)
@@ -124,20 +125,43 @@ for n in range(0,len(ID)):
 #    print XYZ[n,:]
     diffXYZ[n,:] = XYZ[n,:] - XYZTrue[index,:]
 
-print 'RMSE Xo, Yo, Zo: ', np.sqrt( np.mean(diffXYZ**2,axis=0) )
+print '  RMSE Xo, Yo, Zo: ', np.sqrt( np.mean(diffXYZ**2,axis=0) )
 
-# computer error in camera position
+# computer error in camera orientation
+print 'Start computing errors in camera orientation...'
 diffR = np.identity(3)
+omega = np.zeros((len(ID)))
+phi   = np.zeros((len(ID)))
+kappa = np.zeros((len(ID)))
 for n in range(0,len(ID)):
     index = np.argwhere(ID[n] == IDTrue)
     diffOPK =  calculateChangeAngles(OPK[n,:],OPKTrue[index,:].flatten())
-    print diffOPK
+    # print diffOPK * 180.0 / np.pi
     diffR = integrateAbsAngles(diffR, diffOPK)
+    
+    omega[n] = np.arctan2(-diffR[2,1],diffR[2,2])
+    phi[n]   = np.arcsin(diffR[2,0])
+    kappa[n] = np.arctan2(-diffR[1,0],diffR[0,0])
     
 deltaOPK = np.zeros(3)
 deltaOPK[0] = np.arctan2(-diffR[2,1],diffR[2,2])
 deltaOPK[1] = np.arcsin(diffR[2,0])
 deltaOPK[2] = np.arctan2(-diffR[1,0],diffR[0,0])
 
-print 'RMSE omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi
-    
+print '  Integrated absolute omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi
+print '  Average absolute omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi / len(ID)
+
+plt.figure()
+plt.plot(range(0,len(ID)), omega * 180.0 / np.pi, color = 'darkorange')
+plt.title('Omega')
+plt.ylabel('Degrees')
+
+plt.figure()
+plt.plot(range(0,len(ID)), phi * 180.0 / np.pi, color = 'cyan')
+plt.title('Phi')
+plt.ylabel('Degrees')
+
+plt.figure()
+plt.plot(range(0,len(ID)), kappa * 180.0 / np.pi, color = 'violet')
+plt.title('Kappa')
+plt.ylabel('Degrees')

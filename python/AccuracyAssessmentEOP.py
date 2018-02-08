@@ -96,11 +96,29 @@ def calculateChangeAngles(opk1, opk2):
 ### user defined parameteres
 ##########################################
 
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/NewResults/TrainAB/EOP.jck'
+
+
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/Before_AB/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainAB_IOP_TestAB/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainAB_TestAB/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainAB_TestAB_Separate/EOP.jck'
+    
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/Before_A/EOP.jck'    
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainA_TestA/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainAB_TestA/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainA_IOP_TestA/EOP.jck'
+    
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/Before_B/EOP.jck'  
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainB_TestB/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainAB_TestB/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainB_IOP_TestB_moreIter/EOP.jck'
+
 eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/NewResults/TrainAB/EOP.jck'
-#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/EOP.jck'
+
 eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
 
-numSamples = 30
+numSamples = 270
 
 ##########################################
 ### Process eop data
@@ -133,11 +151,19 @@ diffR = np.identity(3)
 omega = np.zeros((len(ID)))
 phi   = np.zeros((len(ID)))
 kappa = np.zeros((len(ID)))
+theta = np.zeros((len(ID)))
+vectorOPK = np.zeros((len(ID),3))
 for n in range(0,len(ID)):
     index = np.argwhere(ID[n] == IDTrue)
     diffOPK =  calculateChangeAngles(OPK[n,:],OPKTrue[index,:].flatten())
-    # print diffOPK * 180.0 / np.pi
+    
+    vectorOPK[n,(0,1,2)] = np.fabs(diffOPK)
+    
+#    print diffOPK * 180.0 / np.pi
+    diffOPK /= len(ID)
     diffR = integrateAbsAngles(diffR, diffOPK)
+    
+    theta[n] = np.arccos(0.5 * (diffR[0,0]+diffR[1,1]+diffR[2,2]) - 0.5)
     
     omega[n] = np.arctan2(-diffR[2,1],diffR[2,2])
     phi[n]   = np.arcsin(diffR[2,0])
@@ -150,6 +176,7 @@ deltaOPK[2] = np.arctan2(-diffR[1,0],diffR[0,0])
 
 print '  Integrated absolute omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi
 print '  Average absolute omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi / len(ID)
+print '  Average absolute vector omega, phi, kappa [deg]: ', np.mean(vectorOPK,axis = 0) * 180.0 / np.pi
 
 plt.figure()
 plt.plot(range(0,len(ID)), omega * 180.0 / np.pi, color = 'darkorange')
@@ -165,3 +192,8 @@ plt.figure()
 plt.plot(range(0,len(ID)), kappa * 180.0 / np.pi, color = 'violet')
 plt.title('Kappa')
 plt.ylabel('Degrees')
+
+plt.figure()
+plt.plot(range(0,len(ID)), theta * 180.0 / np.pi, color = 'magenta')
+plt.title('Axis-Angle')
+plt.ylabel('Theta [deg]')

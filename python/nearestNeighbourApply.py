@@ -45,10 +45,23 @@ from matplotlib.colors import ListedColormap
 #iopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop'
 
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1Training_CalibratedSeparate.pho'
+
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.eop'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1TrainingA_CalibratedA.pho'
+
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingAB_CalibratedAB_IOP.pho'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_AB/NNModel'
+
 phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.pho'
 eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.eop'
-outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_B/xray1TrainingCalibrated.pho'
-
+outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingB_CalibratedB_moreIter_IOP.pho'
+NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/NNModel'
 ##########################################
 ### read in the residuals output from bundle adjustment
 # x, y, v_x, v_y, redu_x, redu_y, vStdDev_x, vStdDev_y
@@ -79,7 +92,9 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
     print "Processing sensor: ", sensorID
     
-    reg = joblib.load("//home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_B/NNModel" + str(sensorID.astype(int)) + ".pkl")
+    reg = joblib.load(NNModelFilename + str(sensorID.astype(int)) + ".pkl")
+    
+    print "Loaded model: ", NNModelFilename + str(sensorID.astype(int)) + ".pkl"
     
     #########################################
     ### Predicting per eop

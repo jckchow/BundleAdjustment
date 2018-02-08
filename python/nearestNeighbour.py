@@ -44,21 +44,23 @@ from matplotlib.colors import ListedColormap
 #iopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop'
 
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
 
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
 
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.eop'
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.eop'
 
+# do we want to plot things
+doPlot = False
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -177,146 +179,172 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 #    ##########################################
 #    ### Plotting
 #    ##########################################
-#
-#    xx, yy = np.meshgrid(np.arange(iop[indexIOP,2], iop[indexIOP,4], 1),
-#                         np.arange(iop[indexIOP,3], -iop[indexIOP,5], -1))
-#
-#    pred = reg.predict(np.hstack((np.reshape(xx,(-1,1)), np.reshape(yy,(-1,1)))))
-#    
-#    xp = iop[indexIOP,6]
-#    yp = iop[indexIOP,7]
-#        
-#    # Plot the training points    
-#    plt.figure()
-#    plt.scatter(features_train[:, 0], features_train[:, 1], color = 'darkorange')
-#    plt.title('Image measurements for sensor ' + str(sensorID))
-#    plt.xlabel('x')
-#    plt.ylabel('y')
-##    plt.xlim([iop[indexIOP,2], iop[indexIOP,4]]) # set it to the image format
-##    plt.ylim([iop[indexIOP,3], -iop[indexIOP,5]])
-#    
-#    # define grid.
-#    xi = np.arange(iop[indexIOP,2], iop[indexIOP,4], 1)
-#    yi = np.arange(iop[indexIOP,3], -iop[indexIOP,5], -1)
-#    
-#    plt.figure()
-#    # grid the data.
-#    zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 0], xi, yi, interp='linear')
-#    # contour the gridded data, plotting dots at the nonuniform data points.
-#    CS = plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
-#    CS = plt.contourf(xi, yi, zi, 15,
-#                      vmax=abs(zi).max(), vmin=-abs(zi).max())
-#    plt.colorbar()  # draw colorbar
-#    # plot data points.
-#    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
-#    plt.title('x residuals: Sensor ' + str(sensorID))
-#
-#    zz = np.reshape(pred[:,0], np.shape(xx))
-#    plt.figure()
-#    # contour the gridded data, plotting dots at the nonuniform data points.
-#    CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
-#    CS = plt.contourf(xx, yy, zz, 15,
-#                      vmax=abs(zi).max(), vmin=-abs(zi).max())
-#    plt.colorbar()  # draw colorbar
-#    # plot data points.
-#    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
-#    plt.title('x model: Sensor ' + str(sensorID))
-#    
-#    plt.figure()
-#    # contour the gridded data, plotting dots at the nonuniform data points.
-#    CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
-#    CS = plt.contourf(xx, yy, zz, 15,
-#                      vmax=abs(zz).max(), vmin=-abs(zz).max())
-#    plt.colorbar()  # draw colorbar
-#    # plot data points.
-#    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
-#    plt.title('x model: Sensor ' + str(sensorID))
-#
-#    
-##    fig = plt.figure()
-##    ax = fig.gca(projection='3d')
-##    X = xx
-##    Y = yy
-##    Z = zi
-###    X, Y, Z = axes3d.get_test_data(0.05)
-##    ax.plot_surface(X, Y, Z, rstride=8, cstride=8, alpha=0.3)
-###    cset = ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
-##    cset = ax.contourf(X, Y, Z, zdir='x', offset=0, cmap=cm.coolwarm)
-##    cset = ax.contourf(X, Y, Z, zdir='y', offset=0, cmap=cm.coolwarm)
-#
-#    plt.figure()
-#    # grid the data.
-#    zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 1], xi, yi, interp='linear')
-#    # contour the gridded data, plotting dots at the nonuniform data points.
-#    CS = plt.contourf(xi, yi, zi, 15, linewidths=0.5, colors='k')
-#    CS = plt.contourf(xi, yi, zi, 15,
-#                      vmax=abs(zi).max(), vmin=-abs(zi).max())
-#    plt.colorbar()  # draw colorbar
-#    # plot data points.
-#    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
-#    plt.title('y residuals: Sensor ' + str(sensorID))
-#    plt.show()
-# 
-#    zz = np.reshape(pred[:,1], np.shape(xx))
-#    plt.figure()
-#    # contour the gridded data, plotting dots at the nonuniform data points.
-#    CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
-#    CS = plt.contourf(xx, yy, zz, 15,
-#                      vmax=abs(zi).max(), vmin=-abs(zi).max())
-#    plt.colorbar()  # draw colorbar
-#    # plot data points.
-#    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
-#    plt.title('y model: Sensor ' + str(sensorID))
-#    
-#    plt.figure()
-#    # contour the gridded data, plotting dots at the nonuniform data points.
-#    CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
-#    CS = plt.contourf(xx, yy, zz, 15,
-#                      vmax=abs(zz).max(), vmin=-abs(zz).max())
-#    plt.colorbar()  # draw colorbar
-#    # plot data points.
-#    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
-#    plt.title('y model: Sensor ' + str(sensorID))
-#        
-#    ### 1D Plots
-#    plt.figure()
-#    plt.scatter( features_train[:, 0], labels_train[:, 0])
-#    plt.title('Horizontal: Sensor ' + str(sensorID))
-#    plt.xlabel('x')
-#    plt.ylabel('x residuals')
-#
-#    plt.figure()
-#    plt.scatter( features_train[:, 0], labels_train[:, 1])
-#    plt.title('Horizontal: Sensor ' + str(sensorID))
-#    plt.xlabel('x')
-#    plt.ylabel('y residuals')  
-#
-#    plt.figure()
-#    plt.scatter( features_train[:, 1], labels_train[:, 0])
-#    plt.title('Vertical: Sensor ' + str(sensorID))
-#    plt.xlabel('y')
-#    plt.ylabel('x residuals')
-#
-#    plt.figure()
-#    plt.scatter( features_train[:, 1], labels_train[:, 1])
-#    plt.title('Vertical: Sensor ' + str(sensorID))
-#    plt.xlabel('y')
-#    plt.ylabel('y residuals')  
-#    
-#    plt.figure()
-#    plt.scatter( np.sqrt((np.reshape(xx,(-1,1))-xp)**2 + (np.reshape(yy,(-1,1))-yp)**2), pred[:, 0], label='model', color='blue')
-#    plt.scatter( np.sqrt((features_train[:, 0]-xp)**2 + (features_train[:, 1]-yp)**2), labels_train[:, 0], label='Data', color='red')
-#    plt.title('Radial: Sensor ' + str(sensorID))
-#    plt.xlabel('r')
-#    plt.ylabel('x residuals')
-#
-#    plt.figure()
-#    plt.scatter( np.sqrt((np.reshape(xx,(-1,1))-xp)**2 + (np.reshape(yy,(-1,1))-yp)**2), pred[:, 1], label='model', color='blue')
-#    plt.scatter( np.sqrt((features_train[:, 0]-xp)**2 + (features_train[:, 1]-yp)**2), labels_train[:, 1], label='Data', color='red')
-#    plt.title('Radial: Sensor ' + str(sensorID))
-#    plt.xlabel('r')
-#    plt.ylabel('y residuals')
-#    plt.legend(loc="best")    
+
+    if (doPlot):
+        xx, yy = np.meshgrid(np.arange(iop[indexIOP,2], iop[indexIOP,4], 1),
+                             np.arange(iop[indexIOP,3], -iop[indexIOP,5], -1))
+    
+        pred = reg.predict(np.hstack((np.reshape(xx,(-1,1)), np.reshape(yy,(-1,1)))))
+        
+        xp = iop[indexIOP,6]
+        yp = iop[indexIOP,7]
+            
+        # Plot the training points    
+        plt.figure()
+        plt.scatter(features_train[:, 0], features_train[:, 1], color = 'darkorange')
+        plt.title('Image measurements for sensor ' + str(sensorID))
+        plt.xlabel('x')
+        plt.ylabel('y')
+    #    plt.xlim([iop[indexIOP,2], iop[indexIOP,4]]) # set it to the image format
+    #    plt.ylim([iop[indexIOP,3], -iop[indexIOP,5]])
+        
+        # define grid.
+        xi = np.arange(iop[indexIOP,2], iop[indexIOP,4], 1)
+        yi = np.arange(iop[indexIOP,3], -iop[indexIOP,5], -1)
+    
+        plt.figure()
+        # grid the data.
+        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 0], xi, yi, interp='linear')
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xi, yi, zi, 15,
+                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+        plt.colorbar()  # draw colorbar
+        plt.title('x residuals: Sensor ' + str(sensorID))
+        
+        plt.figure()
+        # grid the data.
+        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 0], xi, yi, interp='linear')
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xi, yi, zi, 15,
+                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+        plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('x residuals: Sensor ' + str(sensorID))
+    
+        zz = np.reshape(pred[:,0], np.shape(xx))
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xx, yy, zz, 15,
+                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+    #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('x model: Sensor ' + str(sensorID))
+        
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xx, yy, zz, 15,
+                          vmax=abs(zz).max(), vmin=-abs(zz).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+        plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('x model: Sensor ' + str(sensorID))
+    
+        
+    #    fig = plt.figure()
+    #    ax = fig.gca(projection='3d')
+    #    X = xx
+    #    Y = yy
+    #    Z = zi
+    ##    X, Y, Z = axes3d.get_test_data(0.05)
+    #    ax.plot_surface(X, Y, Z, rstride=8, cstride=8, alpha=0.3)
+    ##    cset = ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
+    #    cset = ax.contourf(X, Y, Z, zdir='x', offset=0, cmap=cm.coolwarm)
+    #    cset = ax.contourf(X, Y, Z, zdir='y', offset=0, cmap=cm.coolwarm)
+    
+        plt.figure()
+        # grid the data.
+        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 1], xi, yi, interp='linear')
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contourf(xi, yi, zi, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xi, yi, zi, 15,
+                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+        plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('y residuals: Sensor ' + str(sensorID))
+        plt.show()
+    
+        plt.figure()
+        # grid the data.
+        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 1], xi, yi, interp='linear')
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contourf(xi, yi, zi, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xi, yi, zi, 15,
+                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+    #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('y residuals: Sensor ' + str(sensorID))
+        plt.show()
+     
+        zz = np.reshape(pred[:,1], np.shape(xx))
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xx, yy, zz, 15,
+                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+    #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('y model: Sensor ' + str(sensorID))
+        plt.show()
+        
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xx, yy, zz, 15,
+                          vmax=abs(zz).max(), vmin=-abs(zz).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+        plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('y model: Sensor ' + str(sensorID))
+        plt.show()
+            
+        ### 1D Plots
+        plt.figure()
+        plt.scatter( features_train[:, 0], labels_train[:, 0])
+        plt.title('Horizontal: Sensor ' + str(sensorID))
+        plt.xlabel('x')
+        plt.ylabel('x residuals')
+    
+        plt.figure()
+        plt.scatter( features_train[:, 0], labels_train[:, 1])
+        plt.title('Horizontal: Sensor ' + str(sensorID))
+        plt.xlabel('x')
+        plt.ylabel('y residuals')  
+    
+        plt.figure()
+        plt.scatter( features_train[:, 1], labels_train[:, 0])
+        plt.title('Vertical: Sensor ' + str(sensorID))
+        plt.xlabel('y')
+        plt.ylabel('x residuals')
+    
+        plt.figure()
+        plt.scatter( features_train[:, 1], labels_train[:, 1])
+        plt.title('Vertical: Sensor ' + str(sensorID))
+        plt.xlabel('y')
+        plt.ylabel('y residuals')  
+        
+        plt.figure()
+        plt.scatter( np.sqrt((np.reshape(xx,(-1,1))-xp)**2 + (np.reshape(yy,(-1,1))-yp)**2), pred[:, 0], label='model', color='blue')
+        plt.scatter( np.sqrt((features_train[:, 0]-xp)**2 + (features_train[:, 1]-yp)**2), labels_train[:, 0], label='Data', color='red')
+        plt.title('Radial: Sensor ' + str(sensorID))
+        plt.xlabel('r')
+        plt.ylabel('x residuals')
+    
+        plt.figure()
+        plt.scatter( np.sqrt((np.reshape(xx,(-1,1))-xp)**2 + (np.reshape(yy,(-1,1))-yp)**2), pred[:, 1], label='model', color='blue')
+        plt.scatter( np.sqrt((features_train[:, 0]-xp)**2 + (features_train[:, 1]-yp)**2), labels_train[:, 1], label='Data', color='red')
+        plt.title('Radial: Sensor ' + str(sensorID))
+        plt.xlabel('r')
+        plt.ylabel('y residuals')
+        plt.legend(loc="best")    
 
 errors = np.asarray(errors)
 print "SensorID, Cost, NumSamples, K"

@@ -34,7 +34,7 @@
 #define PI 3.141592653589793238462643383279502884197169399
 #define NUMITERATION 1
 #define DEBUGMODE 0
-#define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
+#define ROPMODE 1 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -60,10 +60,12 @@
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_A/xray1TrainingCalibrated.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1TrainingA_CalibratedA.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1TrainingA_CalibratedAB.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1TrainingA_CalibratedAB.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingA_CalibratedA_IOP.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingA_CalibratedAB_IOP.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_AB/iopA.iop"
 // // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_A/iop.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.eop"
 // // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
@@ -75,9 +77,11 @@
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After_B/xray1TrainingCalibrated.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1TrainingB_CalibratedAB.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/NewResults/xray1TrainingB_CalibratedB.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingB_CalibratedB_moreIter_IOP.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingB_CalibratedB_moreIter_IOP.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingB_CalibratedAB_IOP.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/iop.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/iop.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_AB/iopB.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.eop"
 // // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
@@ -91,8 +95,8 @@
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
-// #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
-#define INPUTROPFILENAME ""
+#define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
+// #define INPUTROPFILENAME ""
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
@@ -101,6 +105,7 @@
 // // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho" 
@@ -494,15 +499,15 @@ struct collinearityMachineLearnedROP {
 
   // rotation from sensor 1 to sensor 2
   T m11 = cos(ROP[1]) * cos(ROP[2]);
-  T m21 = cos(ROP[0]) * sin(ROP[2]) + sin(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
-  T m31 = sin(ROP[0]) * sin(ROP[2]) - cos(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+  T m12 = cos(ROP[0]) * sin(ROP[2]) + sin(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+  T m13 = sin(ROP[0]) * sin(ROP[2]) - cos(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
 
-  T m12 = -cos(ROP[1]) * sin(ROP[2]);
+  T m21 = -cos(ROP[1]) * sin(ROP[2]);
   T m22 = cos(ROP[0]) * cos(ROP[2]) - sin(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
-  T m32 = sin(ROP[0]) * cos(ROP[2]) + cos(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
+  T m23 = sin(ROP[0]) * cos(ROP[2]) + cos(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
 
-  T m13 = sin(ROP[1]);
-  T m23 = -sin(ROP[0]) * cos(ROP[1]);
+  T m31 = sin(ROP[1]);
+  T m32 = -sin(ROP[0]) * cos(ROP[1]);
   T m33 = cos(ROP[0]) * cos(ROP[1]); 
 
   T a11 = m11*r11 + m12*r21 + m13*r31;
@@ -1002,7 +1007,7 @@ int main(int argc, char** argv) {
             std::cout << "      ROP ID: " <<std::endl;
             for (int i = 0; i < ropID.size(); i++)
             {
-                std::cout<<" \t " <<ropID[i][0]<<" <-- "<<ropID[i][1]<<" = "<<ropID[i][2]<<std::endl;
+                std::cout<<" \t " <<ropID[i][0]<<" --> "<<ropID[i][1]<<" = "<<ropID[i][2]<<std::endl;
             }
 
             // establish what the initial ROP should be
@@ -1065,7 +1070,8 @@ int main(int argc, char** argv) {
                                 T(1,0) = Ty;
                                 T(2,0) = Tz;
 
-                                Eigen::MatrixXd deltaR = R1 * R2.transpose();
+                                // deltaR_1_to_2 = R_m_to_2 * R_1_to_m
+                                Eigen::MatrixXd deltaR = R2 * R1.transpose();
 
                                 double deltaOmega = atan2(-deltaR(2,1), deltaR(2,2));
                                 double deltaPhi   = asin (deltaR(2,0));
@@ -1193,9 +1199,9 @@ int main(int argc, char** argv) {
                 // double tempYo = (listYo[1]);
                 // double tempZo = (listZo[1]);
 
-                std::cout<<"      Median boresight and leverarm: "<<std::endl;
-                std::cout<<"        "<<tempOmega * 180.0/PI<<", "<< tempPhi * 180.0/PI << ", " << tempKappa * 180.0/PI << ", " << tempXo << ", " << tempYo << ", " << tempZo << std::endl;
-                std::cout<<"      Mean boresight and leverarm:" <<std::endl;
+                std::cout<<"      Median boresight and leverarm (from master to slave): "<<std::endl;
+                std::cout<<"        "<<tempOmega * 180.0/PI<<", "<< tempPhi * 180.0/PI << ", " << tempKappa * 180.0/PI << ", " << tempXo << ", " << tempYo << ", " << tempZo <<". Distance: "<< sqrt(tempXo*tempXo+tempYo*tempYo+tempZo*tempZo) << std::endl;
+                std::cout<<"      Mean boresight and leverarm (from master to slave):" <<std::endl;
                 std::cout<<"        "<<std::accumulate( listOmega.begin(), listOmega.end(), 0.0)/listOmega.size() * 180.0/PI<<", "<< std::accumulate( listPhi.begin(), listPhi.end(), 0.0)/listPhi.size() * 180.0/PI << ", " << std::accumulate( listKappa.begin(), listKappa.end(), 0.0)/listKappa.size() * 180.0/PI << ", " << std::accumulate( listXo.begin(), listXo.end(), 0.0)/listXo.size() <<", " << std::accumulate( listYo.begin(), listYo.end(), 0.0)/listYo.size() << ", " << std::accumulate( listZo.begin(), listZo.end(), 0.0)/listZo.size() <<std::endl;
                 // std::cout<<"      Std. Dev. boresight and leverarm:" <<std::endl;
 
@@ -2589,8 +2595,8 @@ int main(int argc, char** argv) {
             FILE *fout = fopen("ROP.jck", "w");
             for(int i = 0; i < ROP.size(); ++i)
             {
-                fprintf(fout, "%i <-- %i: %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", ropID[i][0], ropID[i][1], ROP[i][0]*180.0/PI, ROP[i][1]*180.0/PI, ROP[i][2]*180.0/PI, ROP[i][3], ROP[i][4], ROP[i][5], sqrt(ropVariance(i,0))*180.0/PI, sqrt(ropVariance(i,1))*180.0/PI, sqrt(ropVariance(i,2))*180.0/PI, sqrt(ropVariance(i,3)), sqrt(ropVariance(i,4)), sqrt(ropVariance(i,5)) );
-                std::cout<<ropID[i][0]<<" <-- "<< ropID[i][1]<<": "<<ROP[i][0]*180.0/PI<<", "<< ROP[i][1]*180.0/PI<<", "<< ROP[i][2]*180.0/PI <<", "<< ROP[i][3]<<", "<< ROP[i][4]<<", "<< ROP[i][5]<<". Distance: "<< sqrt(ROP[i][3]*ROP[i][3] + ROP[i][4]*ROP[i][4] + ROP[i][5]*ROP[i][5]) <<std::endl;
+                fprintf(fout, "%i --> %i: %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", ropID[i][0], ropID[i][1], ROP[i][0]*180.0/PI, ROP[i][1]*180.0/PI, ROP[i][2]*180.0/PI, ROP[i][3], ROP[i][4], ROP[i][5], sqrt(ropVariance(i,0))*180.0/PI, sqrt(ropVariance(i,1))*180.0/PI, sqrt(ropVariance(i,2))*180.0/PI, sqrt(ropVariance(i,3)), sqrt(ropVariance(i,4)), sqrt(ropVariance(i,5)) );
+                std::cout<<"    " << ropID[i][0]<<" --> "<< ropID[i][1]<<": "<<ROP[i][0]*180.0/PI<<", "<< ROP[i][1]*180.0/PI<<", "<< ROP[i][2]*180.0/PI <<", "<< ROP[i][3]<<", "<< ROP[i][4]<<", "<< ROP[i][5]<<". Distance: "<< sqrt(ROP[i][3]*ROP[i][3] + ROP[i][4]*ROP[i][4] + ROP[i][5]*ROP[i][5]) <<std::endl;
             }
             fclose(fout);
         }

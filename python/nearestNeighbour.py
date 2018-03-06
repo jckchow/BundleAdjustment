@@ -26,6 +26,7 @@ warnings.warn = warn
 
 import numpy as np
 from time import time
+from sklearn.preprocessing import MinMaxScaler
 from sklearn import neighbors
 from sklearn.grid_search import GridSearchCV
 from sklearn.externals import joblib
@@ -44,20 +45,20 @@ from matplotlib.colors import ListedColormap
 #iopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop'
 
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
 
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
 
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.eop'
 
 # do we want to plot things
 doPlot = False
@@ -112,10 +113,27 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     features_train = inliers[indexImage,(1,2)]
     labels_train = inliers[indexImage,(3,4)] + prevCorr[indexImage,(6,7)] # this is the iterative process
     
+    # apply some scaling to the features to be between -1 and 1 in x and y
+    min_x = iop[indexIOP, 2]
+    min_y = -iop[indexIOP, 5]
+    max_x = iop[indexIOP, 4]
+    max_y = iop[indexIOP, 3]
+    desire_max = 1
+    desire_min = -1
+    x_std = (features_train[:,0] - min_x) / (max_x - min_x)
+    x_scaled = x_std * (desire_max - desire_min) + desire_min 
+    y_std = (features_train[:,1] - min_y) / (max_y - min_y)
+    y_scaled = y_std * (desire_max - desire_min) + desire_min 
+    features_train = np.concatenate((x_scaled, y_scaled)).transpose()
+    
+    # apply scale to remove the mean of labels
+    mean_label = np.mean(labels_train,axis=0);
+    labels_train -= mean_label
+    
 #    reg = neighbors.KNeighborsRegressor(n_neighbors=15, weights='uniform')
 #    reg.fit(features_train, labels_train)
     # score = clf.score(features_test, labels_test)    
-    
+        
     t0 = time()
     param_grid = [ {'n_neighbors' : range(3,50)} ]
     regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
@@ -143,7 +161,15 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     t0 = time()
     stationsWithThisIOP = np.reshape(stationsWithThisIOP, (-1,1))
-    correction = reg.predict(pho[stationsWithThisIOP,(2,3)])  
+    # apply the scaling
+    pho_scaled = pho[stationsWithThisIOP,(2,3)]
+    x_std = (pho_scaled[:,0] - min_x) / (max_x - min_x)
+    x_scaled = x_std * (desire_max - desire_min) + desire_min 
+    y_std = (pho_scaled[:,1] - min_y) / (max_y - min_y)
+    y_scaled = y_std * (desire_max - desire_min) + desire_min 
+    pho_scaled = np.concatenate((x_scaled, y_scaled)).transpose()   
+
+    correction = reg.predict(pho_scaled) + mean_label
     pho[stationsWithThisIOP,(6,7)] = correction
     print"  Done predicting:", round(time()-t0, 3), "s"
     

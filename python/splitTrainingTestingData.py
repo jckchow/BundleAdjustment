@@ -23,16 +23,38 @@ from time import time
 ##################################
 ### User defined parameters
 ##################################   
-inputPho = '/home/jckchow/BundleAdjustment/xrayData1/xray1.pho'
-inputEop = '/home/jckchow/BundleAdjustment/xrayData1/xray1.eop'
+### First paper
+#inputPho = '/home/jckchow/BundleAdjustment/xrayData1/xray1.pho'
+#inputEop = '/home/jckchow/BundleAdjustment/xrayData1/xray1.eop'
+#
+#outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop'
+#outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
+#
+#outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho'
+#outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho'
+#
+#chooseIncrement = 10
 
-outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.eop'
-outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
+### Second paper
+#inputPho = '/home/jckchow/BundleAdjustment/xrayData1/xray1.pho'
+#inputEop = '/home/jckchow/BundleAdjustment/xrayData1/xray1.eop'
+#
+#outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/xray1Training.eop'
+#outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/xray1Testing.eop'
+#
+#outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/xray1Training.pho'
+#outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/xray1Testing.pho'
 
-outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho'
-outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.pho'
+inputPho = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60.pho'
+inputEop = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60.eop'
 
-chooseIncrement = 10
+outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.eop'
+outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.eop'
+
+outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.pho'
+outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.pho'
+
+chooseIncrement = 2
 
 ##########################################
 ### read and split the data

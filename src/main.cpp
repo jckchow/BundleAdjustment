@@ -10,6 +10,9 @@
 ///   Author: Jacky Chow
 ///   Date: December 23, 2017
 ///   Description: Photogrammetric Bundle Adjustment
+///      - To build $ cd ~/BundleAdjustment/build
+///      - $ make
+///      - $ /bundleAdjustment
 ///
 ////////////////////////////////////////////////////////////////////////////
 
@@ -121,15 +124,58 @@
 /// Paper 2: 150 Training, 150 Testing
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// 
+/// Paper 1 ISPRS TC 1: Omnidirectional camera
+/// 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLess.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLessTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonRobust.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// for training Nikon
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// for training Go Pro Hero 3 Silver Edition
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproTruth.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTestingTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproTruth.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -556,6 +602,94 @@ struct collinearityMachineLearnedROP {
   // collinearity condition
   T x = -IOP[2] * XTemp / ZTemp;
   T y = -IOP[2] * YTemp / ZTemp;
+
+//   std::cout<<"x, y: "<<x+T(xp_)<<", "<<y+T(yp_)<<std::endl;
+//   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
+
+
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  T x_bar = T(x_) - T(xp_);
+  T y_bar = T(y_) - T(yp_);
+  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
+
+  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+
+  T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
+  T y_true = y + IOP[1] + delta_y - T(yMLP_);
+
+  // actual cost function
+  residual[0] = x_true - T(x_); // x-residual
+  residual[1] = y_true - T(y_); // y-residual    
+
+//   std::cout<<"x_diff, y_diff: "<<residual[0]<<", "<<residual[1]<<std::endl;
+
+  residual[0] /= T(xStdDev_);
+  residual[1] /= T(yStdDev_);
+
+  return true;
+  }
+
+ private:
+  const double x_;
+  const double y_;
+  const double xStdDev_;
+  const double yStdDev_;
+  const double xp_;
+  const double yp_;
+  const double xMLP_;
+  const double yMLP_;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Modified Omnidirectional Collinearity Equation With Machine Learned Parameters as constants
+/// Input:    x       - x observation
+///           y       - y observation
+///           xStdDev - noise
+///           yStdDev - noise
+/// Unknowns: x      - some unknown parameter in the adjustment
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct omniCollinearityMachineLearnedSimple {
+  
+  omniCollinearityMachineLearnedSimple(double x, double y, double xStdDev, double yStdDev, double xp, double yp, double xMLP, double yMLP)
+        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp), xMLP_(xMLP), yMLP_(yMLP)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, T* residual) const {
+
+  // rotation from map to sensor
+  T r11 = cos(EOP[1]) * cos(EOP[2]);
+  T r12 = cos(EOP[0]) * sin(EOP[2]) + sin(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+  T r13 = sin(EOP[0]) * sin(EOP[2]) - cos(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+
+  T r21 = -cos(EOP[1]) * sin(EOP[2]);
+  T r22 = cos(EOP[0]) * cos(EOP[2]) - sin(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+  T r23 = sin(EOP[0]) * cos(EOP[2]) + cos(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+
+  T r31 = sin(EOP[1]);
+  T r32 = -sin(EOP[0]) * cos(EOP[1]);
+  T r33 = cos(EOP[0]) * cos(EOP[1]);
+
+  // rigid body transformation
+  T XTemp = r11 * ( XYZ[0] - EOP[3] ) + r12 * ( XYZ[1] - EOP[4] ) + r13 * ( XYZ[2] - EOP[5] );
+  T YTemp = r21 * ( XYZ[0] - EOP[3] ) + r22 * ( XYZ[1] - EOP[4] ) + r23 * ( XYZ[2] - EOP[5] );
+  T ZTemp = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
+
+//   std::cout<<"XYZ[0], XYZ[1], XYZ[2]: "<<XYZ[0]<<", "<<XYZ[1]<<", "<<XYZ[2]<<std::endl;
+//   std::cout<<"EOP[3], EOP[4], EOP[5]: "<<EOP[3]<<", "<<EOP[4]<<", "<<EOP[5]<<std::endl;
+//   std::cout<<"XTemp, YTemp, ZTemp: "<<XTemp<<", "<<YTemp<<", "<<ZTemp<<std::endl;
+
+//   sleep(10000000000);        
+
+  // modified omnidirectional collinearity condition
+  T x = IOP[2] * atan2(XTemp , ZTemp);
+  T y = IOP[2] * atan2(YTemp , ZTemp);
 
 //   std::cout<<"x, y: "<<x+T(xp_)<<", "<<y+T(yp_)<<std::endl;
 //   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
@@ -1426,9 +1560,9 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL;
-        loss = new ceres::HuberLoss(1.0);
+        // loss = new ceres::HuberLoss(1.0);
 
-        // loss = new ceres::CauchyLoss(0.5);
+        loss = new ceres::CauchyLoss(0.5);
 
         // // Conventional collinearity condition
         // for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -1516,7 +1650,7 @@ int main(int argc, char** argv) {
                         new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
             }
-            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
             variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -1653,7 +1787,7 @@ int main(int argc, char** argv) {
 
         // condition for terminating least squares
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 10 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 1000 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;

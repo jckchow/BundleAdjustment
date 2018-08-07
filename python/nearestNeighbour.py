@@ -60,13 +60,39 @@ from matplotlib.colors import ListedColormap
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingB.eop'
 
-#########################
-### Paper 2: Training 150, Testing 150
 ##########################
+#### Paper 2: Training 150, Testing 150
+###########################
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+
+#########################
+### Paper 1 TC 1: Omnidirectional camera calibration
+##########################
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLessTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.eop'
+
+# nikon D600 DSLR
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop'
+
+# GoPro Hero 3 Silver Edition
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTestingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.eop'
+
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/TrainingTesting/goproTestingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/gopro.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/TrainingTesting/goproTesting.eop'
+
 
 # do we want to plot things
 doPlot = False

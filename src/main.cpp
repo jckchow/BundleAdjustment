@@ -35,7 +35,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1000
+#define NUMITERATION 1
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 
@@ -150,15 +150,15 @@
 // #define INPUTROPFILENAME ""
 
 // for training Nikon
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 // for training Go Pro Hero 3 Silver Edition
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.pho"
@@ -169,13 +169,40 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTestingTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproTruth.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTestingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// // Initial GoPro
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproInitial/initial.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproInitial/initialTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproInitial/initial.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproInitial/initial.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproInitial/goproTruth.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproInitial/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+//  GoPro new training
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/TrainingTesting/goproTesting.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/TrainingTesting/goproTestingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/gopro.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/TrainingTesting/goproTesting.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/goproLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/goproLess.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/goproLessTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/gopro.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew//goproRobust.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/goproLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -688,8 +715,8 @@ struct omniCollinearityMachineLearnedSimple {
 //   sleep(10000000000);        
 
   // modified omnidirectional collinearity condition
-  T x = IOP[2] * atan2(XTemp , ZTemp);
-  T y = IOP[2] * atan2(YTemp , ZTemp);
+  T x = IOP[2] * atan2(XTemp , -ZTemp);
+  T y = IOP[2] * atan2(YTemp , -ZTemp);
 
 //   std::cout<<"x, y: "<<x+T(xp_)<<", "<<y+T(yp_)<<std::endl;
 //   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
@@ -1560,9 +1587,9 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL;
-        // loss = new ceres::HuberLoss(1.0);
+        loss = new ceres::HuberLoss(1.0);
 
-        loss = new ceres::CauchyLoss(0.5);
+        // loss = new ceres::CauchyLoss(0.5);
 
         // // Conventional collinearity condition
         // for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -1645,10 +1672,16 @@ int main(int argc, char** argv) {
             // else if(eopCamera[indexPose] != ropSlave[indexROPSlave]) // not a slave in ROP constraint
             else
             {
+                //std::cout<<imageX[n]- IOP[indexSensor][0]<<", "<<imageY[n]- IOP[indexSensor][1]<<", "<<sqrt( std::pow(imageX[n]-IOP[indexSensor][0],2) + std::pow(imageY[n]-IOP[indexSensor][1],2) )<<std::endl;
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
                         new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<omniCollinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                //         new omniCollinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
             }
             //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
@@ -1711,6 +1744,26 @@ int main(int argc, char** argv) {
         //         fixIOP.push_back(2); //c
         //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixIOP);
         //         problem.SetParameterization(&IOP[n][0], subset_parameterization);
+        //     }
+        // }
+
+        // if(true)
+        // {
+        //     std::cout<<"Fixing a subset of the AP"<<std::endl;
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         // Fix part of APs instead of all
+        //         std::vector<int> fixAP;
+        //         fixAP.push_back(0); //a1
+        //         fixAP.push_back(1); //a2
+        //         // fixAP.push_back(2); //k1
+        //         //fixAP.push_back(3); //k2
+        //         fixAP.push_back(4); //k3
+        //         //fixAP.push_back(5); //p1
+        //         fixAP.push_back(6); //p2
+
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
         //     }
         // }
 
@@ -1783,11 +1836,9 @@ int main(int argc, char** argv) {
         std::cout << summary.BriefReport() << "\n";
         std::cout << summary.FullReport() << "\n";
 
-
-
         // condition for terminating least squares
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 1000 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 10 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
@@ -1798,7 +1849,9 @@ int main(int argc, char** argv) {
         // storing it for comparison in this EM like routine
         leastSquaresCost.push_back(summary.final_cost);
 
-        PyRun_SimpleString("t0 = TIME.clock()");        
+        PyRun_SimpleString("t0 = TIME.clock()");     
+
+        
         PyRun_SimpleString("print 'Start computing covariance matrix' ");  
         ceres::Covariance::Options covarianceOoptions;
         ceres::Covariance covariance(covarianceOoptions);
@@ -1949,6 +2002,7 @@ int main(int argc, char** argv) {
 
         covariance.Compute(covariance_blocks, &problem);
 
+        std::cout<<"   Done Computing Covariance Block"<<std::endl;
         // //double covariance_X[X.size() * X.size()];
         // Eigen::MatrixXd covariance_X(XYZ.size(), 3);
         // // covariance_X.resize(X.size() * X.size());
@@ -2320,6 +2374,7 @@ int main(int argc, char** argv) {
         }
 
         PyRun_SimpleString("print 'Done computing covariance matrix:', round(TIME.clock()-t0, 3), 's' ");
+        
 
         // Output results to screen
         if(DEBUGMODE)
@@ -2753,7 +2808,7 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("print 'Done outputting bundle adjustment results to file:', round(TIME.clock()-t0, 3), 's' ");
 
 
-
+        
         // Do quality control
         if(true)
         {
@@ -2807,6 +2862,11 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
         }   
 
+        for(int i = 0; i < leastSquaresCost.size(); ++i)
+            {
+            std::cout<<2.0*leastSquaresCost[i]<<std::endl;
+            }
+
 
         PyRun_SimpleString("t0 = TIME.clock()");        
         PyRun_SimpleString("print 'Start doing machine learning in Python' ");    
@@ -2840,7 +2900,7 @@ int main(int argc, char** argv) {
         machineLearnedCost.push_back(MLCost[0]);
         machineLearnedRedundancy.push_back(MLRedundancy[0]);
     }
-
+ 
     if (true)
         {
             std::cout<<"  Writing least squares costs to file..."<<std::endl;

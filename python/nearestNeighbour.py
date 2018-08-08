@@ -77,22 +77,16 @@ from matplotlib.colors import ListedColormap
 #eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.eop'
 
 # nikon D600 DSLR
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop'
 
 # GoPro Hero 3 Silver Edition
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTestingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.eop'
-
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/TrainingTesting/goproTestingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/gopro.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/goproNew/TrainingTesting/goproTesting.eop'
-
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTrainingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.eop'
 
 # do we want to plot things
 doPlot = False
@@ -169,7 +163,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     # score = clf.score(features_test, labels_test)    
         
     t0 = time()
-    param_grid = [ {'n_neighbors' : range(3,50)} ]
+    param_grid = [ {'n_neighbors' : range(3,len(features_train[:,0])/10)} ]
     regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
     regCV.fit(features_train, labels_train)
     print "  Best in sample score: ", regCV.best_score_

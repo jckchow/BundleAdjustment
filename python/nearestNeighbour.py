@@ -77,16 +77,16 @@ from matplotlib.colors import ListedColormap
 #eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.eop'
 
 # nikon D600 DSLR
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop'
-
-# GoPro Hero 3 Silver Edition
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.eop'
+phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop'
+
+## GoPro Hero 3 Silver Edition
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.eop'
 
 # do we want to plot things
 doPlot = False
@@ -108,7 +108,7 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 3.0
+outlierThreshold = 300.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)

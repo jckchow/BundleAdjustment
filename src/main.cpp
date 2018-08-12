@@ -38,6 +38,7 @@
 #define NUMITERATION 1000
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
+#define INITIALIZEAP 1 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -686,8 +687,6 @@ struct omniCollinearityMachineLearnedSimple {
 //   T x = IOP[2] * atan2(XTemp , -ZTemp);
 //   T y = IOP[2] * atan2(YTemp , -ZTemp);
 // modified omnidirectional collinearity condition using spatial angle
-//   T x = IOP[2] * atan(sqrt(XTemp*XTemp+YTemp*YTemp)/-ZTemp) / sqrt((YTemp/XTemp)*(YTemp/XTemp) + 1.0);
-//   T y = IOP[2] * atan(sqrt(XTemp*XTemp+YTemp*YTemp)/-ZTemp) / sqrt((XTemp/YTemp)*(XTemp/YTemp) + 1.0);
   T x = IOP[2] * atan2(sqrt(XTemp*XTemp+YTemp*YTemp),-ZTemp) / sqrt((YTemp/XTemp)*(YTemp/XTemp) + 1.0);
   T y = IOP[2] * atan2(sqrt(XTemp*XTemp+YTemp*YTemp),-ZTemp) / sqrt((XTemp/YTemp)*(XTemp/YTemp) + 1.0);
 
@@ -1645,21 +1644,21 @@ int main(int argc, char** argv) {
             // else if(eopCamera[indexPose] != ropSlave[indexROPSlave]) // not a slave in ROP constraint
             else
             {
-                //std::cout<<imageX[n]- IOP[indexSensor][0]<<", "<<imageY[n]- IOP[indexSensor][1]<<", "<<sqrt( std::pow(imageX[n]-IOP[indexSensor][0],2) + std::pow(imageY[n]-IOP[indexSensor][1],2) )<<std::endl;
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
-                        new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
-
+                // //std::cout<<imageX[n]- IOP[indexSensor][0]<<", "<<imageY[n]- IOP[indexSensor][1]<<", "<<sqrt( std::pow(imageX[n]-IOP[indexSensor][0],2) + std::pow(imageY[n]-IOP[indexSensor][1],2) )<<std::endl;
                 // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<omniCollinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
-                //         new omniCollinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]); 
+                //     new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                //         new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<omniCollinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                        new omniCollinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]); 
 
                 // problem.SetParameterBlockConstant(&EOP[indexSensor][0]); 
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); 
             }
-            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
             variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -1734,7 +1733,7 @@ int main(int argc, char** argv) {
         //         fixAP.push_back(1); //a2
         //         //fixAP.push_back(2); //k1
         //         //fixAP.push_back(3); //k2
-        //         fixAP.push_back(4); //k3
+        //         //fixAP.push_back(4); //k3
         //         fixAP.push_back(5); //p1
         //         fixAP.push_back(6); //p2
 
@@ -1814,7 +1813,7 @@ int main(int argc, char** argv) {
 
         // condition for terminating least squares
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 100 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 10 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
@@ -1848,6 +1847,13 @@ int main(int argc, char** argv) {
         //         fprintf(fout, "%i %.6lf %.6lf %.6lf\n", iopCamera[i], IOP[i][0], IOP[i][1], IOP[i][2] );
         //     }
         //     fclose(fout);
+        // }
+
+        // if (true)
+        // {
+            
+        //     std::cout<<"  Writing APs to screen..."<<std::endl;
+        //     std::cout<<iopCamera[0]<<", "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
         // }
 
         // if (true)
@@ -2830,7 +2836,6 @@ int main(int argc, char** argv) {
 
         PyRun_SimpleString("print 'Done outputting bundle adjustment results to file:', round(TIME.clock()-t0, 3), 's' ");
         
-
         
         // Do quality control
         if(true)

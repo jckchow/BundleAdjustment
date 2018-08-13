@@ -1591,6 +1591,97 @@ int main(int argc, char** argv) {
         //     problem.SetParameterBlockConstant(&AP[indexSensor][0]);
         // }
 
+        if (INITIALIZEAP)
+        {
+            // Collinearity condition with machine learned parameters and ROP
+            for(int n = 0; n < imageX.size(); n++) // loop through all observations
+            {
+                std::vector<int>::iterator it;
+                it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+                int indexPoint = std::distance(xyzTarget.begin(),it);
+                // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+
+                it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+                int indexPose = std::distance(eopStation.begin(),it);
+                // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+
+                it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+                int indexSensor = std::distance(iopCamera.begin(),it);
+                // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl; 
+
+                it = std::find(ropSlave.begin(), ropSlave.end(), iopCamera[indexSensor]);
+                int indexROPSlave = std::distance(ropSlave.begin(),it);
+  
+                if (ROPMODE && it!=ropSlave.end() && iopCamera[indexSensor] == *it) // is a slave in ROP constraint
+                {
+                    it = std::find(eopStation.begin(), eopStation.end(), imageStation[n] - ropID[indexROPSlave][2]);
+                    int indexPoseMaster = std::distance(eopStation.begin(),it);
+                    // std::cout<<"indexPoseMaster: "<<indexPoseMaster<<", ID: "<< imageStation[n] - ropID[indexROPSlave][2]<<std::endl;
+                    // std::cout<<"indexROP: "<< indexROPSlave<<std::endl;        
+
+                    ceres::CostFunction* cost_function =
+                        new ceres::AutoDiffCostFunction<collinearityMachineLearnedROP, 2, 6, 6, 3, 3, 7>(
+                            new collinearityMachineLearnedROP(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                    problem.AddResidualBlock(cost_function, loss, &EOP[indexPoseMaster][0], &ROP[indexROPSlave][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                
+                }
+                // else if(eopCamera[indexPose] != ropSlave[indexROPSlave]) // not a slave in ROP constraint
+                else
+                {
+                    // ceres::CostFunction* cost_function =
+                    //     new ceres::AutoDiffCostFunction<omniCollinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                    //         new omniCollinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                    // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]); 
+
+
+                    // rotation from map to sensor
+                    double r11 = cos(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+                    double r12 = cos(EOP[indexPose][0]) * sin(EOP[indexPose][2]) + sin(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+                    double r13 = sin(EOP[indexPose][0]) * sin(EOP[indexPose][2]) - cos(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+
+                    double r21 = -cos(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+                    double r22 = cos(EOP[indexPose][0]) * cos(EOP[indexPose][2]) - sin(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+                    double r23 = sin(EOP[indexPose][0]) * cos(EOP[indexPose][2]) + cos(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+
+                    double r31 = sin(EOP[indexPose][1]);
+                    double r32 = -sin(EOP[indexPose][0]) * cos(EOP[indexPose][1]);
+                    double r33 = cos(EOP[indexPose][0]) * cos(EOP[indexPose][1]);
+
+                    // rigid body transformation
+                    double XTemp = r11 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r12 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r13 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+                    double YTemp = r21 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r22 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r23 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+                    double ZTemp = r31 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r32 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r33 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+
+                    // modified omnidirectional collinearity condition dividing x and y
+                    //   double x = IOP[indexSensor][2] * atan2(XTemp , -ZTemp);
+                    //   double y = IOP[indexSensor][2] * atan2(YTemp , -ZTemp);
+                    // modified omnidirectional collinearity condition using spatial angle
+                    double x = IOP[indexSensor][2] * atan2(sqrt(XTemp*XTemp+YTemp*YTemp),-ZTemp) / sqrt((YTemp/XTemp)*(YTemp/XTemp) + 1.0);
+                    double y = IOP[indexSensor][2] * atan2(sqrt(XTemp*XTemp+YTemp*YTemp),-ZTemp) / sqrt((XTemp/YTemp)*(XTemp/YTemp) + 1.0);
+
+                    // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+                    double x_bar = imageX[n] - iopXp[indexSensor];
+                    double y_bar = imageY[n] - iopYp[indexSensor];
+                    double r = sqrt(x_bar*x_bar + y_bar*y_bar);
+
+                    double delta_x = x_bar*(AP[indexSensor][2]*r*r+AP[indexSensor][3]*r*r*r*r+AP[indexSensor][4]*r*r*r*r*r*r) + AP[indexSensor][5]*(r*r+(2.0)*x_bar*x_bar)+(2.0)*AP[indexSensor][6]*x_bar*y_bar + AP[indexSensor][0]*x_bar+AP[indexSensor][1]*y_bar;
+                    double delta_y = y_bar*(AP[indexSensor][2]*r*r+AP[indexSensor][3]*r*r*r*r+AP[indexSensor][4]*r*r*r*r*r*r) + AP[indexSensor][6]*(r*r+(2.0)*y_bar*y_bar)+(2.0)*AP[indexSensor][5]*x_bar*y_bar;
+
+                    // double x_true = x + IOP[indexSensor][0] + delta_x - imageXCorr[n]; // imageXCorr probably is zero is most case if the input file is zero
+                    // double y_true = y + IOP[indexSensor][1] + delta_y - imageYCorr[n];
+
+                    // // actual cost function
+                    // residual[0] = x_true - T(x_); // x-residual = reprojected - observed
+                    // residual[1] = y_true - T(y_); // y-residual 
+
+                    imageXCorr[n] = x + IOP[indexSensor][0] + delta_x - imageX[n];
+                    imageYCorr[n] = y + IOP[indexSensor][1] + delta_y - imageY[n];
+
+                }
+            }
+        }
+
+
         // Collinearity condition with machine learned parameters and ROP
         for(int n = 0; n < imageX.size(); n++) // loop through all observations
         {

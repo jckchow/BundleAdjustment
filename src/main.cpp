@@ -35,10 +35,10 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1000
+#define NUMITERATION 1
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
-#define INITIALIZEAP 1 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
+#define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -150,7 +150,7 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// // for training Nikon
+// for training Nikon
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
@@ -1591,8 +1591,9 @@ int main(int argc, char** argv) {
         //     problem.SetParameterBlockConstant(&AP[indexSensor][0]);
         // }
 
-        if (INITIALIZEAP)
+        if (INITIALIZEAP && iterNum == 0)
         {
+            std::cout<<"START: Initializing the APs by backprojecting the initial XYZ using the approximate EOP"<<std::endl;
             // Collinearity condition with machine learned parameters and ROP
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
             {
@@ -1674,11 +1675,12 @@ int main(int argc, char** argv) {
                     // residual[0] = x_true - T(x_); // x-residual = reprojected - observed
                     // residual[1] = y_true - T(y_); // y-residual 
 
-                    imageXCorr[n] = x + IOP[indexSensor][0] + delta_x - imageX[n];
-                    imageYCorr[n] = y + IOP[indexSensor][1] + delta_y - imageY[n];
+                    imageXCorr[n] = std::round(x + IOP[indexSensor][0] + delta_x - imageX[n]);
+                    imageYCorr[n] = std::round(y + IOP[indexSensor][1] + delta_y - imageY[n]);
 
                 }
             }
+        std::cout<<"   Done: Initializing the APs by backprojecting the initial XYZ using the approximate EOP"<<std::endl;
         }
 
 
@@ -1735,21 +1737,21 @@ int main(int argc, char** argv) {
             // else if(eopCamera[indexPose] != ropSlave[indexROPSlave]) // not a slave in ROP constraint
             else
             {
-                // //std::cout<<imageX[n]- IOP[indexSensor][0]<<", "<<imageY[n]- IOP[indexSensor][1]<<", "<<sqrt( std::pow(imageX[n]-IOP[indexSensor][0],2) + std::pow(imageY[n]-IOP[indexSensor][1],2) )<<std::endl;
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
-                //         new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
-
+                //std::cout<<imageX[n]- IOP[indexSensor][0]<<", "<<imageY[n]- IOP[indexSensor][1]<<", "<<sqrt( std::pow(imageX[n]-IOP[indexSensor][0],2) + std::pow(imageY[n]-IOP[indexSensor][1],2) )<<std::endl;
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<omniCollinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
-                        new omniCollinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]); 
+                    new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                        new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<omniCollinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                //         new omniCollinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]); 
 
                 // problem.SetParameterBlockConstant(&EOP[indexSensor][0]); 
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); 
             }
-            // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            //problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
             variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -1825,8 +1827,8 @@ int main(int argc, char** argv) {
         //         //fixAP.push_back(2); //k1
         //         //fixAP.push_back(3); //k2
         //         //fixAP.push_back(4); //k3
-        //         fixAP.push_back(5); //p1
-        //         fixAP.push_back(6); //p2
+        //         // fixAP.push_back(5); //p1
+        //         // fixAP.push_back(6); //p2
 
         //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
         //         problem.SetParameterization(&AP[n][0], subset_parameterization);
@@ -1966,9 +1968,15 @@ int main(int argc, char** argv) {
         //         {
         //             fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
         //         }
-        //         fclose(fout);
-            
+        //         fclose(fout)       
         // }
+
+
+
+
+
+
+
 
         
         PyRun_SimpleString("t0 = TIME.clock()");     
@@ -2774,7 +2782,7 @@ int main(int argc, char** argv) {
         }
 
         PyRun_SimpleString("print 'Done computing covariance matrix of the residuals:', round(TIME.clock()-t0, 3), 's' ");
-
+        
         Eigen::MatrixXd imageResiduals(imageX.size(), 2);
         Eigen::MatrixXd imageResidualsStdDev(imageX.size(), 2);
         Eigen::MatrixXd imageRedundancy(imageX.size(), 2);
@@ -2797,6 +2805,7 @@ int main(int argc, char** argv) {
             std::cout<<"Residuals:"<<std::endl;
             std::cout<<imageResiduals<<std::endl;
         }
+        
 
         // Output results to file
         PyRun_SimpleString("t0 = TIME.clock()");        
@@ -2812,7 +2821,7 @@ int main(int argc, char** argv) {
             }
             fclose(fout);
         }
-
+        
         // if (true)
         // {
         //     // // convert residuals to PCL point cloud format
@@ -2927,6 +2936,55 @@ int main(int argc, char** argv) {
 
         PyRun_SimpleString("print 'Done outputting bundle adjustment results to file:', round(TIME.clock()-t0, 3), 's' ");
         
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
         // Do quality control
         if(true)

@@ -138,7 +138,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     indexIOP = np.argwhere(iop[:,0] == sensorID) # iop of the current sensor
     indexEOP = np.argwhere(eop[:,1] == sensorID) # eop of the current sensor
 
-    print "Processing sensor: ", sensorID
+    print "  Processing sensor: ", sensorID
     
     ##########################################
     ### Training
@@ -169,9 +169,15 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     # smooth and rasterize the data before doing kNN
     if (doSmoothing):
-        print('Using Smoothing Method: ' + smoothingMethod)
-        xx, yy = np.meshgrid(np.arange(iop[indexIOP,2], iop[indexIOP,4], 1),
-                             np.arange(iop[indexIOP,3], -iop[indexIOP,5], -1))
+        resampleSizeX = 500;
+        resampleSizeY = 500;
+        
+        print('  Using Smoothing Method: ' + smoothingMethod)
+        print('  Resample residuals to image with dimensions: ' + str(resampleSizeX) + ' x ' + str(resampleSizeY) + ' pixels')
+#        xx, yy = np.meshgrid(np.arange(iop[indexIOP,2], iop[indexIOP,4], 4),
+#                             np.arange(iop[indexIOP,3], -iop[indexIOP,5], -4))
+        xx, yy = np.meshgrid(np.linspace(iop[indexIOP,2], iop[indexIOP,4], num=resampleSizeX, endpoint=False),
+                             np.linspace(iop[indexIOP,3], -iop[indexIOP,5], num=resampleSizeY, endpoint=False)) # endpoint should be true but numpy does something weird, probably a glitch
     
         # scale it first
         X = np.hstack((np.reshape(xx,(-1,1)), np.reshape(yy,(-1,1))))
@@ -210,36 +216,37 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         interpolatedResiduals = interpolatedResiduals[removeList]
 
         # Tune kNN using CV
-#        t0 = time()
-#        param_grid = [ {'n_neighbors' : range(5,6,2)} ] # test only up to 50 neighbours
-#        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
-#        regCV.fit(interpolatedTraining, interpolatedResiduals)
-#        print "  Best in sample score: ", regCV.best_score_
-#        print "  CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
-#        print "  Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
+        t0 = time()
+        param_grid = [ {'n_neighbors' : range(3,51,2)} ] # test only up to 50 neighbours
+        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
+        regCV.fit(interpolatedTraining, interpolatedResiduals)
+        print "    Best in sample score: ", regCV.best_score_
+        print "    CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
+        print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
         
         # train with the best K parameter
         t0 = time()   
-        reg = neighbors.KNeighborsRegressor(n_neighbors=3, weights='uniform', n_jobs=1)
+        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
         reg.fit(interpolatedTraining, interpolatedResiduals)
-        print "  Training Final NN-Regressor:", round(time()-t0, 3), "s"
+        print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
+
     
     else:
-        print('Not doing Smoothing')
+        print('  Not doing Smoothing')
         # Tune kNN using CV
         t0 = time()
         param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
         regCV.fit(features_train, labels_train)
-        print "  Best in sample score: ", regCV.best_score_
-        print "  CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
-        print "  Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
+        print "    Best in sample score: ", regCV.best_score_
+        print "    CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
+        print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
 
         # train with the best K parameter
         t0 = time()   
         reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
         reg.fit(features_train, labels_train)
-        print "  Training Final NN-Regressor:", round(time()-t0, 3), "s"
+        print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
 
     # save the preprocessing info
     joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], 'preprocessing'+str(sensorID.astype(int))+'.pkl')     
@@ -270,7 +277,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     correction = reg.predict(pho_scaled) + mean_label # add the mean back        
     
     pho[stationsWithThisIOP,(6,7)] = correction
-    print"  Done predicting:", round(time()-t0, 3), "s"
+    print"    Done predicting:", round(time()-t0, 3), "s"
     
     ##########################################
     ### Calculate Error from inliers only
@@ -282,19 +289,19 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
     avgSensorCost += cost/len(indexImage)
-    print "  Weighted x score: ", weightedScore
-    print "  Average weighted x score: ", weightedScore/len(indexImage)
+    print "    Weighted x score: ", weightedScore
+    print "    Average weighted x score: ", weightedScore/len(indexImage)
 
     v = (np.reshape(labels_train[:,1],(-1,1)) - np.reshape(reg.predict(features_train)[:,1],(-1,1))) / inliers[indexImage,8]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
     avgSensorCost += cost/len(indexImage)
-    print "  Weighted y score: ", weightedScore
-    print "  Average weighted y score: ", weightedScore/len(indexImage)
-    print "    Weighted total score: ", sensorCost    
-    print "    Average weighted total score: ", avgSensorCost    
-    print "    Number of samples: ", len(indexImage)
-    print "  Done calculating error:", round(time()-t0, 3), "s"  
+    print "    Weighted y score: ", weightedScore
+    print "    Average weighted y score: ", weightedScore/len(indexImage)
+    print "      Weighted total score: ", sensorCost    
+    print "      Average weighted total score: ", avgSensorCost    
+    print "      Number of samples: ", len(indexImage)
+    print "    Done calculating error:", round(time()-t0, 3), "s"  
     
     # log total cost and total number of samples for output
     cost += sensorCost

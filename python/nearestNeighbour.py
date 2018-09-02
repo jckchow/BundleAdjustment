@@ -36,6 +36,7 @@ from matplotlib import cm
 from matplotlib.mlab import griddata
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.colors import ListedColormap
+from scipy.interpolate import griddata as griddataScipy
 
 ##################################
 ### User defined parameters
@@ -50,10 +51,10 @@ from matplotlib.colors import ListedColormap
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
 
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
 
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
@@ -77,10 +78,10 @@ from matplotlib.colors import ListedColormap
 #eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.eop'
 
 # nikon D600 DSLR
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop'
 
 ## GoPro Hero 3 Silver Edition
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
@@ -90,6 +91,10 @@ eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/Traini
 
 # do we want to plot things
 doPlot = False
+
+# do we want to apply linear or cubic smoothing to the predictions
+doSmoothing = True
+smoothingMethod = 'cubic'
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -154,24 +159,87 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     y_scaled = y_std * (desire_max - desire_min) + desire_min 
     features_train = np.concatenate((x_scaled, y_scaled)).transpose()
     
-    # apply scale to remove the mean of labels
+    # apply scale to remove the mean of labels, so we have zero mean
     mean_label = np.mean(labels_train,axis=0);
     labels_train -= mean_label
     
 #    reg = neighbors.KNeighborsRegressor(n_neighbors=15, weights='uniform')
 #    reg.fit(features_train, labels_train)
     # score = clf.score(features_test, labels_test)    
-        
-    t0 = time()
-    param_grid = [ {'n_neighbors' : range(3,len(features_train[:,0])/10)} ]
-    regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
-    regCV.fit(features_train, labels_train)
-    print "  Best in sample score: ", regCV.best_score_
-    print "  CV value for K: ", regCV.best_estimator_.n_neighbors
-    print "  Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
     
-    reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform')
-    reg.fit(features_train, labels_train)
+    # smooth and rasterize the data before doing kNN
+    if (doSmoothing):
+        print('Using Smoothing Method: ' + smoothingMethod)
+        xx, yy = np.meshgrid(np.arange(iop[indexIOP,2], iop[indexIOP,4], 1),
+                             np.arange(iop[indexIOP,3], -iop[indexIOP,5], -1))
+    
+        # scale it first
+        X = np.hstack((np.reshape(xx,(-1,1)), np.reshape(yy,(-1,1))))
+        x_std = (X[:,0] - min_x) / (max_x - min_x)
+        x_scaled = x_std * (desire_max - desire_min) + desire_min 
+        y_std = (X[:,1] - min_y) / (max_y - min_y)
+        y_scaled = y_std * (desire_max - desire_min) + desire_min 
+        X = np.concatenate((x_scaled, y_scaled)).transpose()
+        
+        xx_std = (xx - min_x) / (max_x - min_x)
+        xx_scaled = xx_std * (desire_max - desire_min) + desire_min 
+        
+        yy_std = (yy - min_y) / (max_y - min_y)
+        yy_scaled = yy_std * (desire_max - desire_min) + desire_min 
+        
+        grid_interpolatedResidualsX = griddataScipy(features_train, labels_train[:,0], (xx_scaled,yy_scaled), method=smoothingMethod)
+        grid_interpolatedResidualsY = griddataScipy(features_train, labels_train[:,1], (xx_scaled,yy_scaled), method=smoothingMethod)
+        
+        if (doPlot):
+            plt.figure()
+            plt.imshow(grid_interpolatedResidualsX)
+            plt.colorbar();
+            plt.title('Interpolated x residuals')
+            
+            plt.figure()
+            plt.imshow(grid_interpolatedResidualsY)
+            plt.colorbar();
+            plt.title('Interpolated y residuals')
+        
+        # stack the labels into the right format and remove nans from the training inputs and outputs
+        interpolatedResiduals = np.column_stack((grid_interpolatedResidualsX.flatten(), grid_interpolatedResidualsY.flatten()))
+#        removeList = np.isnan(interpolatedResiduals[:,0])
+#        interpolatedResiduals[removeList,:] = [];
+        removeList = ~np.isnan(interpolatedResiduals).any(axis=1);
+        interpolatedTraining = X[removeList]
+        interpolatedResiduals = interpolatedResiduals[removeList]
+
+        # Tune kNN using CV
+#        t0 = time()
+#        param_grid = [ {'n_neighbors' : range(5,6,2)} ] # test only up to 50 neighbours
+#        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
+#        regCV.fit(interpolatedTraining, interpolatedResiduals)
+#        print "  Best in sample score: ", regCV.best_score_
+#        print "  CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
+#        print "  Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
+        
+        # train with the best K parameter
+        t0 = time()   
+        reg = neighbors.KNeighborsRegressor(n_neighbors=3, weights='uniform', n_jobs=1)
+        reg.fit(interpolatedTraining, interpolatedResiduals)
+        print "  Training Final NN-Regressor:", round(time()-t0, 3), "s"
+    
+    else:
+        print('Not doing Smoothing')
+        # Tune kNN using CV
+        t0 = time()
+        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
+        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
+        regCV.fit(features_train, labels_train)
+        print "  Best in sample score: ", regCV.best_score_
+        print "  CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
+        print "  Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
+
+        # train with the best K parameter
+        t0 = time()   
+        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
+        reg.fit(features_train, labels_train)
+        print "  Training Final NN-Regressor:", round(time()-t0, 3), "s"
 
     # save the preprocessing info
     joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], 'preprocessing'+str(sensorID.astype(int))+'.pkl')     
@@ -199,7 +267,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     y_scaled = y_std * (desire_max - desire_min) + desire_min 
     pho_scaled = np.concatenate((x_scaled, y_scaled)).transpose()   
 
-    correction = reg.predict(pho_scaled) + mean_label # add the mean back
+    correction = reg.predict(pho_scaled) + mean_label # add the mean back        
+    
     pho[stationsWithThisIOP,(6,7)] = correction
     print"  Done predicting:", round(time()-t0, 3), "s"
     

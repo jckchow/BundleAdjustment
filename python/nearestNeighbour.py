@@ -169,8 +169,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     # smooth and rasterize the data before doing kNN
     if (doSmoothing):
-        resampleSizeX = 500;
-        resampleSizeY = 500;
+        resampleSizeX = 100;
+        resampleSizeY = 100;
         
         print('  Using Smoothing Method: ' + smoothingMethod)
         print('  Resample residuals to image with dimensions: ' + str(resampleSizeX) + ' x ' + str(resampleSizeY) + ' pixels')
@@ -217,9 +217,10 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
         # Tune kNN using CV
         t0 = time()
-        param_grid = [ {'n_neighbors' : range(3,51,2)} ] # test only up to 50 neighbours
+        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
-        regCV.fit(interpolatedTraining, interpolatedResiduals)
+#        regCV.fit(interpolatedTraining, interpolatedResiduals)
+        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
         print "    Best in sample score: ", regCV.best_score_
         print "    CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
         print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"

@@ -35,7 +35,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 50
+#define NUMITERATION 1000
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.

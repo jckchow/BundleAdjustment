@@ -114,11 +114,24 @@ def calculateChangeAngles(opk1, opk2):
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainAB_TestB/EOP.jck'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/ExternalControl/TrainB_IOP_TestB_moreIter/EOP.jck'
 
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/NewResults/TrainAB/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/InternalControl/Before_AB/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/InternalControl/Before_A/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/NewResults/TrainA/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/InternalControl/Before_B/EOP.jck'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/NewResults/TrainB2/EOP.jck'
 
-eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/InternalControl/Before_AB_IOP/EOP.jck'
+##eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_AB/EOP.jck'
+##eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/InternalControl/Before_A_IOP/EOP.jck'
+##eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_A/EOP.jck'
+##eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/InternalControl/Before_B_IOP/EOP.jck'
+##eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/EOP.jck'
+#eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
+    
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photo/EOP.jck'
+eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
 
-numSamples = 270
+numSamples = 75
 
 ##########################################
 ### Process eop data

@@ -51,10 +51,10 @@ from scipy.interpolate import griddata as griddataScipy
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Testing.eop'
 
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
 
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingTemp.pho'
@@ -64,10 +64,10 @@ eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
 ##########################
 #### Paper 2: Training 150, Testing 150
 ###########################
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
 
 #########################
 ### Paper 1 TC 1: Omnidirectional camera calibration
@@ -93,8 +93,8 @@ eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TestingA.eop'
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = True
-smoothingMethod = 'cubic'
+doSmoothing = False
+smoothingMethod = 'linear'
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -230,6 +230,29 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
         reg.fit(interpolatedTraining, interpolatedResiduals)
         print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
+        
+#        # Tune rNN using CV
+#        minSpacing = 0.5*( (xx_scaled[0,1] - xx_scaled[0,0]) + (yy_scaled[0,0] - yy_scaled[1,0]) )
+#        minSpacingBuffered = minSpacing + 0.001 * minSpacing; # give it a buffer to ensure we capture it in the radius search
+##        minSpacing /= 2.0;
+#        t0 = time()
+#        param_grid = [ {'radius' : np.arange(1.0*minSpacingBuffered,25.0*minSpacingBuffered, (minSpacing/2.0))} ] # test only up to 50 neighbours
+##        regCV = GridSearchCV(neighbors.RadiusNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
+#        regCV = GridSearchCV(neighbors.RadiusNeighborsRegressor(), param_grid, cv=10)
+#        regCV.fit(interpolatedTraining, interpolatedResiduals)
+##        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
+#        print "    Best in sample score: ", regCV.best_score_
+#        print "    CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
+#        print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
+#        
+#        # train with the best radius parameter
+#        t0 = time()   
+#        reg = neighbors.RadiusNeighborsRegressor(radius=regCV.best_estimator_.radius, weights='uniform', n_jobs=1)
+#        reg.fit(interpolatedTraining, interpolatedResiduals)
+#        print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
+#        
+#        reg = neighbors.RadiusNeighborsRegressor(radius=0.02, weights='uniform', n_jobs=1)
+#        reg.fit(interpolatedTraining, interpolatedResiduals)
 
     
     else:

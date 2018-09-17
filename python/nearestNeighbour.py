@@ -64,10 +64,16 @@ from scipy.interpolate import griddata as griddataScipy
 ##########################
 #### Paper 2: Training 150, Testing 150
 ###########################
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
+
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
 iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+
 
 #########################
 ### Paper 1 TC 1: Omnidirectional camera calibration
@@ -113,7 +119,7 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 300.0
+outlierThreshold = 3.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)
@@ -272,6 +278,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         reg.fit(features_train, labels_train)
         print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
 
+    print "    Done Training"
     # save the preprocessing info
     joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], 'preprocessing'+str(sensorID.astype(int))+'.pkl')     
     # save the learned NN model
@@ -279,7 +286,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     ##########################################
     ### Prediction
     ########################################## 
-    
+    print "    Start Prediction..."
     EOP2IOP = np.unique(eop[indexEOP,0]) # should not be needed since it should be unique already
     
     stationsWithThisIOP = []

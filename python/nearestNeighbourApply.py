@@ -69,20 +69,18 @@ from matplotlib.colors import ListedColormap
 #NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_AB/NNModel'
 
 ### X-ray fluroscopy paper 2
-
 # for resuming
 phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho'
 eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
-outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho'
 NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust/NNModel'
 preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust/preprocessing'
-
+outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho'
 
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.pho'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.eop'
-#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training150A_photoROP_robust.pho'
 #NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust/NNModel'
 #preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust/preprocessing'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training150A_photoROP_robust.pho'
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -115,7 +113,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print "Processing sensor: ", sensorID
     
     print "Loading processing info and trained ML model..."
-    [min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label] = joblib.load(preprocessingFilename + str(sensorID.astype(int)) + ".pkl")
+    [min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label, doSmoothing, smoothingMethod, resampleSizeX, resampleSizeY] = joblib.load(preprocessingFilename + str(sensorID.astype(int)) + ".pkl")
     
     print "Loaded preprocessing: ", preprocessingFilename + str(sensorID.astype(int)) + ".pkl"
     

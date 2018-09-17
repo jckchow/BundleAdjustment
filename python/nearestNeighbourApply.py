@@ -58,10 +58,32 @@ from matplotlib.colors import ListedColormap
 #outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingAB_CalibratedAB_IOP.pho'
 #NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_AB/NNModel'
 
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.pho'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.eop'
-outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingB_CalibratedB_moreIter_IOP.pho'
-NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/NNModel'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingB.eop'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingB_CalibratedB_moreIter_IOP.pho'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/NNModel'
+
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TrainingA.eop'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/xray1TrainingA_CalibratedAB_IOP.pho'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_AB/NNModel'
+
+### X-ray fluroscopy paper 2
+
+# for resuming
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho'
+NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust/NNModel'
+preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust/preprocessing'
+
+
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.eop'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training150A_photoROP_robust.pho'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust/NNModel'
+#preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust/preprocessing'
+
 ##########################################
 ### read in the residuals output from bundle adjustment
 # x, y, v_x, v_y, redu_x, redu_y, vStdDev_x, vStdDev_y
@@ -92,6 +114,11 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
     print "Processing sensor: ", sensorID
     
+    print "Loading processing info and trained ML model..."
+    [min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label] = joblib.load(preprocessingFilename + str(sensorID.astype(int)) + ".pkl")
+    
+    print "Loaded preprocessing: ", preprocessingFilename + str(sensorID.astype(int)) + ".pkl"
+    
     reg = joblib.load(NNModelFilename + str(sensorID.astype(int)) + ".pkl")
     
     print "Loaded model: ", NNModelFilename + str(sensorID.astype(int)) + ".pkl"
@@ -105,9 +132,20 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         print "  Processing eop: ", eopID
 
         indexPho = np.argwhere(pho[:,1] == eopID)
-        labels = reg.predict(pho[indexPho,(2,3)])
         
-        pho[indexPho, (6,7)] = labels
+        # scaling the features
+        features = pho[indexPho,(2,3)]
+        x_std = (features[:,0] - min_x) / (max_x - min_x)
+        x_scaled = x_std * (desire_max - desire_min) + desire_min 
+        y_std = (features[:,1] - min_y) / (max_y - min_y)
+        y_scaled = y_std * (desire_max - desire_min) + desire_min 
+        features_predict = np.concatenate((x_scaled, y_scaled)).transpose()
+        
+        # make the prediction
+        labels_predict = reg.predict(features_predict)
+        
+        # add the mean back
+        pho[indexPho, (6,7)] = labels_predict + mean_label
 
 ############################
 ### Output predicted corrections

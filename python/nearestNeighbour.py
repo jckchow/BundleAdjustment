@@ -119,7 +119,7 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 3.0
+outlierThreshold = 300.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)

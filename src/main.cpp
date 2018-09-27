@@ -2639,7 +2639,7 @@ int main(int argc, char** argv) {
 
         redundancyNumber.setConstant(1E6);
         CvDiag.resize(jacobian.num_rows);
-        CvDiag.setConstant(1E12);
+        CvDiag.setConstant(1E6);
 
         if(COMPUTECV)
         {
@@ -2862,6 +2862,7 @@ int main(int argc, char** argv) {
         else // if not computing Cv
         {
             std::cout<<"NOT computing Cv covariance matrix of the residuals"<<std::endl;
+            leastSquaresRedundancy.push_back(0.0);
         }
 
         Eigen::MatrixXd imageResiduals(imageX.size(), 2);

@@ -35,10 +35,15 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 100
+#define NUMITERATION 1000
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
+
+#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECV 0 // Compute covariance matrix of residualsbbbbbbbb Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+// if (COMPUTECV)
+//     #define COMPUTECX 1
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -142,16 +147,27 @@
 // #define INPUTROPFILENAME ""
 
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90A.pho"
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90A.eop"
 #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
 #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // ///////////////////////////
 // // Testing on 150
@@ -2006,536 +2022,558 @@ int main(int argc, char** argv) {
 
 
 
-
-
-
-
-
-        
-        PyRun_SimpleString("t0 = TIME.clock()");     
-        PyRun_SimpleString("print 'Start computing covariance matrix' ");  
-        ceres::Covariance::Options covarianceOoptions;
-        ceres::Covariance covariance(covarianceOoptions);
-
-        std::vector<std::pair<const double*, const double*> > covariance_blocks;
-
-        // Estimating the main and most useful variances; only the main block diagonal
-        if (false)
-        {
-            for(int i = 0; i < EOP.size(); i++)
-                covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[i][0])); // do 6x6 block diagonal of the XYZ object space target points
-
-            for(int i = 0; i < XYZ.size(); i++)
-                covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[i][0])); // do 3x3 block diagonal of the XYZ object space target points
-
-            for(int i = 0; i < IOP.size(); i++)
-                covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[i][0])); // do 3x3 block diagonal of the XYZ object space target points
-
-            for(int i = 0; i < AP.size(); i++)
-                covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
-
-            // in the simple mode, MLP is just a constant not a parameter
-            // for(int i = 0; i < MLP.size(); i++)
-            //     covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[i][0])); 
-
-            if (ROPMODE)
-            {
-                for(int i = 0; i < ROP.size(); i++)
-                    covariance_blocks.push_back(std::make_pair(&ROP[i][0], &ROP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
-            }
-        }
-
-        // Estimate variances and covariances within the SAME group
-        if (true)
-        {
-
-            //       EOP XYZ IOP  AP  MLP
-            // EOP    *    
-            // XYZ        *   
-            // IOP            *    
-            // AP                 *    
-            // MLP                     *
-
-            for(int i = 0; i < EOP.size(); i++)
-                for(int j = i; j < EOP.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[j][0]));
-
-            for(int i = 0; i < XYZ.size(); i++)
-                for(int j = i; j < XYZ.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[j][0]));
-
-            for(int i = 0; i < IOP.size(); i++)
-                for(int j = i; j < IOP.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[j][0]));
-
-            for(int i = 0; i < AP.size(); i++)
-                for(int j = i; j < AP.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[j][0]));
-
-            // for(int i = 0; i < MLP.size(); i++)
-            //     for(int j = i; j < MLP.size(); j++)
-            //         covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[j][0]));
-
-            if (ROPMODE)
-            {
-                for(int i = 0; i < ROP.size(); i++)
-                    for(int j = i; j < ROP.size(); j++)
-                        covariance_blocks.push_back(std::make_pair(&ROP[i][0], &ROP[j][0]));
-            }
-        }
-
-        // Additional covariances between DIFFERENT groups
-        if (true)
-        {
-            //       EOP XYZ IOP  AP  MLP
-            // EOP        *   *   *   *
-            // XYZ            *   *   *
-            // IOP                *   *
-            // AP                     *
-            // MLP
-
-            // covariances
-            for(int i = 0; i < EOP.size(); i++)
-            {
-                for(int j = 0; j < XYZ.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &XYZ[j][0]));
-
-                for(int j = 0; j < IOP.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &IOP[j][0]));
-
-                for(int j = 0; j < AP.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &AP[j][0]));
-
-                // for(int j = 0; j < MLP.size(); j++)
-                //     covariance_blocks.push_back(std::make_pair(&EOP[i][0], &MLP[j][0]));
-
-                if(ROPMODE)
-                {
-                    for(int j = 0; j < ROP.size(); j++)
-                        covariance_blocks.push_back(std::make_pair(&EOP[i][0], &ROP[j][0]));
-                }
-            }
-
-            for(int i = 0; i < XYZ.size(); i++)
-            {
-                for(int j = 0; j < IOP.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &IOP[j][0]));
-
-                for(int j = 0; j < AP.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &AP[j][0]));
-
-                // for(int j = 0; j < MLP.size(); j++)
-                //     covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &MLP[j][0]));
-
-                if(ROPMODE)
-                {
-                    for(int j = 0; j < ROP.size(); j++)
-                        covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &ROP[j][0]));
-                }
-            }
-
-            for(int i = 0; i < IOP.size(); i++)
-            {
-                for(int j = 0; j < AP.size(); j++)
-                    covariance_blocks.push_back(std::make_pair(&IOP[i][0], &AP[j][0]));
-
-                // for(int j = 0; j < MLP.size(); j++)
-                //     covariance_blocks.push_back(std::make_pair(&IOP[i][0], &MLP[j][0]));
-                if(ROPMODE)
-                {
-                    for(int j = 0; j < ROP.size(); j++)
-                        covariance_blocks.push_back(std::make_pair(&IOP[i][0], &ROP[j][0]));
-                }
-            }
-
-            for(int i = 0; i < AP.size(); i++)
-            {
-                // for(int j = 0; j < MLP.size(); j++)
-                //     covariance_blocks.push_back(std::make_pair(&AP[i][0], &MLP[j][0]));
-
-                if(ROPMODE)
-                {
-                    for(int j = 0; j < ROP.size(); j++)
-                        covariance_blocks.push_back(std::make_pair(&AP[i][0], &ROP[j][0]));
-                }
-            }
-        }
-
-        covariance.Compute(covariance_blocks, &problem);
-
-        std::cout<<"   Done Computing Covariance Block"<<std::endl;
-        // //double covariance_X[X.size() * X.size()];
-        // Eigen::MatrixXd covariance_X(XYZ.size(), 3);
-        // // covariance_X.resize(X.size() * X.size());
-        // //covariance.GetCovarianceBlock(&X[0], &X[0], covariance_X.data());
-
-        // for(int i = 0; i < XYZ.size(); i++)
-        //     for(int j = 0; j < XYZ.size(); j++)
-        //     {
-        //         double temp[9];
-        //         //std::cout<<"std: "<<sqrt(temp[0])<<std::endl;
-        //         covariance_X(i,0) = temp[0];
-        //     }
+        //////////////////////////////////////////////////
+        /// Start doing covariance matrix calculation
+        //////////////////////////////////////////////////
 
         Eigen::MatrixXd xyzVariance(XYZ.size(),3);
-        for(int i = 0; i < XYZ.size(); i++)
-        {
-            Eigen::MatrixXd covariance_X(3, 3);
-            covariance.GetCovarianceBlock(&XYZ[i][0], &XYZ[i][0], covariance_X.data());
-            Eigen::VectorXd variance_X(3);
-            variance_X = covariance_X.diagonal();
-            xyzVariance(i,0) = variance_X(0);
-            xyzVariance(i,1) = variance_X(1);
-            xyzVariance(i,2) = variance_X(2);
-
-        //  std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
-        //  std::cout<<"covariance matrix: "<<std::endl;
-        //  std::cout<<covariance_X<<std::endl;
-
-            // // store the full variance-covariance matrix
-            // for (int n = 0; n < covariance_X.rows(); n++)
-            //     for (int m = 0; m < covariance_X.cols(); m++)
-            //         Cx(i*3+n + 6*EOP.size(),i*3+m + 6*EOP.size()) = covariance_X(n,m);
-        }
-
         Eigen::MatrixXd eopVariance(EOP.size(),6);
-        for(int i = 0; i < EOP.size(); i++)
-        {
-            Eigen::MatrixXd covariance_X(6, 6);
-            covariance.GetCovarianceBlock(&EOP[i][0], &EOP[i][0], covariance_X.data());
-            Eigen::VectorXd variance_X(6);
-            variance_X = covariance_X.diagonal();
-            eopVariance(i,0) = variance_X(0);
-            eopVariance(i,1) = variance_X(1);
-            eopVariance(i,2) = variance_X(2);
-            eopVariance(i,3) = variance_X(3);
-            eopVariance(i,4) = variance_X(4);
-            eopVariance(i,5) = variance_X(5);
-        }
-
         Eigen::MatrixXd iopVariance(IOP.size(),3);
-        for(int i = 0; i < IOP.size(); i++)
-        {
-            Eigen::MatrixXd covariance_X(3, 3);
-            covariance.GetCovarianceBlock(&IOP[i][0], &IOP[i][0], covariance_X.data());
-            Eigen::VectorXd variance_X(3);
-            variance_X = covariance_X.diagonal();
-            iopVariance(i,0) = variance_X(0);
-            iopVariance(i,1) = variance_X(1);
-            iopVariance(i,2) = variance_X(2);
-
-            // // store the full variance-covariance matrix
-            // for (int n = 0; n < covariance_X.rows(); n++)
-            //     for (int m = 0; m < covariance_X.cols(); m++)
-            //         Cx(i*3+n + 6*EOP.size()+3*XYZ.size(),i*3+m + 6*EOP.size()+3*XYZ.size()) = covariance_X(n,m);
-        }
-
         Eigen::MatrixXd apVariance(AP.size(),7);
-        for(int i = 0; i < AP.size(); i++)
-        {
-            Eigen::MatrixXd covariance_X(7, 7);
-            covariance.GetCovarianceBlock(&AP[i][0], &AP[i][0], covariance_X.data());
-            Eigen::VectorXd variance_X(7);
-            variance_X = covariance_X.diagonal();
-            apVariance(i,0) = variance_X(0);
-            apVariance(i,1) = variance_X(1);
-            apVariance(i,2) = variance_X(2);
-            apVariance(i,3) = variance_X(3);
-            apVariance(i,4) = variance_X(4);
-            apVariance(i,5) = variance_X(5);
-            apVariance(i,6) = variance_X(6);
-
-            // // store the full variance-covariance matrix
-            // for (int n = 0; n < covariance_X.rows(); n++)
-            //     for (int m = 0; m < covariance_X.cols(); m++)
-            //         Cx(i*7+n + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),i*7+m + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X(n,m);
-        }
-
         Eigen::MatrixXd mlpVariance(MLP.size(),2);
-        for(int i = 0; i < MLP.size(); i++)
-        {
-            // Eigen::MatrixXd covariance_X(2, 2);
-            // covariance.GetCovarianceBlock(&MLP[i][0], &MLP[i][0], covariance_X.data());
-            // Eigen::VectorXd variance_X(2);
-            // variance_X = covariance_X.diagonal();
-            // mlpVariance(i,0) = variance_X(0);
-            // mlpVariance(i,1) = variance_X(1);
-
-            // // store the full variance-covariance matrix
-            // for (int n = 0; n < covariance_X.rows(); n++)
-            //     for (int m = 0; m < covariance_X.cols(); m++)
-            //         Cx(i*2+n + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),i*2+m + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X(n,m);
-        }
-
         Eigen::MatrixXd ropVariance(ROP.size(),6);
-        if(ROPMODE)
-        {
-            for(int i = 0; i < ROP.size(); i++)
-            {
-                Eigen::MatrixXd covariance_X(6, 6);
-                covariance.GetCovarianceBlock(&ROP[i][0], &ROP[i][0], covariance_X.data());
-                Eigen::VectorXd variance_X(6);
-                variance_X = covariance_X.diagonal();
-                ropVariance(i,0) = variance_X(0);
-                ropVariance(i,1) = variance_X(1);
-                ropVariance(i,2) = variance_X(2);
-                ropVariance(i,3) = variance_X(3);
-                ropVariance(i,4) = variance_X(4);
-                ropVariance(i,5) = variance_X(5);
-            }
-        }
 
-        //       EOP XYZ IOP  AP  MLP  ROP
-        // EOP    x   x   x    x   x    x
-        // XYZ        x   x    x   x    x
-        // IOP            x    x   x    x
-        // AP                  x   x    x      
-        // MLP                     x    x
-        // ROP                          x
+        xyzVariance.setConstant(1E6);
+        eopVariance.setConstant(1E6);
+        iopVariance.setConstant(1E6);
+        apVariance.setConstant(1E6);
+        mlpVariance.setConstant(1E6);
+        ropVariance.setConstant(1E6);
+
         Eigen::MatrixXd Cx(summary.num_parameters,summary.num_parameters);
         Cx.setZero();
 
-        if (true)
+        if (COMPUTECX)
         {
-            // Get the full variance-covariance matrix Cx
-            for(int i = 0; i < EOP.size(); i++)
+            PyRun_SimpleString("t0 = TIME.clock()");     
+            PyRun_SimpleString("print 'Start computing covariance matrix' ");  
+            ceres::Covariance::Options covarianceOoptions;
+            ceres::Covariance covariance(covarianceOoptions);
+
+            std::vector<std::pair<const double*, const double*> > covariance_blocks;
+
+            // Estimating the main and most useful variances; only the main block diagonal
+            if (false)
             {
-                for(int j = i; j < EOP.size(); j++)
+                for(int i = 0; i < EOP.size(); i++)
+                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[i][0])); // do 6x6 block diagonal of the XYZ object space target points
+
+                for(int i = 0; i < XYZ.size(); i++)
+                    covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[i][0])); // do 3x3 block diagonal of the XYZ object space target points
+
+                for(int i = 0; i < IOP.size(); i++)
+                    covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[i][0])); // do 3x3 block diagonal of the XYZ object space target points
+
+                for(int i = 0; i < AP.size(); i++)
+                    covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
+
+                // in the simple mode, MLP is just a constant not a parameter
+                // for(int i = 0; i < MLP.size(); i++)
+                //     covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[i][0])); 
+
+                if (ROPMODE)
                 {
-                    Eigen::MatrixXd covariance_X(6, 6);
-                    covariance.GetCovarianceBlock(&EOP[i][0], &EOP[j][0], covariance_X.transpose().data());
-
-                    // // store the full variance-covariance matrix
-                    // for (int n = 0; n < covariance_X.rows(); n++)
-                    //     for (int m = 0; m < covariance_X.cols(); m++)
-                    //         Cx(i*6+n,i*6+m) = covariance_X(n,m);
-
-                    Cx.block<6,6>(i*6,j*6) = covariance_X.transpose();
-                }
-
-                for(int j = 0; j < XYZ.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(3, 6); // note the size is opposite
-                    covariance.GetCovarianceBlock(&EOP[i][0], &XYZ[j][0], covariance_X.data()); // what we get is the lower triangle matrix
-
-                    Cx.block<6,3>(i*6,j*3 + 6*EOP.size()) = covariance_X.transpose(); // what we store is the upper triangule matrix
-                }
-
-                for(int j = 0; j < IOP.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(3, 6);
-                    covariance.GetCovarianceBlock(&EOP[i][0], &IOP[j][0], covariance_X.data());
-
-                    Cx.block<6,3>(i*6,j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X.transpose();
-                }
-
-                for(int j = 0; j < AP.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(7, 6);
-                    covariance.GetCovarianceBlock(&EOP[i][0], &AP[j][0], covariance_X.data());
-
-                    Cx.block<6,7>(i*6,j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
-                }
-
-                // for(int j = 0; j < MLP.size(); j++)
-                // {
-                //     Eigen::MatrixXd covariance_X(2, 6);
-                //     covariance.GetCovarianceBlock(&EOP[i][0], &MLP[j][0], covariance_X.data());
-
-                //     Cx.block<6,2>(i*6,j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                // }
-
-                if(ROPMODE)
-                {
-                    for(int j = 0; j < ROP.size(); j++)
-                    {
-                        Eigen::MatrixXd covariance_X(6, 6);
-                        covariance.GetCovarianceBlock(&EOP[i][0], &ROP[j][0], covariance_X.data());
-
-                        Cx.block<6,6>(i*6,j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                    }
-                        
+                    for(int i = 0; i < ROP.size(); i++)
+                        covariance_blocks.push_back(std::make_pair(&ROP[i][0], &ROP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
                 }
             }
 
+            // Estimate variances and covariances within the SAME group
+            if (true)
+            {
+
+                //       EOP XYZ IOP  AP  MLP
+                // EOP    *    
+                // XYZ        *   
+                // IOP            *    
+                // AP                 *    
+                // MLP                     *
+
+                for(int i = 0; i < EOP.size(); i++)
+                    for(int j = i; j < EOP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[j][0]));
+
+                for(int i = 0; i < XYZ.size(); i++)
+                    for(int j = i; j < XYZ.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[j][0]));
+
+                for(int i = 0; i < IOP.size(); i++)
+                    for(int j = i; j < IOP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[j][0]));
+
+                for(int i = 0; i < AP.size(); i++)
+                    for(int j = i; j < AP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[j][0]));
+
+                // for(int i = 0; i < MLP.size(); i++)
+                //     for(int j = i; j < MLP.size(); j++)
+                //         covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[j][0]));
+
+                if (ROPMODE)
+                {
+                    for(int i = 0; i < ROP.size(); i++)
+                        for(int j = i; j < ROP.size(); j++)
+                            covariance_blocks.push_back(std::make_pair(&ROP[i][0], &ROP[j][0]));
+                }
+            }
+
+            // Additional covariances between DIFFERENT groups
+            if (true)
+            {
+                //       EOP XYZ IOP  AP  MLP
+                // EOP        *   *   *   *
+                // XYZ            *   *   *
+                // IOP                *   *
+                // AP                     *
+                // MLP
+
+                // covariances
+                for(int i = 0; i < EOP.size(); i++)
+                {
+                    for(int j = 0; j < XYZ.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&EOP[i][0], &XYZ[j][0]));
+
+                    for(int j = 0; j < IOP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&EOP[i][0], &IOP[j][0]));
+
+                    for(int j = 0; j < AP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&EOP[i][0], &AP[j][0]));
+
+                    // for(int j = 0; j < MLP.size(); j++)
+                    //     covariance_blocks.push_back(std::make_pair(&EOP[i][0], &MLP[j][0]));
+
+                    if(ROPMODE)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                            covariance_blocks.push_back(std::make_pair(&EOP[i][0], &ROP[j][0]));
+                    }
+                }
+
+                for(int i = 0; i < XYZ.size(); i++)
+                {
+                    for(int j = 0; j < IOP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &IOP[j][0]));
+
+                    for(int j = 0; j < AP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &AP[j][0]));
+
+                    // for(int j = 0; j < MLP.size(); j++)
+                    //     covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &MLP[j][0]));
+
+                    if(ROPMODE)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                            covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &ROP[j][0]));
+                    }
+                }
+
+                for(int i = 0; i < IOP.size(); i++)
+                {
+                    for(int j = 0; j < AP.size(); j++)
+                        covariance_blocks.push_back(std::make_pair(&IOP[i][0], &AP[j][0]));
+
+                    // for(int j = 0; j < MLP.size(); j++)
+                    //     covariance_blocks.push_back(std::make_pair(&IOP[i][0], &MLP[j][0]));
+                    if(ROPMODE)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                            covariance_blocks.push_back(std::make_pair(&IOP[i][0], &ROP[j][0]));
+                    }
+                }
+
+                for(int i = 0; i < AP.size(); i++)
+                {
+                    // for(int j = 0; j < MLP.size(); j++)
+                    //     covariance_blocks.push_back(std::make_pair(&AP[i][0], &MLP[j][0]));
+
+                    if(ROPMODE)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                            covariance_blocks.push_back(std::make_pair(&AP[i][0], &ROP[j][0]));
+                    }
+                }
+            }
+
+            covariance.Compute(covariance_blocks, &problem);
+
+            std::cout<<"   Done Computing Covariance Block"<<std::endl;
+            // //double covariance_X[X.size() * X.size()];
+            // Eigen::MatrixXd covariance_X(XYZ.size(), 3);
+            // // covariance_X.resize(X.size() * X.size());
+            // //covariance.GetCovarianceBlock(&X[0], &X[0], covariance_X.data());
+
+            // for(int i = 0; i < XYZ.size(); i++)
+            //     for(int j = 0; j < XYZ.size(); j++)
+            //     {
+            //         double temp[9];
+            //         //std::cout<<"std: "<<sqrt(temp[0])<<std::endl;
+            //         covariance_X(i,0) = temp[0];
+            //     }
+
+            // Eigen::MatrixXd xyzVariance(XYZ.size(),3);
             for(int i = 0; i < XYZ.size(); i++)
             {
-                for(int j = i; j < XYZ.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(3, 3);
-                    covariance.GetCovarianceBlock(&XYZ[i][0], &XYZ[j][0], covariance_X.data());
+                Eigen::MatrixXd covariance_X(3, 3);
+                covariance.GetCovarianceBlock(&XYZ[i][0], &XYZ[i][0], covariance_X.data());
+                Eigen::VectorXd variance_X(3);
+                variance_X = covariance_X.diagonal();
+                xyzVariance(i,0) = variance_X(0);
+                xyzVariance(i,1) = variance_X(1);
+                xyzVariance(i,2) = variance_X(2);
 
-                    Cx.block<3,3>(i*3 + 6*EOP.size(),j*3 + 6*EOP.size()) = covariance_X.transpose();
-                }
+            //  std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
+            //  std::cout<<"covariance matrix: "<<std::endl;
+            //  std::cout<<covariance_X<<std::endl;
 
-                for(int j = 0; j < IOP.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(3, 3);
-                    covariance.GetCovarianceBlock(&XYZ[i][0], &IOP[j][0], covariance_X.data());
-
-                    Cx.block<3,3>(i*3 + 6*EOP.size(),j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X.transpose();
-                }
-
-                for(int j = 0; j < AP.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(7, 3);
-                    covariance.GetCovarianceBlock(&XYZ[i][0], &AP[j][0], covariance_X.data());
-
-                    Cx.block<3,7>(i*3 + 6*EOP.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
-                }
-
-                // for(int j = 0; j < MLP.size(); j++)
-                // {
-                //     Eigen::MatrixXd covariance_X(2, 3);
-                //     covariance.GetCovarianceBlock(&XYZ[i][0], &MLP[j][0], covariance_X.data());
-
-                //     Cx.block<3,2>(i*3 + 6*EOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                // }
-
-                if(ROPMODE)
-                {
-                    for(int j = 0; j < ROP.size(); j++)
-                    {
-                        Eigen::MatrixXd covariance_X(6, 3);
-                        covariance.GetCovarianceBlock(&XYZ[i][0], &ROP[j][0], covariance_X.data());
-
-                        Cx.block<3,6>(i*3 + 6*EOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                    }    
-                }
+                // // store the full variance-covariance matrix
+                // for (int n = 0; n < covariance_X.rows(); n++)
+                //     for (int m = 0; m < covariance_X.cols(); m++)
+                //         Cx(i*3+n + 6*EOP.size(),i*3+m + 6*EOP.size()) = covariance_X(n,m);
             }
 
+            // Eigen::MatrixXd eopVariance(EOP.size(),6);
+            for(int i = 0; i < EOP.size(); i++)
+            {
+                Eigen::MatrixXd covariance_X(6, 6);
+                covariance.GetCovarianceBlock(&EOP[i][0], &EOP[i][0], covariance_X.data());
+                Eigen::VectorXd variance_X(6);
+                variance_X = covariance_X.diagonal();
+                eopVariance(i,0) = variance_X(0);
+                eopVariance(i,1) = variance_X(1);
+                eopVariance(i,2) = variance_X(2);
+                eopVariance(i,3) = variance_X(3);
+                eopVariance(i,4) = variance_X(4);
+                eopVariance(i,5) = variance_X(5);
+            }
+
+            // Eigen::MatrixXd iopVariance(IOP.size(),3);
             for(int i = 0; i < IOP.size(); i++)
             {
-                for(int j = i; j < IOP.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(3, 3);
-                    covariance.GetCovarianceBlock(&IOP[i][0], &IOP[j][0], covariance_X.data());
+                Eigen::MatrixXd covariance_X(3, 3);
+                covariance.GetCovarianceBlock(&IOP[i][0], &IOP[i][0], covariance_X.data());
+                Eigen::VectorXd variance_X(3);
+                variance_X = covariance_X.diagonal();
+                iopVariance(i,0) = variance_X(0);
+                iopVariance(i,1) = variance_X(1);
+                iopVariance(i,2) = variance_X(2);
 
-                    Cx.block<3,3>(i*3 + 6*EOP.size()+3*XYZ.size(),j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X.transpose();
-                }
-
-                for(int j = 0; j < AP.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(7, 3); 
-                    covariance.GetCovarianceBlock(&IOP[i][0], &AP[j][0], covariance_X.data());
-
-                    Cx.block<3,7>(i*3 + 6*EOP.size()+3*XYZ.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
-                }
-
-                // for(int j = 0; j < MLP.size(); j++)
-                // {
-                //     Eigen::MatrixXd covariance_X(2, 3);
-                //     covariance.GetCovarianceBlock(&IOP[i][0], &MLP[j][0], covariance_X.data());
-
-                //     Cx.block<3,2>(i*3 + 6*EOP.size()+3*XYZ.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                // }
-
-                if(ROPMODE)
-                {
-                    for(int j = 0; j < ROP.size(); j++)
-                    {
-                        Eigen::MatrixXd covariance_X(6, 3);
-                        covariance.GetCovarianceBlock(&IOP[i][0], &ROP[j][0], covariance_X.data());
-
-                        Cx.block<3,6>(i*3 + 6*EOP.size()+3*XYZ.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                    }
-                        
-                }
+                // // store the full variance-covariance matrix
+                // for (int n = 0; n < covariance_X.rows(); n++)
+                //     for (int m = 0; m < covariance_X.cols(); m++)
+                //         Cx(i*3+n + 6*EOP.size()+3*XYZ.size(),i*3+m + 6*EOP.size()+3*XYZ.size()) = covariance_X(n,m);
             }
 
+            // Eigen::MatrixXd apVariance(AP.size(),7);
             for(int i = 0; i < AP.size(); i++)
             {
-                for(int j = i; j < AP.size(); j++)
-                {
-                    Eigen::MatrixXd covariance_X(7, 7);
-                    covariance.GetCovarianceBlock(&AP[i][0], &AP[j][0], covariance_X.data());
+                Eigen::MatrixXd covariance_X(7, 7);
+                covariance.GetCovarianceBlock(&AP[i][0], &AP[i][0], covariance_X.data());
+                Eigen::VectorXd variance_X(7);
+                variance_X = covariance_X.diagonal();
+                apVariance(i,0) = variance_X(0);
+                apVariance(i,1) = variance_X(1);
+                apVariance(i,2) = variance_X(2);
+                apVariance(i,3) = variance_X(3);
+                apVariance(i,4) = variance_X(4);
+                apVariance(i,5) = variance_X(5);
+                apVariance(i,6) = variance_X(6);
 
-                    Cx.block<7,7>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
-                }
-
-                // for(int j = 0; j < MLP.size(); j++)
-                // {
-                //     Eigen::MatrixXd covariance_X(2, 7);
-                //     covariance.GetCovarianceBlock(&AP[i][0], &MLP[j][0], covariance_X.data());
-
-                //     Cx.block<7,2>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                // }
-
-                if(ROPMODE)
-                {
-                    for(int j = 0; j < ROP.size(); j++)
-                    {
-                        Eigen::MatrixXd covariance_X(6, 7);
-                        covariance.GetCovarianceBlock(&AP[i][0], &ROP[j][0], covariance_X.data());
-
-                        Cx.block<7,6>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                    }
-                        
-                }
+                // // store the full variance-covariance matrix
+                // for (int n = 0; n < covariance_X.rows(); n++)
+                //     for (int m = 0; m < covariance_X.cols(); m++)
+                //         Cx(i*7+n + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),i*7+m + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X(n,m);
             }
 
+            // Eigen::MatrixXd mlpVariance(MLP.size(),2);
             for(int i = 0; i < MLP.size(); i++)
             {
-                // for(int j = 0; j < MLP.size(); j++)
-                // {
-                //     Eigen::MatrixXd covariance_X(2, 2);
-                //     covariance.GetCovarianceBlock(&MLP[i][0], &MLP[j][0], covariance_X.data());
+                // Eigen::MatrixXd covariance_X(2, 2);
+                // covariance.GetCovarianceBlock(&MLP[i][0], &MLP[i][0], covariance_X.data());
+                // Eigen::VectorXd variance_X(2);
+                // variance_X = covariance_X.diagonal();
+                // mlpVariance(i,0) = variance_X(0);
+                // mlpVariance(i,1) = variance_X(1);
 
-                //     Cx.block<2,2>(i*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
-                // }
+                // // store the full variance-covariance matrix
+                // for (int n = 0; n < covariance_X.rows(); n++)
+                //     for (int m = 0; m < covariance_X.cols(); m++)
+                //         Cx(i*2+n + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),i*2+m + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X(n,m);
             }
 
+            // Eigen::MatrixXd ropVariance(ROP.size(),6);
             if(ROPMODE)
             {
                 for(int i = 0; i < ROP.size(); i++)
                 {
-                    for(int j = 0; j < ROP.size(); j++)
+                    Eigen::MatrixXd covariance_X(6, 6);
+                    covariance.GetCovarianceBlock(&ROP[i][0], &ROP[i][0], covariance_X.data());
+                    Eigen::VectorXd variance_X(6);
+                    variance_X = covariance_X.diagonal();
+                    ropVariance(i,0) = variance_X(0);
+                    ropVariance(i,1) = variance_X(1);
+                    ropVariance(i,2) = variance_X(2);
+                    ropVariance(i,3) = variance_X(3);
+                    ropVariance(i,4) = variance_X(4);
+                    ropVariance(i,5) = variance_X(5);
+                }
+            }
+
+            //       EOP XYZ IOP  AP  MLP  ROP
+            // EOP    x   x   x    x   x    x
+            // XYZ        x   x    x   x    x
+            // IOP            x    x   x    x
+            // AP                  x   x    x      
+            // MLP                     x    x
+            // ROP                          x
+            // Eigen::MatrixXd Cx(summary.num_parameters,summary.num_parameters);
+            // Cx.setZero();
+
+            if (true)
+            {
+                // Get the full variance-covariance matrix Cx
+                for(int i = 0; i < EOP.size(); i++)
+                {
+                    for(int j = i; j < EOP.size(); j++)
                     {
                         Eigen::MatrixXd covariance_X(6, 6);
-                        covariance.GetCovarianceBlock(&ROP[i][0], &ROP[j][0], covariance_X.data());
+                        covariance.GetCovarianceBlock(&EOP[i][0], &EOP[j][0], covariance_X.transpose().data());
 
-                        Cx.block<6,6>(i*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                        // // store the full variance-covariance matrix
+                        // for (int n = 0; n < covariance_X.rows(); n++)
+                        //     for (int m = 0; m < covariance_X.cols(); m++)
+                        //         Cx(i*6+n,i*6+m) = covariance_X(n,m);
+
+                        Cx.block<6,6>(i*6,j*6) = covariance_X.transpose();
+                    }
+
+                    for(int j = 0; j < XYZ.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(3, 6); // note the size is opposite
+                        covariance.GetCovarianceBlock(&EOP[i][0], &XYZ[j][0], covariance_X.data()); // what we get is the lower triangle matrix
+
+                        Cx.block<6,3>(i*6,j*3 + 6*EOP.size()) = covariance_X.transpose(); // what we store is the upper triangule matrix
+                    }
+
+                    for(int j = 0; j < IOP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(3, 6);
+                        covariance.GetCovarianceBlock(&EOP[i][0], &IOP[j][0], covariance_X.data());
+
+                        Cx.block<6,3>(i*6,j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X.transpose();
+                    }
+
+                    for(int j = 0; j < AP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(7, 6);
+                        covariance.GetCovarianceBlock(&EOP[i][0], &AP[j][0], covariance_X.data());
+
+                        Cx.block<6,7>(i*6,j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+                    }
+
+                    // for(int j = 0; j < MLP.size(); j++)
+                    // {
+                    //     Eigen::MatrixXd covariance_X(2, 6);
+                    //     covariance.GetCovarianceBlock(&EOP[i][0], &MLP[j][0], covariance_X.data());
+
+                    //     Cx.block<6,2>(i*6,j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    // }
+
+                    if(ROPMODE)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                        {
+                            Eigen::MatrixXd covariance_X(6, 6);
+                            covariance.GetCovarianceBlock(&EOP[i][0], &ROP[j][0], covariance_X.data());
+
+                            Cx.block<6,6>(i*6,j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                        }
+                            
+                    }
+                }
+
+                for(int i = 0; i < XYZ.size(); i++)
+                {
+                    for(int j = i; j < XYZ.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(3, 3);
+                        covariance.GetCovarianceBlock(&XYZ[i][0], &XYZ[j][0], covariance_X.data());
+
+                        Cx.block<3,3>(i*3 + 6*EOP.size(),j*3 + 6*EOP.size()) = covariance_X.transpose();
+                    }
+
+                    for(int j = 0; j < IOP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(3, 3);
+                        covariance.GetCovarianceBlock(&XYZ[i][0], &IOP[j][0], covariance_X.data());
+
+                        Cx.block<3,3>(i*3 + 6*EOP.size(),j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X.transpose();
+                    }
+
+                    for(int j = 0; j < AP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(7, 3);
+                        covariance.GetCovarianceBlock(&XYZ[i][0], &AP[j][0], covariance_X.data());
+
+                        Cx.block<3,7>(i*3 + 6*EOP.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+                    }
+
+                    // for(int j = 0; j < MLP.size(); j++)
+                    // {
+                    //     Eigen::MatrixXd covariance_X(2, 3);
+                    //     covariance.GetCovarianceBlock(&XYZ[i][0], &MLP[j][0], covariance_X.data());
+
+                    //     Cx.block<3,2>(i*3 + 6*EOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    // }
+
+                    if(ROPMODE)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                        {
+                            Eigen::MatrixXd covariance_X(6, 3);
+                            covariance.GetCovarianceBlock(&XYZ[i][0], &ROP[j][0], covariance_X.data());
+
+                            Cx.block<3,6>(i*3 + 6*EOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                        }    
+                    }
+                }
+
+                for(int i = 0; i < IOP.size(); i++)
+                {
+                    for(int j = i; j < IOP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(3, 3);
+                        covariance.GetCovarianceBlock(&IOP[i][0], &IOP[j][0], covariance_X.data());
+
+                        Cx.block<3,3>(i*3 + 6*EOP.size()+3*XYZ.size(),j*3 + 6*EOP.size()+3*XYZ.size()) = covariance_X.transpose();
+                    }
+
+                    for(int j = 0; j < AP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(7, 3); 
+                        covariance.GetCovarianceBlock(&IOP[i][0], &AP[j][0], covariance_X.data());
+
+                        Cx.block<3,7>(i*3 + 6*EOP.size()+3*XYZ.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+                    }
+
+                    // for(int j = 0; j < MLP.size(); j++)
+                    // {
+                    //     Eigen::MatrixXd covariance_X(2, 3);
+                    //     covariance.GetCovarianceBlock(&IOP[i][0], &MLP[j][0], covariance_X.data());
+
+                    //     Cx.block<3,2>(i*3 + 6*EOP.size()+3*XYZ.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    // }
+
+                    if(ROPMODE)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                        {
+                            Eigen::MatrixXd covariance_X(6, 3);
+                            covariance.GetCovarianceBlock(&IOP[i][0], &ROP[j][0], covariance_X.data());
+
+                            Cx.block<3,6>(i*3 + 6*EOP.size()+3*XYZ.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                        }
+                            
+                    }
+                }
+
+                for(int i = 0; i < AP.size(); i++)
+                {
+                    for(int j = i; j < AP.size(); j++)
+                    {
+                        Eigen::MatrixXd covariance_X(7, 7);
+                        covariance.GetCovarianceBlock(&AP[i][0], &AP[j][0], covariance_X.data());
+
+                        Cx.block<7,7>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+                    }
+
+                    // for(int j = 0; j < MLP.size(); j++)
+                    // {
+                    //     Eigen::MatrixXd covariance_X(2, 7);
+                    //     covariance.GetCovarianceBlock(&AP[i][0], &MLP[j][0], covariance_X.data());
+
+                    //     Cx.block<7,2>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    // }
+
+                    if(ROPMODE)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                        {
+                            Eigen::MatrixXd covariance_X(6, 7);
+                            covariance.GetCovarianceBlock(&AP[i][0], &ROP[j][0], covariance_X.data());
+
+                            Cx.block<7,6>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                        }
+                            
+                    }
+                }
+
+                for(int i = 0; i < MLP.size(); i++)
+                {
+                    // for(int j = 0; j < MLP.size(); j++)
+                    // {
+                    //     Eigen::MatrixXd covariance_X(2, 2);
+                    //     covariance.GetCovarianceBlock(&MLP[i][0], &MLP[j][0], covariance_X.data());
+
+                    //     Cx.block<2,2>(i*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                    // }
+                }
+
+                if(ROPMODE)
+                {
+                    for(int i = 0; i < ROP.size(); i++)
+                    {
+                        for(int j = 0; j < ROP.size(); j++)
+                        {
+                            Eigen::MatrixXd covariance_X(6, 6);
+                            covariance.GetCovarianceBlock(&ROP[i][0], &ROP[j][0], covariance_X.data());
+
+                            Cx.block<6,6>(i*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                        }
                     }
                 }
             }
-        }
 
 
-        if (DEBUGMODE)
-        {
-            std::cout<<"  Writing Cx_before to file..."<<std::endl;
-            FILE *fout = fopen("Cx_before.jck", "w");
-            for(int i = 0; i < Cx.rows(); ++i)
+            if (DEBUGMODE)
             {
-                for(int j = 0; j < Cx.cols(); ++j)
+                std::cout<<"  Writing Cx_before to file..."<<std::endl;
+                FILE *fout = fopen("Cx_before.jck", "w");
+                for(int i = 0; i < Cx.rows(); ++i)
                 {
-                    fprintf(fout, "%.6lf \t ", Cx(i,j));
+                    for(int j = 0; j < Cx.cols(); ++j)
+                    {
+                        fprintf(fout, "%.6lf \t ", Cx(i,j));
+                    }
+                    fprintf(fout, "\n");
                 }
-                fprintf(fout, "\n");
+                fclose(fout);
             }
-            fclose(fout);
-        }
 
-        // copy it to make a symmetrical matrix
-        //Cx.triangularView<Eigen::Lower>() = Cx.transpose();
+            // copy it to make a symmetrical matrix
+            //Cx.triangularView<Eigen::Lower>() = Cx.transpose();
 
-        if (DEBUGMODE)
-        {
-            std::cout<<"  Writing Cx to file..."<<std::endl;
-            FILE *fout = fopen("Cx.jck", "w");
-            for(int i = 0; i < Cx.rows(); ++i)
+            if (DEBUGMODE)
             {
-                for(int j = 0; j < Cx.cols(); ++j)
+                std::cout<<"  Writing Cx to file..."<<std::endl;
+                FILE *fout = fopen("Cx.jck", "w");
+                for(int i = 0; i < Cx.rows(); ++i)
                 {
-                    fprintf(fout, "%.6lf \t ", Cx(i,j));
+                    for(int j = 0; j < Cx.cols(); ++j)
+                    {
+                        fprintf(fout, "%.6lf \t ", Cx(i,j));
+                    }
+                    fprintf(fout, "\n");
                 }
-                fprintf(fout, "\n");
+                fclose(fout);
             }
-            fclose(fout);
-        }
 
-        PyRun_SimpleString("print 'Done computing covariance matrix:', round(TIME.clock()-t0, 3), 's' ");
+            PyRun_SimpleString("print 'Done computing covariance matrix:', round(TIME.clock()-t0, 3), 's' ");
         
+        }
+        else // if we are not computing the Cx matrix
+        {
+            std::cout<<"NOT computing Cx covariance matrix"<<std::endl;
+        }
 
         // Output results to screen
         if(DEBUGMODE)
@@ -2596,226 +2634,236 @@ int main(int argc, char** argv) {
         Eigen::VectorXd redundancyNumber(variances.size());
         // Eigen::MatrixXd Cv; //covariance of the residuals
         Eigen::VectorXd CvDiag;
+
         problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, &jacobian);
 
-        PyRun_SimpleString("t0 = TIME.clock()");        
-        PyRun_SimpleString("print 'Start computing covariance matrix of the residuals' ");  
+        redundancyNumber.setConstant(1E6);
+        CvDiag.resize(jacobian.num_rows);
+        CvDiag.setConstant(1E12);
 
-        if (true)
+        if(COMPUTECV)
         {
-            std::cout<<"  Compute jacobian matrix..."<<std::endl;
-            // int rowsA []   = { 0,      2,          5,     7};
-            // int colsA []   = { 1,  3,  1,  2,  3,  0,  1};
-            // double valuesA [] = {10.0,  4.0,  2.0, -3.0,  2.0,  1.0,  2.0};
+            PyRun_SimpleString("t0 = TIME.clock()");        
+            PyRun_SimpleString("print 'Start computing covariance matrix of the residuals' ");  
 
-            // std::vector<int> rows (rowsA, rowsA + sizeof(rowsA) / sizeof(int) );
-            // std::vector<int> cols (colsA, colsA + sizeof(colsA) / sizeof(int) );
-            // std::vector<double> values (valuesA, valuesA + sizeof(valuesA) / sizeof(double) );
-
-            // Eigen::MatrixXd A(3,4);
-            // A.setZero();
-            // for (int i = 0; i < 3; i++)
-            // {
-            //     for (int j = rows[i]; j < rows[i+1]; j++)
-            //     {
-            //     A(i,cols[j]) = values[j]; 
-            //     }
-            // }
-            // std::cout<<"A: "<<std::endl;
-            // std::cout<<A<<std::endl;
-
-            std::cout<<"    A matrix rows: "<<jacobian.num_rows<<std::endl;
-            std::cout<<"    A matrix cols: "<<jacobian.num_cols<<std::endl;
-            std::cout<<"    Cl parameters: "<<variances.size()<<std::endl;
-
-            // Eigen::MatrixXd ADense(jacobian.num_rows,jacobian.num_cols);
-            // //Eigen::MatrixXd J(jacobian.num_rows,jacobian.num_cols);
-            // ADense.setZero();
-            // for (int i = 0; i < jacobian.num_rows; i++)
-            // {
-            //     double weight = sqrt(variances[i]);
-            //     for (int j = jacobian.rows[i]; j < jacobian.rows[i+1]; j++)
-            //     {
-            //         ADense(i,jacobian.cols[j]) = jacobian.values[j];                    
-            //         ADense(i,jacobian.cols[j]) *= weight; // undo the weighting during cost functions
-            //         //J(i,jacobian.cols[j]) = jacobian.values[j]; 
-
-            //     }
-            // }
-
-            Eigen::SparseMatrix<double> A;
-            A.resize(jacobian.num_rows,jacobian.num_cols);
-            std::vector< Eigen::Triplet<double> > tripletA(jacobian.values.size());
-	        int indexTripletA = 0;
-            for (int i = 0; i < jacobian.num_rows; i++)
+            if (true)
             {
-                double weight = sqrt(variances[i]);
-                for (int j = jacobian.rows[i]; j < jacobian.rows[i+1]; j++)
+                std::cout<<"  Compute jacobian matrix..."<<std::endl;
+                // int rowsA []   = { 0,      2,          5,     7};
+                // int colsA []   = { 1,  3,  1,  2,  3,  0,  1};
+                // double valuesA [] = {10.0,  4.0,  2.0, -3.0,  2.0,  1.0,  2.0};
+
+                // std::vector<int> rows (rowsA, rowsA + sizeof(rowsA) / sizeof(int) );
+                // std::vector<int> cols (colsA, colsA + sizeof(colsA) / sizeof(int) );
+                // std::vector<double> values (valuesA, valuesA + sizeof(valuesA) / sizeof(double) );
+
+                // Eigen::MatrixXd A(3,4);
+                // A.setZero();
+                // for (int i = 0; i < 3; i++)
+                // {
+                //     for (int j = rows[i]; j < rows[i+1]; j++)
+                //     {
+                //     A(i,cols[j]) = values[j]; 
+                //     }
+                // }
+                // std::cout<<"A: "<<std::endl;
+                // std::cout<<A<<std::endl;
+
+                std::cout<<"    A matrix rows: "<<jacobian.num_rows<<std::endl;
+                std::cout<<"    A matrix cols: "<<jacobian.num_cols<<std::endl;
+                std::cout<<"    Cl parameters: "<<variances.size()<<std::endl;
+
+                // Eigen::MatrixXd ADense(jacobian.num_rows,jacobian.num_cols);
+                // //Eigen::MatrixXd J(jacobian.num_rows,jacobian.num_cols);
+                // ADense.setZero();
+                // for (int i = 0; i < jacobian.num_rows; i++)
+                // {
+                //     double weight = sqrt(variances[i]);
+                //     for (int j = jacobian.rows[i]; j < jacobian.rows[i+1]; j++)
+                //     {
+                //         ADense(i,jacobian.cols[j]) = jacobian.values[j];                    
+                //         ADense(i,jacobian.cols[j]) *= weight; // undo the weighting during cost functions
+                //         //J(i,jacobian.cols[j]) = jacobian.values[j]; 
+
+                //     }
+                // }
+
+                Eigen::SparseMatrix<double> A;
+                A.resize(jacobian.num_rows,jacobian.num_cols);
+                std::vector< Eigen::Triplet<double> > tripletA(jacobian.values.size());
+                int indexTripletA = 0;
+                for (int i = 0; i < jacobian.num_rows; i++)
                 {
-                    tripletA[indexTripletA] = Eigen::Triplet<double>(i,jacobian.cols[j], jacobian.values[j]*weight);
-                    indexTripletA++;
+                    double weight = sqrt(variances[i]);
+                    for (int j = jacobian.rows[i]; j < jacobian.rows[i+1]; j++)
+                    {
+                        tripletA[indexTripletA] = Eigen::Triplet<double>(i,jacobian.cols[j], jacobian.values[j]*weight);
+                        indexTripletA++;
+                    }
+                }            
+                A.setFromTriplets(tripletA.begin(), tripletA.end());
+
+                std::cout<<"  Done computing jacobian matrix"<<std::endl;            
+
+                // if(DEBUGMODE)
+                // {
+                //     std::cout<<"    Writing A to file..."<<std::endl;
+                //     FILE *fout = fopen("A.jck", "w");
+                //     for(int i = 0; i < A.rows(); ++i)
+                //     {
+                //         for(int j = 0; j < A.cols(); ++j)
+                //         {
+                //             fprintf(fout, "%.6lf \t ", A(i,j));
+                //         }
+                //         fprintf(fout, "\n");
+                //     }
+                //     fclose(fout);
+                // }
+
+                // Eigen::Map<Eigen::VectorXd> temp(variances.data(), variances.size());
+                // Eigen::MatrixXd Cl = temp.asDiagonal();
+
+                Eigen::SparseMatrix<double> Cl;
+                Cl.resize(variances.size(), variances.size());
+                std::vector< Eigen::Triplet<double> > tripletCl(variances.size());
+                int indexTripletCl = 0;
+                for (int i = 0; i < variances.size(); i++)
+                {
+                    tripletCl[indexTripletCl] = Eigen::Triplet<double>(i,i,variances[i]);
+                    indexTripletCl++;                
+                }            
+                Cl.setFromTriplets(tripletCl.begin(), tripletCl.end());
+
+                // Eigen::MatrixXd A2 = A.block<198,96>(0,0);
+                // Eigen::MatrixXd Cx2 = (A2.transpose() * Cl.inverse() * A2).inverse();
+
+
+                // if(DEBUGMODE)
+                // {
+                //     std::cout<<"    Writing Cx2 to file..."<<std::endl;
+                //     FILE *fout = fopen("Cx2.jck", "w");
+                //     for(int i = 0; i < Cx2.rows(); ++i)
+                //     {
+                //         for(int j = 0; j < Cx2.cols(); ++j)
+                //         {
+                //             fprintf(fout, "%.6lf \t ", Cx2(i,j));
+                //         }
+                //         fprintf(fout, "\n");
+                //     }
+                //     fclose(fout);
+                // }
+                // computing the covariance matrix of the adjusted observations
+                std::cout<<"  Start computing Cv..."<<std::endl;
+                PyRun_SimpleString("t0 = TIME.clock()");        
+                Eigen::SparseMatrix<double> CxSparse = Cx.sparseView();
+                PyRun_SimpleString("print '    Converting matrices:', round(TIME.clock()-t0, 3), 's' ");      
+                PyRun_SimpleString("t0 = TIME.clock()");  
+
+                // Eigen::SparseMatrix<double> Cl_hat = A * (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
+
+                // // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
+                Eigen::SparseMatrix<double> CxAT = (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
+                PyRun_SimpleString("print '    Multiplying first matrices:', round(TIME.clock()-t0, 3), 's' ");
+                PyRun_SimpleString("t0 = TIME.clock()");        
+
+                for (int i = 0; i < variances.size(); i++)
+                {
+                    Eigen::SparseMatrix<double> temp = (A.row(i) * CxAT.col(i));
+                    //std::cout<<"temp: "<<temp.rows()<<", "<<temp.cols()<<" = "<<temp.coeff(0,0)<<std::endl;
+                    CvDiag(i) = variances[i] - temp.coeff(0,0);
                 }
-            }            
-            A.setFromTriplets(tripletA.begin(), tripletA.end());
 
-            std::cout<<"  Done computing jacobian matrix"<<std::endl;            
+                // Eigen::SparseMatrix<double> Cl_hat;
+                // Cl_hat.resize(variances.size(), variances.size());
+                // std::vector< Eigen::Triplet<double> > tripletCl_hat(variances.size());
+                // int indexTripletCl_hat = 0;
+                // for (int i = 0; i < variances.size(); i++)
+                // {
+                //     Eigen::SparseMatix<double> temp = (A.row(i) * CxAT.col(i));
+                //     tripletCl_hat[indexTripletCl_hat] = Eigen::Triplet<double>(i,i, temp.coeff(0, 0));
+                //     indexTripletCl_hat++;                
+                // }            
+                // Cl_hat.setFromTriplets(tripletCl_hat.begin(), tripletCl_hat.end());
 
-            // if(DEBUGMODE)
-            // {
-            //     std::cout<<"    Writing A to file..."<<std::endl;
-            //     FILE *fout = fopen("A.jck", "w");
-            //     for(int i = 0; i < A.rows(); ++i)
-            //     {
-            //         for(int j = 0; j < A.cols(); ++j)
-            //         {
-            //             fprintf(fout, "%.6lf \t ", A(i,j));
-            //         }
-            //         fprintf(fout, "\n");
-            //     }
-            //     fclose(fout);
-            // }
+                //Eigen::SparseMatrix<double> D = ttt.sparseView();
+                // Eigen::SparseMatrix<double> Cl_hat = A * Cx.selfadjointView<Eigen::Upper>() * A.transpose();
+                PyRun_SimpleString("print '    Multiplying matrices:', round(TIME.clock()-t0, 3), 's' ");
 
-            // Eigen::Map<Eigen::VectorXd> temp(variances.data(), variances.size());
-            // Eigen::MatrixXd Cl = temp.asDiagonal();
+                // Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
+                // Eigen::SparseMatrix<double> Cl_hat = A * Cx * A.transpose();
 
-            Eigen::SparseMatrix<double> Cl;
-            Cl.resize(variances.size(), variances.size());
-            std::vector< Eigen::Triplet<double> > tripletCl(variances.size());
-	        int indexTripletCl = 0;
-            for (int i = 0; i < variances.size(); i++)
-            {
-                tripletCl[indexTripletCl] = Eigen::Triplet<double>(i,i,variances[i]);
-                indexTripletCl++;                
-            }            
-            Cl.setFromTriplets(tripletCl.begin(), tripletCl.end());
+                //PyRun_SimpleString("t0 = TIME.clock()");        
+                // Cv.noalias() = Eigen::MatrixXd(Cl) - Eigen::MatrixXd(Cl_hat);
+                // Cv.noalias() = Eigen::MatrixXd(Cl - Cl_hat);
+                //PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.clock()-t0, 3), 's' ");
 
-            // Eigen::MatrixXd A2 = A.block<198,96>(0,0);
-            // Eigen::MatrixXd Cx2 = (A2.transpose() * Cl.inverse() * A2).inverse();
+                // Cv = Cl - Cl_hat;
+                std::cout<<"  Done computing Cv"<<std::endl;
 
+                // compute the redundancy numbers
+                double sumRedundancyNumber = 0.0;
+                for (int i = 0; i < variances.size(); i++) // includes the variance for defining the datum
+                {
+                    // redundancyNumber(i) = Cv(i,i) / Cl(i,i);
+                    // redundancyNumber(i) = Cv(i,i) / variances[i];
+                    redundancyNumber(i) = CvDiag(i) / variances[i];
+                    sumRedundancyNumber += redundancyNumber(i);
+                }
+                leastSquaresRedundancy.push_back(sumRedundancyNumber);
+                std::cout<<"    Sum of redundancy numbers: "<<sumRedundancyNumber<<std::endl;
+                // if(DEBUGMODE)
+                // {
+                //     std::cout<<"    Writing Cl to file..."<<std::endl;
+                //     FILE *fout = fopen("Cl.jck", "w");
+                //     for(int i = 0; i < Cl.rows(); ++i)
+                //     {
+                //         for(int j = 0; j < Cl.cols(); ++j)
+                //         {
+                //             fprintf(fout, "%.6lf \t ", Cl(i,j));
+                //         }
+                //         fprintf(fout, "\n");
+                //     }
+                //     fclose(fout);
+                // }
 
-            // if(DEBUGMODE)
-            // {
-            //     std::cout<<"    Writing Cx2 to file..."<<std::endl;
-            //     FILE *fout = fopen("Cx2.jck", "w");
-            //     for(int i = 0; i < Cx2.rows(); ++i)
-            //     {
-            //         for(int j = 0; j < Cx2.cols(); ++j)
-            //         {
-            //             fprintf(fout, "%.6lf \t ", Cx2(i,j));
-            //         }
-            //         fprintf(fout, "\n");
-            //     }
-            //     fclose(fout);
-            // }
-            // computing the covariance matrix of the adjusted observations
-            std::cout<<"  Start computing Cv..."<<std::endl;
-            PyRun_SimpleString("t0 = TIME.clock()");        
-            Eigen::SparseMatrix<double> CxSparse = Cx.sparseView();
-            PyRun_SimpleString("print '    Converting matrices:', round(TIME.clock()-t0, 3), 's' ");      
-            PyRun_SimpleString("t0 = TIME.clock()");  
+                // if(DEBUGMODE)
+                // {
+                //     std::cout<<"    Writing Cl_hat to file..."<<std::endl;
+                //     FILE *fout = fopen("Cl_hat.jck", "w");
+                //     for(int i = 0; i < Cl_hat.rows(); ++i)
+                //     {
+                //         for(int j = 0; j < Cl_hat.cols(); ++j)
+                //         {
+                //             fprintf(fout, "%.6lf \t ", Cl_hat(i,j));
+                //         }
+                //         fprintf(fout, "\n");
+                //     }
+                //     fclose(fout);
+                // }
 
-            // Eigen::SparseMatrix<double> Cl_hat = A * (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
-
-            // // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
-            Eigen::SparseMatrix<double> CxAT = (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
-            PyRun_SimpleString("print '    Multiplying first matrices:', round(TIME.clock()-t0, 3), 's' ");
-            PyRun_SimpleString("t0 = TIME.clock()");        
-
-
-            CvDiag.resize(jacobian.num_rows);
-            for (int i = 0; i < variances.size(); i++)
-            {
-                Eigen::SparseMatrix<double> temp = (A.row(i) * CxAT.col(i));
-                //std::cout<<"temp: "<<temp.rows()<<", "<<temp.cols()<<" = "<<temp.coeff(0,0)<<std::endl;
-                CvDiag(i) = variances[i] - temp.coeff(0,0);
+                // if(DEBUGMODE)
+                // {
+                //     std::cout<<"    Writing Cv to file..."<<std::endl;
+                //     FILE *fout = fopen("Cv.jck", "w");
+                //     for(int i = 0; i < Cv.rows(); ++i)
+                //     {
+                //         for(int j = 0; j < Cv.cols(); ++j)
+                //         {
+                //             fprintf(fout, "%.6lf \t ", Cv(i,j));
+                //         }
+                //         fprintf(fout, "\n");
+                //     }
+                //     fclose(fout);
+                // }
             }
 
-            // Eigen::SparseMatrix<double> Cl_hat;
-            // Cl_hat.resize(variances.size(), variances.size());
-            // std::vector< Eigen::Triplet<double> > tripletCl_hat(variances.size());
-	        // int indexTripletCl_hat = 0;
-            // for (int i = 0; i < variances.size(); i++)
-            // {
-            //     Eigen::SparseMatix<double> temp = (A.row(i) * CxAT.col(i));
-            //     tripletCl_hat[indexTripletCl_hat] = Eigen::Triplet<double>(i,i, temp.coeff(0, 0));
-            //     indexTripletCl_hat++;                
-            // }            
-            // Cl_hat.setFromTriplets(tripletCl_hat.begin(), tripletCl_hat.end());
-
-            //Eigen::SparseMatrix<double> D = ttt.sparseView();
-            // Eigen::SparseMatrix<double> Cl_hat = A * Cx.selfadjointView<Eigen::Upper>() * A.transpose();
-            PyRun_SimpleString("print '    Multiplying matrices:', round(TIME.clock()-t0, 3), 's' ");
-
-            // Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
-            // Eigen::SparseMatrix<double> Cl_hat = A * Cx * A.transpose();
-
-            //PyRun_SimpleString("t0 = TIME.clock()");        
-            // Cv.noalias() = Eigen::MatrixXd(Cl) - Eigen::MatrixXd(Cl_hat);
-            // Cv.noalias() = Eigen::MatrixXd(Cl - Cl_hat);
-            //PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.clock()-t0, 3), 's' ");
-
-            // Cv = Cl - Cl_hat;
-            std::cout<<"  Done computing Cv"<<std::endl;
-
-            // compute the redundancy numbers
-            double sumRedundancyNumber = 0.0;
-            for (int i = 0; i < variances.size(); i++) // includes the variance for defining the datum
-            {
-                // redundancyNumber(i) = Cv(i,i) / Cl(i,i);
-                // redundancyNumber(i) = Cv(i,i) / variances[i];
-                redundancyNumber(i) = CvDiag(i) / variances[i];
-                sumRedundancyNumber += redundancyNumber(i);
-            }
-            leastSquaresRedundancy.push_back(sumRedundancyNumber);
-            std::cout<<"    Sum of redundancy numbers: "<<sumRedundancyNumber<<std::endl;
-            // if(DEBUGMODE)
-            // {
-            //     std::cout<<"    Writing Cl to file..."<<std::endl;
-            //     FILE *fout = fopen("Cl.jck", "w");
-            //     for(int i = 0; i < Cl.rows(); ++i)
-            //     {
-            //         for(int j = 0; j < Cl.cols(); ++j)
-            //         {
-            //             fprintf(fout, "%.6lf \t ", Cl(i,j));
-            //         }
-            //         fprintf(fout, "\n");
-            //     }
-            //     fclose(fout);
-            // }
-
-            // if(DEBUGMODE)
-            // {
-            //     std::cout<<"    Writing Cl_hat to file..."<<std::endl;
-            //     FILE *fout = fopen("Cl_hat.jck", "w");
-            //     for(int i = 0; i < Cl_hat.rows(); ++i)
-            //     {
-            //         for(int j = 0; j < Cl_hat.cols(); ++j)
-            //         {
-            //             fprintf(fout, "%.6lf \t ", Cl_hat(i,j));
-            //         }
-            //         fprintf(fout, "\n");
-            //     }
-            //     fclose(fout);
-            // }
-
-            // if(DEBUGMODE)
-            // {
-            //     std::cout<<"    Writing Cv to file..."<<std::endl;
-            //     FILE *fout = fopen("Cv.jck", "w");
-            //     for(int i = 0; i < Cv.rows(); ++i)
-            //     {
-            //         for(int j = 0; j < Cv.cols(); ++j)
-            //         {
-            //             fprintf(fout, "%.6lf \t ", Cv(i,j));
-            //         }
-            //         fprintf(fout, "\n");
-            //     }
-            //     fclose(fout);
-            // }
+            PyRun_SimpleString("print 'Done computing covariance matrix of the residuals:', round(TIME.clock()-t0, 3), 's' ");
+        }
+        else // if not computing Cv
+        {
+            std::cout<<"NOT computing Cv covariance matrix of the residuals"<<std::endl;
         }
 
-        PyRun_SimpleString("print 'Done computing covariance matrix of the residuals:', round(TIME.clock()-t0, 3), 's' ");
-        
         Eigen::MatrixXd imageResiduals(imageX.size(), 2);
         Eigen::MatrixXd imageResidualsStdDev(imageX.size(), 2);
         Eigen::MatrixXd imageRedundancy(imageX.size(), 2);
@@ -2832,6 +2880,7 @@ int main(int argc, char** argv) {
 
             imageResidualsStdDev(n,0) = sqrt(CvDiag(n*2));
             imageResidualsStdDev(n,1) = sqrt(CvDiag(n*2+1));
+
         }
         if(DEBUGMODE)
         {

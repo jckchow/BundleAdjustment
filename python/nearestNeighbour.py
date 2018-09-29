@@ -69,10 +69,25 @@ from scipy.interpolate import griddata as griddataScipy
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
 
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.eop'
+
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90A.eop'
+
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
 iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120A.eop'
+
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
 
 
 #########################
@@ -119,7 +134,7 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 300.0
+outlierThreshold = 3000.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)
@@ -175,8 +190,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     # smooth and rasterize the data before doing kNN
     if (doSmoothing):
-        resampleSizeX = 100;
-        resampleSizeY = 100;
+        resampleSizeX = 200;
+        resampleSizeY = 200;
         
         print('  Using Smoothing Method: ' + smoothingMethod)
         print('  Resample residuals to image with dimensions: ' + str(resampleSizeX) + ' x ' + str(resampleSizeY) + ' pixels')

@@ -146,16 +146,16 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90A.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
@@ -167,6 +167,17 @@
 // // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
 // // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
+
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120A.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120A.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"

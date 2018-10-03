@@ -128,7 +128,7 @@ def calculateChangeAngles(opk1, opk2):
 ##eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/EOP.jck'
 #eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
     
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_before/EOP.jck'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP_linearSmoothing200/EOP.jck'
 eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
 
 numSamples = 10000
@@ -173,7 +173,7 @@ for n in range(0,len(ID)):
     vectorOPK[n,(0,1,2)] = np.fabs(diffOPK)
     
 #    print diffOPK * 180.0 / np.pi
-    diffOPK /= len(ID)
+    diffOPK /= len(ID) # averaging
     diffR = integrateAbsAngles(diffR, diffOPK)
     
     theta[n] = np.arccos(0.5 * (diffR[0,0]+diffR[1,1]+diffR[2,2]) - 0.5)
@@ -188,6 +188,7 @@ deltaOPK[1] = np.arcsin(diffR[2,0])
 deltaOPK[2] = np.arctan2(-diffR[1,0],diffR[0,0])
 
 print '  Integrated absolute omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi
+#print '  Integrated then averaged absolute omega, phi, kappa [deg]: ', (deltaOPK / len(ID) ) * 180.0 / np.pi
 print '  Average absolute omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi / len(ID)
 print '  Average absolute vector omega, phi, kappa [deg]: ', np.mean(vectorOPK,axis = 0) * 180.0 / np.pi
 

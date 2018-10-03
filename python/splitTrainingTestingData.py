@@ -45,8 +45,12 @@ from time import time
 #outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/xray1Training.pho'
 #outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/xray1Testing.pho'
 
-inputPho = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60.pho'
-inputEop = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60.eop'
+#####
+## Paper 2: X-ray
+#####
+
+inputPho = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.pho'
+inputEop = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.eop'
 
 outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.eop'
 outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.eop'
@@ -54,7 +58,31 @@ outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test1
 outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.pho'
 outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.pho'
 
-chooseIncrement = 2
+chooseIncrement = 4
+
+#####
+## Omni Paper 1 TC 1: Nikon
+#####
+#inputPho = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLess.pho'
+#inputEop = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonRobust.eop'
+#
+#outputEopTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop'
+#outputEopTesting = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTesting.eop'
+#
+#outputPhoTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho'
+#outputPhoTesting = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTesting.pho'
+
+#### go pro
+#inputPho = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.pho'
+#inputEop = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.eop'
+#
+#outputEopTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.eop'
+#outputEopTesting = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.eop'
+#
+#outputPhoTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.pho'
+#outputPhoTesting = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTesting.pho'
+
+#chooseIncrement = 2
 
 ##########################################
 ### read and split the data
@@ -96,7 +124,7 @@ for n in range(0,len(eopTrainingID)):
 phoTraining = np.asarray(phoTraining)
 phoTraining = np.reshape(phoTraining, (-1,8))
 
-print "Number of training samples: ", len(phoTesting)
+print "Number of training samples: ", len(phoTraining)
 
 ############################
 ### Output training and testing data to file  corrections

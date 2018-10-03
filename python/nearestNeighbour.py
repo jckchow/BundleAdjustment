@@ -64,6 +64,10 @@ from scipy.interpolate import griddata as griddataScipy
 ##########################
 #### Paper 2: Training 150, Testing 150
 ###########################
+########
+### SensorA
+########
+
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
@@ -79,16 +83,27 @@ from scipy.interpolate import griddata as griddataScipy
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90A.eop'
 
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120A.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120A.eop'
 
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
 
+########
+### Sensor B
+########
+
+########
+### Sensors A + B together
+########
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.eop'
 
 #########################
 ### Paper 1 TC 1: Omnidirectional camera calibration

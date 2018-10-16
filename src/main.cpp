@@ -40,7 +40,7 @@
 #define ROPMODE 1 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
@@ -281,19 +281,19 @@
 /// Sensor A + B together
 ////////
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
-#define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTROPFILENAME ""
+// #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
@@ -337,19 +337,20 @@
 // // #define INPUTROPFILENAME ""
 // #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-// // #define INPUTROPFILENAME ""
-// #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+#define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -2122,7 +2123,7 @@ int main(int argc, char** argv) {
 
         // condition for terminating least squares
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 100 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 10 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
@@ -2804,9 +2805,11 @@ int main(int argc, char** argv) {
 
         problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, &jacobian);
 
+        // set some default values if we are not actually calculating Cv
         redundancyNumber.setConstant(1E6);
         CvDiag.resize(jacobian.num_rows);
-        CvDiag.setConstant(1E6);
+        // CvDiag.setConstant(1E6);
+        CvDiag.setConstant(0.5*0.5);
 
         if(COMPUTECV)
         {

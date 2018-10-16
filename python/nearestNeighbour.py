@@ -97,13 +97,28 @@ from scipy.interpolate import griddata as griddataScipy
 ### Sensor B
 ########
 
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150B.eop'
+
 ########
 ### Sensors A + B together
 ########
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.eop'
+
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.eop'
+
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
 iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.eop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop'
 
 #########################
 ### Paper 1 TC 1: Omnidirectional camera calibration
@@ -129,7 +144,7 @@ eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/Tr
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = False
+doSmoothing = True
 smoothingMethod = 'linear'
 
 ##########################################
@@ -149,7 +164,7 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 3000.0
+outlierThreshold = 3.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)
@@ -170,6 +185,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     avgSensorCost = 0.0
     
     sensorID = sensorsUnique[iter] #currently sensor ID
+    indexImageAll = np.argwhere(image[:,0] == sensorID) #image residuals that are inliers + outliers
     indexImage = np.argwhere(inliers[:,0] == sensorID) #image residuals that are inliers
     indexIOP = np.argwhere(iop[:,0] == sensorID) # iop of the current sensor
     indexEOP = np.argwhere(eop[:,1] == sensorID) # eop of the current sensor
@@ -253,7 +269,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
         # Tune kNN using CV
         t0 = time()
-        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
+        param_grid = [ {'n_neighbors' : range(3,4,1)} ] # test only up to 50 neighbours
+#        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
 #        regCV.fit(interpolatedTraining, interpolatedResiduals)
         regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
@@ -295,7 +312,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         print('  Not doing Smoothing')
         # Tune kNN using CV
         t0 = time()
-        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
+#        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
+        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
         regCV.fit(features_train, labels_train)
         print "    Best in sample score: ", regCV.best_score_
@@ -361,7 +379,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print "    Average weighted y score: ", weightedScore/len(indexImage)
     print "      Weighted total score: ", sensorCost    
     print "      Average weighted total score: ", avgSensorCost    
-    print "      Number of samples: ", len(indexImage)
+    print "      Number of samples: ", len(indexImage), " inliers out of a total of ", len(indexImageAll)
     print "    Done calculating error:", round(time()-t0, 3), "s"  
     
     # log total cost and total number of samples for output

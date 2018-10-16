@@ -77,11 +77,19 @@ from matplotlib.colors import ListedColormap
 #outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho'
 
 # for testing
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.pho'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.eop'
-NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust_2000iter/NNModel'
-preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust_2000iter/preprocessing'
-outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training150A_photoROP_robust_2000iter.pho'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.eop'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust_2000iter/NNModel'
+#preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_robust_2000iter/preprocessing'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training150A_photoROP_robust_2000iter.pho'
+
+# for resuming sensors A + B together
+
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop'
+NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_photoROP/NNModel'
+preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_photoROP/preprocessing'
+outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho'
 
 ##########################################
 ### read in the residuals output from bundle adjustment

@@ -379,7 +379,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print "    Average weighted y score: ", weightedScore/len(indexImage)
     print "      Weighted total score: ", sensorCost    
     print "      Average weighted total score: ", avgSensorCost    
-    print "      Number of samples: ", len(indexImage), " inliers out of a total of ", len(indexImageAll)
+    print "      Number of samples: ", len(indexImage), " inliers out of a total of ", len(indexImageAll), " (", round(100.0*(float(len(indexImage))/float(len(indexImageAll))),1), "%)"
     print "    Done calculating error:", round(time()-t0, 3), "s"  
     
     # log total cost and total number of samples for output

@@ -40,7 +40,7 @@
 #define ROPMODE 1 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
@@ -2809,7 +2809,7 @@ int main(int argc, char** argv) {
         redundancyNumber.setConstant(1E6);
         CvDiag.resize(jacobian.num_rows);
         // CvDiag.setConstant(1E6);
-        CvDiag.setConstant(0.5*0.5);
+        CvDiag.setConstant(imageXStdDev[0]*imageYStdDev[0]);
 
         if(COMPUTECV)
         {

@@ -128,10 +128,13 @@ def calculateChangeAngles(opk1, opk2):
 ##eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/EOP.jck'
 #eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
     
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_photoROP_IOP_linearSmoothing200/EOP.jck'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30_photoROP_linearSmoothing200/EOP.jck'
 eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
 
-numSamples = 75
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training120A_photoROP_IOP_linearSmoothing200/EOP.jck'
+#eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
+
+numSamples = 15
 
 ##########################################
 ### Process eop data
@@ -191,6 +194,7 @@ print '  Integrated absolute omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.p
 #print '  Integrated then averaged absolute omega, phi, kappa [deg]: ', (deltaOPK / len(ID) ) * 180.0 / np.pi
 print '  Average absolute omega, phi, kappa [deg]: ', deltaOPK * 180.0 / np.pi / len(ID)
 print '  Average absolute vector omega, phi, kappa [deg]: ', np.mean(vectorOPK,axis = 0) * 180.0 / np.pi
+print '  Number of exposure stations used: ', len(ID)
 
 plt.figure()
 plt.plot(range(0,len(ID)), omega * 180.0 / np.pi, color = 'darkorange')

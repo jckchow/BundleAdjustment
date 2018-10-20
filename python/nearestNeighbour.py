@@ -140,6 +140,9 @@ eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/Tr
 #iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.eop'
 
+# Maximum number of neighbours to test (+1 of what you actually want)
+maxK = 51
+
 # do we want to plot things
 doPlot = False
 
@@ -166,6 +169,8 @@ w = np.divide(image[:,(3,4)], image[:,(7,8)])
 # 95% is 1.96
 outlierThreshold = 3.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
+
+print "  Outlier removal threshold: ", outlierThreshold, " x sigma"
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)
 prevCorr = np.delete(pho, outlierIndex[:,0], axis=0)
@@ -269,13 +274,13 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
         # Tune kNN using CV
         t0 = time()
-        param_grid = [ {'n_neighbors' : range(3,4,1)} ] # test only up to 50 neighbours
+        param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
 #        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
 #        regCV.fit(interpolatedTraining, interpolatedResiduals)
         regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
         print "    Best in sample score: ", regCV.best_score_
-        print "    CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
+        print "    CV value for K ( between 3 and", maxK-1,"): ", regCV.best_estimator_.n_neighbors
         print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
         
         # train with the best K parameter
@@ -313,11 +318,11 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         # Tune kNN using CV
         t0 = time()
 #        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
-        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
+        param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
         regCV.fit(features_train, labels_train)
         print "    Best in sample score: ", regCV.best_score_
-        print "    CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
+        print "    CV value for K ( between 3 and", maxK-1,"): ", regCV.best_estimator_.n_neighbors
         print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
 
         # train with the best K parameter

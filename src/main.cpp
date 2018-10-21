@@ -339,9 +339,9 @@
 // // #define INPUTROPFILENAME ""
 // #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
@@ -1278,6 +1278,8 @@ int main(int argc, char** argv) {
         std::cout << "    Number of unique targets read: "<< imageTargetID.size() << std::endl;
         // for(int i = 0; i < imageTargetID.size(); i++)
         //     std::cout<<imageTargetID[i]<<std::endl;
+
+        std::cout << "    Approximate redundancy (2*img - 6*EOP - 3*XYZ): "<< 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() << std::endl;
 
         /// write a temporary *.pho file for communicating with python
         if (iterNum == 0) // only do this for first iteration where we copy the file

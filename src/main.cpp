@@ -37,7 +37,8 @@
 #define PI 3.141592653589793238462643383279502884197169399
 #define NUMITERATION 1000
 #define DEBUGMODE 0
-#define ROPMODE 1 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
+#define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
+#define WEIGHTEDROPMODE 1 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 #define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
@@ -1016,18 +1017,18 @@ struct ropConstraint {
 
   // rotation from sensor 2 to sensor 1
   T r11 = cos(ROP[1]) * cos(ROP[2]);
-  T r12 = cos(ROP[0]) * sin(ROP[2]) + sin(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
-  T r13 = sin(ROP[0]) * sin(ROP[2]) - cos(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+  T r21 = cos(ROP[0]) * sin(ROP[2]) + sin(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
+  T r31 = sin(ROP[0]) * sin(ROP[2]) - cos(ROP[0]) * sin(ROP[1]) * cos(ROP[2]);
 
-  T r21 = -cos(ROP[1]) * sin(ROP[2]);
+  T r12 = -cos(ROP[1]) * sin(ROP[2]);
   T r22 = cos(ROP[0]) * cos(ROP[2]) - sin(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
-  T r23 = sin(ROP[0]) * cos(ROP[2]) + cos(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
+  T r32 = sin(ROP[0]) * cos(ROP[2]) + cos(ROP[0]) * sin(ROP[1]) * sin(ROP[2]);
 
-  T r31 = sin(ROP[1]);
-  T r32 = -sin(ROP[0]) * cos(ROP[1]);
+  T r13 = sin(ROP[1]);
+  T r23 = -sin(ROP[0]) * cos(ROP[1]);
   T r33 = cos(ROP[0]) * cos(ROP[1]); 
 
-    // R_1To2 = R_mTo2 * R_1Tom 
+  // R_1To2 = R_mTo2 * R_1Tom 
   T m11 = b11 * a11 + b12 * a12 + b13 * a13;
   T m12 = b11 * a21 + b12 * a22 + b13 * a23;
   T m13 = b11 * a31 + b12 * a32 + b13 * a33;
@@ -1045,29 +1046,29 @@ struct ropConstraint {
     T Tz = EOP2[5] - EOP1[5];
 
     // I = boresight_2To1 * R_1To2
-    // T deltaR32 = r31*m12 + r32*m22 + r33*m32;
+    T deltaR32 = r31*m12 + r32*m22 + r33*m32;
     T deltaR33 = r31*m13 + r32*m23 + r33*m33;
-    // T deltaR31 = r31*m11 + r32*m21 + r33*m31;
-    // T deltaR21 = r21*m11 + r22*m21 + r23*m31;
+    T deltaR31 = r31*m11 + r32*m21 + r33*m31;
+    T deltaR21 = r21*m11 + r22*m21 + r23*m31;
     T deltaR11 = r11*m11 + r12*m21 + r13*m31;
 
-    T deltaR22 = r21*m12 + r22*m22 + r23*m32;
+    // T deltaR22 = r21*m12 + r22*m22 + r23*m32;
 
-    // T deltaOmega = atan2(-deltaR32, deltaR33);
-    // T deltaPhi   = asin(deltaR31);
-    // T deltaKappa = atan2(-deltaR21, deltaR11);
+    T deltaOmega = atan2(-deltaR32, deltaR33);
+    T deltaPhi   = asin(deltaR31);
+    T deltaKappa = atan2(-deltaR21, deltaR11);
 
     T bx = a11*Tx + a12*Ty + a13*Tz;
     T by = a21*Tx + a22*Ty + a23*Tz;
     T bz = a31*Tx + a32*Ty + a33*Tz;
 
   // actual cost function
-//   residual[0] = deltaOmega; // delta omega
-//   residual[1] = deltaPhi; // delta phi 
-//   residual[2] = deltaKappa; // delta kappa 
-  residual[0] = deltaR11 - 1.0;
-  residual[1] = deltaR22 - 1.0;
-  residual[2] = deltaR33 - 1.0;
+  residual[0] = deltaOmega; // delta omega
+  residual[1] = deltaPhi; // delta phi 
+  residual[2] = deltaKappa; // delta kappa 
+//   residual[0] = deltaR11 - 1.0;
+//   residual[1] = deltaR22 - 1.0;
+//   residual[2] = deltaR33 - 1.0;
   residual[3] = bx - ROP[3]; // delta Xo 
   residual[4] = by - ROP[4]; // delta Yo 
   residual[5] = bz - ROP[5]; // delta Zo 
@@ -1354,7 +1355,7 @@ int main(int argc, char** argv) {
         std::vector<int> ropMaster;
         std::vector<int> ropSlave;
         std::vector<double> ropXo, ropYo, ropZo, ropOmega, ropPhi, ropKappa;
-        if(ROPMODE)
+        if(ROPMODE || WEIGHTEDROPMODE)
         {
             // Checking for ROP constraints
             PyRun_SimpleString("print '  Start reading ROPs' ");          
@@ -1483,7 +1484,7 @@ int main(int argc, char** argv) {
                                 listZo.push_back(b(2,0));
 
                                 // std::cout<< deltaOmega2 * 180.0/PI<<", "<<deltaPhi2 * 180.0/PI<<", "<<deltaKappa2 * 180.0/PI<<", "<<bx<<", "<<by<<", "<<bz<<std::endl;
-                                // std::cout<< deltaOmega * 180.0/PI<<", "<<deltaPhi * 180.0/PI<<", "<<deltaKappa * 180.0/PI<<", " <<b(0,0) <<", "<< b(1,0)<<", "<<b(2,0)<<std::endl;
+                                // std::cout<< deltaOmega * 180.0/PI<<", "<<deltaPhi * 180.0/PI<<", "<<deltaKappa * 180.0/PI<<", " <<b(0,0) <<", "<< b(1,0)<<", "<<b(2,0)<< ", distance = "<< sqrt( b(0,0)*b(0,0) + b(1,0)*b(1,0) + b(2,0)*b(2,0) )<<std::endl;
 
                                 /////////////////////////////////////////////////////////
                                 // check my own math
@@ -1795,7 +1796,7 @@ int main(int argc, char** argv) {
             problem.AddParameterBlock(&AP[n][0], 7);  
         // for(int n = 0; n < MLP.size(); n++) 
         //     problem.AddParameterBlock(&MLP[n][0], 2);  
-        if(ROPMODE)
+        if(ROPMODE || WEIGHTEDROPMODE)
         {
             for(int n = 0; n < ROP.size(); n++) 
                 problem.AddParameterBlock(&ROP[n][0], 6);  
@@ -1969,13 +1970,13 @@ int main(int argc, char** argv) {
                 // std::cout<<"indexPoseMaster: "<<indexPoseMaster<<", ID: "<< imageStation[n] - ropID[indexROPSlave][2]<<std::endl;
                 // std::cout<<"indexROP: "<< indexROPSlave<<std::endl;        
 
+                // Absolute equality constraint version of ROP
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<collinearityMachineLearnedROP, 2, 6, 6, 3, 3, 7>(
                         new collinearityMachineLearnedROP(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPoseMaster][0], &ROP[indexROPSlave][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
             
                 //problem.SetParameterBlockConstant(&ROP[indexROPSlave][0]);
-
             }
             // else if(eopCamera[indexPose] != ropSlave[indexROPSlave]) // not a slave in ROP constraint
             else
@@ -2078,6 +2079,58 @@ int main(int argc, char** argv) {
         //     }
         // }
 
+        if (WEIGHTEDROPMODE)
+        {
+            // Weighted ROP
+            for(int n = 0; n < imageX.size(); n++) // loop through all observations
+            {
+                std::vector<int>::iterator it;
+                it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+                int indexPoint = std::distance(xyzTarget.begin(),it);
+                // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+
+                it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+                int indexPose = std::distance(eopStation.begin(),it);
+                // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+
+                it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+                int indexSensor = std::distance(iopCamera.begin(),it);
+                // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl; 
+
+                it = std::find(ropSlave.begin(), ropSlave.end(), iopCamera[indexSensor]);
+                int indexROPSlave = std::distance(ropSlave.begin(),it);
+                // std::cout<<"indexROPSlave: "<<indexROPSlave<<", ID: "<< iopCamera[indexSensor]<<std::endl; 
+
+                // for book keeping
+                imageReferenceID[n] = iopCamera[indexSensor];
+
+                if (it!=ropSlave.end() && iopCamera[indexSensor] == *it) // is a slave in ROP constraint
+                {
+                    it = std::find(eopStation.begin(), eopStation.end(), imageStation[n] - ropID[indexROPSlave][2]);
+                    int indexPoseMaster = std::distance(eopStation.begin(),it);
+
+                    double deltaOmegaStdDev = 0.01 * PI / 180.0; //rad
+                    double deltaPhiStdDev   = 0.01 * PI / 180.0;
+                    double deltaKappaStdDev = 0.01 * PI / 180.0;
+                    double deltaXoStdDev    = 0.1;  // mm
+                    double deltaYoStdDev    = 0.1;
+                    double deltaZoStdDev    = 0.1;
+
+                    ceres::CostFunction* cost_function =
+                        new ceres::AutoDiffCostFunction<ropConstraint, 6, 6, 6, 6>(
+                            new ropConstraint(deltaOmegaStdDev, deltaPhiStdDev, deltaKappaStdDev, deltaXoStdDev, deltaYoStdDev, deltaZoStdDev));
+                    problem.AddResidualBlock(cost_function, loss, &EOP[indexPoseMaster][0], &EOP[indexPose][0], &ROP[indexROPSlave][0]);  
+
+                    variances.push_back(deltaOmegaStdDev*deltaOmegaStdDev);
+                    variances.push_back(deltaPhiStdDev*deltaPhiStdDev);
+                    variances.push_back(deltaKappaStdDev*deltaKappaStdDev);
+                    variances.push_back(deltaXoStdDev*deltaXoStdDev);
+                    variances.push_back(deltaYoStdDev*deltaYoStdDev);
+                    variances.push_back(deltaZoStdDev*deltaZoStdDev);
+                }
+            }        
+        }
+
         // define the datum by pseduo observations of the positions for defining the datum
         if(true)
         {
@@ -2149,7 +2202,7 @@ int main(int argc, char** argv) {
 
         // condition for terminating least squares
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 100 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 10 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
@@ -2265,7 +2318,7 @@ int main(int argc, char** argv) {
                 // for(int i = 0; i < MLP.size(); i++)
                 //     covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[i][0])); 
 
-                if (ROPMODE)
+                if (ROPMODE || WEIGHTEDROPMODE)
                 {
                     for(int i = 0; i < ROP.size(); i++)
                         covariance_blocks.push_back(std::make_pair(&ROP[i][0], &ROP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
@@ -2303,7 +2356,7 @@ int main(int argc, char** argv) {
                 //     for(int j = i; j < MLP.size(); j++)
                 //         covariance_blocks.push_back(std::make_pair(&MLP[i][0], &MLP[j][0]));
 
-                if (ROPMODE)
+                if (ROPMODE || WEIGHTEDROPMODE)
                 {
                     for(int i = 0; i < ROP.size(); i++)
                         for(int j = i; j < ROP.size(); j++)
@@ -2336,7 +2389,7 @@ int main(int argc, char** argv) {
                     // for(int j = 0; j < MLP.size(); j++)
                     //     covariance_blocks.push_back(std::make_pair(&EOP[i][0], &MLP[j][0]));
 
-                    if(ROPMODE)
+                    if(ROPMODE || WEIGHTEDROPMODE)
                     {
                         for(int j = 0; j < ROP.size(); j++)
                             covariance_blocks.push_back(std::make_pair(&EOP[i][0], &ROP[j][0]));
@@ -2354,7 +2407,7 @@ int main(int argc, char** argv) {
                     // for(int j = 0; j < MLP.size(); j++)
                     //     covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &MLP[j][0]));
 
-                    if(ROPMODE)
+                    if(ROPMODE || WEIGHTEDROPMODE)
                     {
                         for(int j = 0; j < ROP.size(); j++)
                             covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &ROP[j][0]));
@@ -2368,7 +2421,7 @@ int main(int argc, char** argv) {
 
                     // for(int j = 0; j < MLP.size(); j++)
                     //     covariance_blocks.push_back(std::make_pair(&IOP[i][0], &MLP[j][0]));
-                    if(ROPMODE)
+                    if(ROPMODE || WEIGHTEDROPMODE)
                     {
                         for(int j = 0; j < ROP.size(); j++)
                             covariance_blocks.push_back(std::make_pair(&IOP[i][0], &ROP[j][0]));
@@ -2380,7 +2433,7 @@ int main(int argc, char** argv) {
                     // for(int j = 0; j < MLP.size(); j++)
                     //     covariance_blocks.push_back(std::make_pair(&AP[i][0], &MLP[j][0]));
 
-                    if(ROPMODE)
+                    if(ROPMODE || WEIGHTEDROPMODE)
                     {
                         for(int j = 0; j < ROP.size(); j++)
                             covariance_blocks.push_back(std::make_pair(&AP[i][0], &ROP[j][0]));
@@ -2495,7 +2548,7 @@ int main(int argc, char** argv) {
             }
 
             // Eigen::MatrixXd ropVariance(ROP.size(),6);
-            if(ROPMODE)
+            if(ROPMODE || WEIGHTEDROPMODE)
             {
                 for(int i = 0; i < ROP.size(); i++)
                 {
@@ -2572,7 +2625,7 @@ int main(int argc, char** argv) {
                     //     Cx.block<6,2>(i*6,j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                     // }
 
-                    if(ROPMODE)
+                    if(ROPMODE || WEIGHTEDROPMODE)
                     {
                         for(int j = 0; j < ROP.size(); j++)
                         {
@@ -2619,7 +2672,7 @@ int main(int argc, char** argv) {
                     //     Cx.block<3,2>(i*3 + 6*EOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                     // }
 
-                    if(ROPMODE)
+                    if(ROPMODE || WEIGHTEDROPMODE)
                     {
                         for(int j = 0; j < ROP.size(); j++)
                         {
@@ -2657,7 +2710,7 @@ int main(int argc, char** argv) {
                     //     Cx.block<3,2>(i*3 + 6*EOP.size()+3*XYZ.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                     // }
 
-                    if(ROPMODE)
+                    if(ROPMODE || WEIGHTEDROPMODE)
                     {
                         for(int j = 0; j < ROP.size(); j++)
                         {
@@ -2688,7 +2741,7 @@ int main(int argc, char** argv) {
                     //     Cx.block<7,2>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*2 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
                     // }
 
-                    if(ROPMODE)
+                    if(ROPMODE || WEIGHTEDROPMODE)
                     {
                         for(int j = 0; j < ROP.size(); j++)
                         {
@@ -2712,7 +2765,7 @@ int main(int argc, char** argv) {
                     // }
                 }
 
-                if(ROPMODE)
+                if(ROPMODE || WEIGHTEDROPMODE)
                 {
                     for(int i = 0; i < ROP.size(); i++)
                     {
@@ -3202,7 +3255,7 @@ int main(int argc, char** argv) {
             fclose(fout);
         }
 
-        if (ROPMODE)
+        if (ROPMODE || WEIGHTEDROPMODE)
         {
             std::cout<<"  Writing ROPs to file..."<<std::endl;
             FILE *fout = fopen("ROP.jck", "w");

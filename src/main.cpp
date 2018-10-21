@@ -3146,7 +3146,7 @@ int main(int argc, char** argv) {
             std::cout<<"Residuals:"<<std::endl;
             std::cout<<imageResiduals<<std::endl;
         }
-        std::cout<<"  Reprojection errors (RMSE in x, y, and total): " << sqrt(reprojectionErrors(0,0) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,1) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,3) / (2*imageX.size())) << std::endl;
+        std::cout<<"  Reprojection errors (RMSE in x, y, and total): " << sqrt(reprojectionErrors(0,0) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,1) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,2) / (2*imageX.size())) << std::endl;
 
         // Output results to file
         PyRun_SimpleString("t0 = TIME.clock()");        

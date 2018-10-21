@@ -35,10 +35,10 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1000
+#define NUMITERATION 1
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
-#define WEIGHTEDROPMODE 1 // weighted boresight and leverarm constraints. 1 for true, 0 for false
+#define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 #define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
@@ -339,19 +339,20 @@
 // // #define INPUTROPFILENAME ""
 // #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho"
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP_linearSmoothing200.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_ROP.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
@@ -3118,6 +3119,8 @@ int main(int argc, char** argv) {
         Eigen::MatrixXd imageResiduals(imageX.size(), 2);
         Eigen::MatrixXd imageResidualsStdDev(imageX.size(), 2);
         Eigen::MatrixXd imageRedundancy(imageX.size(), 2);
+        Eigen::MatrixXd reprojectionErrors(1, 3);
+        reprojectionErrors.setZero();
         for (int n = 0; n<imageX.size(); n++)
         {
             imageResiduals(n,0) = residuals[2*n] * imageXStdDev[n]; 
@@ -3132,13 +3135,18 @@ int main(int argc, char** argv) {
             imageResidualsStdDev(n,0) = sqrt(CvDiag(n*2));
             imageResidualsStdDev(n,1) = sqrt(CvDiag(n*2+1));
 
+            // compute the reprojection error as the RMSE of v_x and v_y
+            reprojectionErrors(0,0) +=  imageResiduals(n,0) *  imageResiduals(n,0);
+            reprojectionErrors(0,1) +=  imageResiduals(n,1) *  imageResiduals(n,1);      
+            reprojectionErrors(0,2) +=  reprojectionErrors(0,0) + reprojectionErrors(0,1);
+
         }
         if(DEBUGMODE)
         {
             std::cout<<"Residuals:"<<std::endl;
             std::cout<<imageResiduals<<std::endl;
         }
-        
+        std::cout<<"  Reprojection errors (RMSE in x, y, and total): " << sqrt(reprojectionErrors(0,0) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,1) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,3) / (2*imageX.size())) << std::endl;
 
         // Output results to file
         PyRun_SimpleString("t0 = TIME.clock()");        

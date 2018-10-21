@@ -128,13 +128,13 @@ def calculateChangeAngles(opk1, opk2):
 ##eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/IOP/Train_B_moreIter/EOP.jck'
 #eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.eop'
     
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30_photoROP_linearSmoothing200/EOP.jck'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_before_noROP/EOP.jck'
 eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
 
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training120A_photoROP_IOP_linearSmoothing200/EOP.jck'
 #eopTruthFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
 
-numSamples = 15
+numSamples = 75
 
 ##########################################
 ### Process eop data

@@ -147,7 +147,7 @@ maxK = 51
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = True
+doSmoothing = False
 smoothingMethod = 'linear'
 
 ##########################################

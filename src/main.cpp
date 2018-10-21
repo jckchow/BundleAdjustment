@@ -3136,9 +3136,9 @@ int main(int argc, char** argv) {
             imageResidualsStdDev(n,1) = sqrt(CvDiag(n*2+1));
 
             // compute the reprojection error as the RMSE of v_x and v_y
-            reprojectionErrors(0,0) +=  imageResiduals(n,0) *  imageResiduals(n,0);
-            reprojectionErrors(0,1) +=  imageResiduals(n,1) *  imageResiduals(n,1);      
-            reprojectionErrors(0,2) +=  reprojectionErrors(0,0) + reprojectionErrors(0,1);
+            reprojectionErrors(0,0) +=  imageResiduals(n,0) * imageResiduals(n,0);
+            reprojectionErrors(0,1) +=  imageResiduals(n,1) * imageResiduals(n,1);      
+            reprojectionErrors(0,2) +=  imageResiduals(n,0) * imageResiduals(n,0) + imageResiduals(n,1) * imageResiduals(n,1);
 
         }
         if(DEBUGMODE)

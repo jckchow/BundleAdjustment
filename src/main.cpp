@@ -35,7 +35,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1
+#define NUMITERATION 1000
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
@@ -238,18 +238,18 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150B.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
@@ -339,22 +339,22 @@
 // // #define INPUTROPFILENAME ""
 // #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho"
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_ROP.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
-#define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+// // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_ROP.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTROPFILENAME ""
+// #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -1059,6 +1059,7 @@ struct ropConstraint {
     T deltaPhi   = asin(deltaR31);
     T deltaKappa = atan2(-deltaR21, deltaR11);
 
+    // defined in the coordinate frame of sensor 1
     T bx = a11*Tx + a12*Ty + a13*Tz;
     T by = a21*Tx + a22*Ty + a23*Tz;
     T bz = a31*Tx + a32*Ty + a33*Tz;
@@ -1588,7 +1589,7 @@ int main(int argc, char** argv) {
                 std::cout<<"      Median boresight and leverarm (from master to slave): "<<std::endl;
                 std::cout<<"        "<<tempOmega * 180.0/PI<<", "<< tempPhi * 180.0/PI << ", " << tempKappa * 180.0/PI << ", " << tempXo << ", " << tempYo << ", " << tempZo <<". Distance: "<< sqrt(tempXo*tempXo+tempYo*tempYo+tempZo*tempZo) << std::endl;
                 std::cout<<"      Mean boresight and leverarm (from master to slave):" <<std::endl;
-                std::cout<<"        "<<std::accumulate( listOmega.begin(), listOmega.end(), 0.0)/listOmega.size() * 180.0/PI<<", "<< std::accumulate( listPhi.begin(), listPhi.end(), 0.0)/listPhi.size() * 180.0/PI << ", " << std::accumulate( listKappa.begin(), listKappa.end(), 0.0)/listKappa.size() * 180.0/PI << ", " << std::accumulate( listXo.begin(), listXo.end(), 0.0)/listXo.size() <<", " << std::accumulate( listYo.begin(), listYo.end(), 0.0)/listYo.size() << ", " << std::accumulate( listZo.begin(), listZo.end(), 0.0)/listZo.size() <<std::endl;
+                std::cout<<"        "<<std::accumulate( listOmega.begin(), listOmega.end(), 0.0)/listOmega.size() * 180.0/PI<<", "<< std::accumulate( listPhi.begin(), listPhi.end(), 0.0)/listPhi.size() * 180.0/PI << ", " << std::accumulate( listKappa.begin(), listKappa.end(), 0.0)/listKappa.size() * 180.0/PI << ", " << std::accumulate( listXo.begin(), listXo.end(), 0.0)/listXo.size() <<", " << std::accumulate( listYo.begin(), listYo.end(), 0.0)/listYo.size() << ", " << std::accumulate( listZo.begin(), listZo.end(), 0.0)/listZo.size() << ". Distance: " << sqrt( pow(std::accumulate( listXo.begin(), listXo.end(), 0.0)/listXo.size(),2.0)+pow(std::accumulate( listYo.begin(), listYo.end(), 0.0)/listYo.size(),2.0)+pow(std::accumulate( listZo.begin(), listZo.end(), 0.0)/listZo.size(),2.0) )<<std::endl;
 
                 double tempOmegaStdDev = calcStdDev(listOmega);
                 double tempPhiStdDev = calcStdDev(listPhi);
@@ -1597,7 +1598,7 @@ int main(int argc, char** argv) {
                 double tempYoStdDev = calcStdDev(listYo);
                 double tempZoStdDev = calcStdDev(listZo);
 
-                std::cout<<"      Std. Dev. boresight and leverarm:" <<std::endl;
+                std::cout<<"      Std. Dev. boresight [deg] and leverarm:" <<std::endl;
                 std::cout<<"        "<<tempOmegaStdDev * 180.0/PI<<", "<< tempPhiStdDev * 180.0/PI << ", " << tempKappaStdDev * 180.0/PI << ", " << tempXoStdDev << ", " << tempYoStdDev << ", " << tempZoStdDev << std::endl;
 
                 ropOmega.push_back(tempOmega);
@@ -1808,7 +1809,8 @@ int main(int argc, char** argv) {
         ceres::LossFunction* loss = NULL;
         loss = new ceres::HuberLoss(1.0);
 
-        // loss = new ceres::CauchyLoss(0.5);
+        // ceres::LossFunction* loss2 = NULL;
+        // loss2 = new ceres::CauchyLoss(0.5);
 
         // // Conventional collinearity condition
         // for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -1931,6 +1933,10 @@ int main(int argc, char** argv) {
         }
 
 
+        if(ROPMODE)
+        {
+            std::cout<<"  Doing absolute ROP constraint..."<<std::endl;
+        }
         // Collinearity condition with machine learned parameters and ROP
         for(int n = 0; n < imageX.size(); n++) // loop through all observations
         {
@@ -2084,6 +2090,7 @@ int main(int argc, char** argv) {
 
         if (WEIGHTEDROPMODE)
         {
+            std::cout<<"  Doing weighted ROP constraint..."<<std::endl;
             // Weighted ROP
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
             {
@@ -2109,15 +2116,46 @@ int main(int argc, char** argv) {
 
                 if (it!=ropSlave.end() && iopCamera[indexSensor] == *it) // is a slave in ROP constraint
                 {
+                    //std::cout<<"  Doing weighted ROP constraint..."<<std::endl;
+
                     it = std::find(eopStation.begin(), eopStation.end(), imageStation[n] - ropID[indexROPSlave][2]);
                     int indexPoseMaster = std::distance(eopStation.begin(),it);
 
-                    double deltaOmegaStdDev = 0.01 * PI / 180.0; //rad
-                    double deltaPhiStdDev   = 0.01 * PI / 180.0;
-                    double deltaKappaStdDev = 0.01 * PI / 180.0;
-                    double deltaXoStdDev    = 0.1;  // mm
-                    double deltaYoStdDev    = 0.1;
-                    double deltaZoStdDev    = 0.1;
+
+                    // double deltaOmegaStdDev = 1.0 * PI / 180.0; //rad
+                    // double deltaPhiStdDev   = 1.0 * PI / 180.0;
+                    // double deltaKappaStdDev = 1.0 * PI / 180.0;
+                    // double deltaXoStdDev    = 0.1;  // mm
+                    // double deltaYoStdDev    = 0.1;
+                    // double deltaZoStdDev    = 0.1;
+
+                    // double deltaOmegaStdDev = 0.195465 * PI / 180.0; //rad
+                    // double deltaPhiStdDev   = 0.0154569 * PI / 180.0;
+                    // double deltaKappaStdDev = 0.175457 * PI / 180.0;
+                    // double deltaXoStdDev    = 8.15048;  // mm
+                    // double deltaYoStdDev    = 0.525434;
+                    // double deltaZoStdDev    = 6.72551;
+
+                    // double deltaOmegaStdDev = 0.001 * PI / 180.0; //rad
+                    // double deltaPhiStdDev   = 0.001 * PI / 180.0;
+                    // double deltaKappaStdDev = 0.001 * PI / 180.0;
+                    // double deltaXoStdDev    = 0.001;  // mm
+                    // double deltaYoStdDev    = 0.001;
+                    // double deltaZoStdDev    = 0.001;
+
+                    // double deltaOmegaStdDev = 1000.0 * PI / 180.0; //rad
+                    // double deltaPhiStdDev   = 1000.0 * PI / 180.0;
+                    // double deltaKappaStdDev = 1000.0 * PI / 180.0;
+                    // double deltaXoStdDev    = 1000.0;  // mm
+                    // double deltaYoStdDev    = 1000.0;
+                    // double deltaZoStdDev    = 1000.0;
+
+                    double deltaOmegaStdDev = 1.0 * PI / 180.0; //rad
+                    double deltaPhiStdDev   = 1.0 * PI / 180.0;
+                    double deltaKappaStdDev = 1.0 * PI / 180.0;
+                    double deltaXoStdDev    = 20.0;  // mm
+                    double deltaYoStdDev    = 20.0;
+                    double deltaZoStdDev    = 20.0;
 
                     ceres::CostFunction* cost_function =
                         new ceres::AutoDiffCostFunction<ropConstraint, 6, 6, 6, 6>(
@@ -2130,9 +2168,13 @@ int main(int argc, char** argv) {
                     variances.push_back(deltaXoStdDev*deltaXoStdDev);
                     variances.push_back(deltaYoStdDev*deltaYoStdDev);
                     variances.push_back(deltaZoStdDev*deltaZoStdDev);
+
+                    //problem.SetParameterBlockConstant(&ROP[indexROPSlave][0]);
+
                 }
             }        
         }
+
 
         // define the datum by pseduo observations of the positions for defining the datum
         if(true)

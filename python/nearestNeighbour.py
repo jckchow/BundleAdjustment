@@ -97,6 +97,11 @@ from scipy.interpolate import griddata as griddataScipy
 ### Sensor B
 ########
 
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.eop'
+
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
@@ -115,10 +120,10 @@ from scipy.interpolate import griddata as griddataScipy
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.eop'
 
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop'
 
 #########################
 ### Paper 1 TC 1: Omnidirectional camera calibration
@@ -167,7 +172,7 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 3000.0
+outlierThreshold = 3.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 print "  Outlier removal threshold: ", outlierThreshold, " x sigma"

@@ -97,10 +97,20 @@ from scipy.interpolate import griddata as griddataScipy
 ### Sensor B
 ########
 
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60B.eop'
+
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90B.eop'
+
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1B.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.eop'
 
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
@@ -120,10 +130,10 @@ eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/Tr
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.eop'
 
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop'
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop'
 
 #########################
 ### Paper 1 TC 1: Omnidirectional camera calibration
@@ -146,7 +156,7 @@ eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/Tr
 #eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.eop'
 
 # Maximum number of neighbours to test (+1 of what you actually want)
-maxK = 51
+maxK = 4
 
 # do we want to plot things
 doPlot = False
@@ -172,7 +182,7 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 3.0
+outlierThreshold = 3000.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 print "  Outlier removal threshold: ", outlierThreshold, " x sigma"
@@ -377,14 +387,14 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     v = (np.reshape(labels_train[:,0],(-1,1)) - np.reshape(reg.predict(features_train)[:,0],(-1,1))) / inliers[indexImage,7]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
-    avgSensorCost += cost/len(indexImage)
+    avgSensorCost += cost/float(len(indexImage))
     print "    Weighted x score: ", weightedScore
     print "    Average weighted x score: ", weightedScore/len(indexImage)
 
     v = (np.reshape(labels_train[:,1],(-1,1)) - np.reshape(reg.predict(features_train)[:,1],(-1,1))) / inliers[indexImage,8]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
-    avgSensorCost += cost/len(indexImage)
+    avgSensorCost += cost/float(len(indexImage))
     print "    Weighted y score: ", weightedScore
     print "    Average weighted y score: ", weightedScore/len(indexImage)
     print "      Weighted total score: ", sensorCost    

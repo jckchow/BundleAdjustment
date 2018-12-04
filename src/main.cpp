@@ -35,10 +35,10 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1000
+#define NUMITERATION 1
 #define DEBUGMODE 0
-#define ROPMODE 0 // Turn on boresight and leverarm constraints. 1 for true, 0 for false
-#define WEIGHTEDROPMODE 1 // weighted boresight and leverarm constraints. 1 for true, 0 for false
+#define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
+#define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 #define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
@@ -264,8 +264,8 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// ///////////////////////////
-// // Testing on 150
+///////////////////////////
+// Testing on 150
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.pho"
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Training150AB_photoROP_old.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training150A_photoROP_linearSmoothing_robust.pho"
@@ -278,6 +278,18 @@
 // // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
 // // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingB.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingB_Training90B_photoROP.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1BTesting.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingB.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 ////////
 /// Sensor A + B together
@@ -340,21 +352,21 @@
 // #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho"
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP.pho" // pre-calibrated each sensor individually
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_ROP.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
-#define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP.pho" // pre-calibrated each sensor individually
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.iop"
+// // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_ROP.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTROPFILENAME ""
+// #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -2117,27 +2129,6 @@ int main(int argc, char** argv) {
                 // std::cout<<"indexPose: "<<indexPose<<", ID: "<< eopStation[n]<<std::endl;
                 // std::cout<<"indexPoseMaster: "<<indexPoseMaster<<", ID: "<< eopStation[indexPoseMaster]<<std::endl;
 
-                    // double deltaOmegaStdDev = 1.0 * PI / 180.0; //rad
-                    // double deltaPhiStdDev   = 1.0 * PI / 180.0;
-                    // double deltaKappaStdDev = 1.0 * PI / 180.0;
-                    // double deltaXoStdDev    = 0.1;  // mm
-                    // double deltaYoStdDev    = 0.1;
-                    // double deltaZoStdDev    = 0.1;
-
-                    // double deltaOmegaStdDev = 0.195465 * PI / 180.0; //rad
-                    // double deltaPhiStdDev   = 0.0154569 * PI / 180.0;
-                    // double deltaKappaStdDev = 0.175457 * PI / 180.0;
-                    // double deltaXoStdDev    = 8.15048;  // mm
-                    // double deltaYoStdDev    = 0.525434;
-                    // double deltaZoStdDev    = 6.72551;
-
-                    // double deltaOmegaStdDev = 0.001 * PI / 180.0; //rad
-                    // double deltaPhiStdDev   = 0.001 * PI / 180.0;
-                    // double deltaKappaStdDev = 0.001 * PI / 180.0;
-                    // double deltaXoStdDev    = 0.001;  // mm
-                    // double deltaYoStdDev    = 0.001;
-                    // double deltaZoStdDev    = 0.001;
-
                     // double deltaOmegaStdDev = 1000.0 * PI / 180.0; //rad
                     // double deltaPhiStdDev   = 1000.0 * PI / 180.0;
                     // double deltaKappaStdDev = 1000.0 * PI / 180.0;
@@ -2145,12 +2136,12 @@ int main(int argc, char** argv) {
                     // double deltaYoStdDev    = 1000.0;
                     // double deltaZoStdDev    = 1000.0;
 
-                    double deltaOmegaStdDev = 10.0 * PI / 180.0; //rad
-                    double deltaPhiStdDev   = 10.0 * PI / 180.0;
-                    double deltaKappaStdDev = 10.0 * PI / 180.0;
-                    double deltaXoStdDev    = 100.0;  // mm
-                    double deltaYoStdDev    = 100.0;
-                    double deltaZoStdDev    = 100.0;
+                    double deltaOmegaStdDev = 0.05 * PI / 180.0; //rad
+                    double deltaPhiStdDev   = 0.05 * PI / 180.0;
+                    double deltaKappaStdDev = 0.05 * PI / 180.0;
+                    double deltaXoStdDev    = 500.0;  // mm
+                    double deltaYoStdDev    = 500.0;
+                    double deltaZoStdDev    = 500.0;
 
                     ceres::CostFunction* cost_function =
                         new ceres::AutoDiffCostFunction<ropConstraint, 6, 6, 6, 6>(
@@ -2326,7 +2317,7 @@ int main(int argc, char** argv) {
 
         // condition for terminating least squares
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 10 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 50 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
@@ -2337,62 +2328,115 @@ int main(int argc, char** argv) {
         // storing it for comparison in this EM like routine
         leastSquaresCost.push_back(summary.final_cost);
 
-        // /////////////
-        // // Ad-hoc fix
-        // // When fixing a subset of AP the covariance matrix cannot be calculated, therefore output EOP and IOP without the covariances
-        // if (true)
-        // {
-        //     std::cout<<"  Writing EOPs to file..."<<std::endl;
-        //     FILE *fout = fopen("EOP.jck", "w");
-        //     for(int i = 0; i < EOP.size(); ++i)
-        //     {
-        //         fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", eopStation[i], EOP[i][0]*180.0/PI, EOP[i][1]*180.0/PI, EOP[i][2]*180.0/PI, EOP[i][3], EOP[i][4], EOP[i][5] );
-        //     }
-        //     fclose(fout);
-        // }
+        /////////////
+        // Ad-hoc fix
+        // When fixing a subset of AP the covariance matrix cannot be calculated, therefore output EOP and IOP without the covariances
+        if (true)
+        {
+            std::cout<<"  Writing EOPs to file..."<<std::endl;
+            FILE *fout = fopen("EOP.jck", "w");
+            for(int i = 0; i < EOP.size(); ++i)
+            {
+                fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", eopStation[i], EOP[i][0]*180.0/PI, EOP[i][1]*180.0/PI, EOP[i][2]*180.0/PI, EOP[i][3], EOP[i][4], EOP[i][5] );
+            }
+            fclose(fout);
+        }
 
-        // if (true)
-        // {
-        //     std::cout<<"  Writing IOPs to file..."<<std::endl;
-        //     FILE *fout = fopen("iop.jck", "w");
-        //     for(int i = 0; i < IOP.size(); ++i)
-        //     {
-        //         fprintf(fout, "%i %.6lf %.6lf %.6lf\n", iopCamera[i], IOP[i][0], IOP[i][1], IOP[i][2] );
-        //     }
-        //     fclose(fout);
-        // }
+        if (true)
+        {
+            std::cout<<"  Writing IOPs to file..."<<std::endl;
+            FILE *fout = fopen("iop.jck", "w");
+            for(int i = 0; i < IOP.size(); ++i)
+            {
+                fprintf(fout, "%i %.6lf %.6lf %.6lf\n", iopCamera[i], IOP[i][0], IOP[i][1], IOP[i][2] );
+            }
+            fclose(fout);
+        }
 
-        // if (true)
-        // {
+        if (true)
+        {
             
-        //     std::cout<<"  Writing APs to screen..."<<std::endl;
-        //     std::cout<<iopCamera[0]<<", "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
-        // }
+            std::cout<<"  Writing APs to screen..."<<std::endl;
+            std::cout<<iopCamera[0]<<", "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
+        }
 
-        // if (true)
-        // {
-        //     std::vector<double> residuals;
-        //     ceres::CRSMatrix jacobian;
-        //     problem.Evaluate(ceres::Problem::EvaluateOptions(), NULL, &residuals, NULL, NULL);
+        if (true)
+        {
+            std::vector<double> residuals;
+            ceres::CRSMatrix jacobian;
+            problem.Evaluate(ceres::Problem::EvaluateOptions(), NULL, &residuals, NULL, NULL);
 
-        //     Eigen::MatrixXd imageResiduals(imageX.size(), 2);
-        //     for (int n = 0; n<imageX.size(); n++)
-        //     {
-        //         imageResiduals(n,0) = residuals[2*n] * imageXStdDev[n];
-        //         imageResiduals(n,1) = residuals[2*n+1] * imageYStdDev[n];
-        //     }
+            Eigen::MatrixXd imageResiduals(imageX.size(), 2);
+            for (int n = 0; n<imageX.size(); n++)
+            {
+                imageResiduals(n,0) = residuals[2*n] * imageXStdDev[n];
+                imageResiduals(n,1) = residuals[2*n+1] * imageYStdDev[n];
+            }
             
-        //         std::cout<<"  Writing residuals to file..."<<std::endl;
-        //         FILE *fout = fopen("image.jck", "w");
-        //         for(int i = 0; i < imageTarget.size(); ++i)
-        //         {
-        //             fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
-        //         }
-        //         fclose(fout)       
-        // }
+                std::cout<<"  Writing residuals to file..."<<std::endl;
+                FILE *fout = fopen("image.jck", "w");
+                for(int i = 0; i < imageTarget.size(); ++i)
+                {
+                    fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
+                }
+                fclose(fout);       
+        }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         //////////////////////////////////////////////////
         /// Start doing covariance matrix calculation
         //////////////////////////////////////////////////
@@ -3499,7 +3543,7 @@ int main(int argc, char** argv) {
             RMSE_Y = sqrt(RMSE_Y);
             RMSE_Z = sqrt(RMSE_Z);
             
-            std::cout<<"    RMSE X, Y, Z: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<std::endl;
+            std::cout<<"    RMSE X, Y, Z, Total: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<". "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
             PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
         }   
 

@@ -68,10 +68,10 @@ from scipy.interpolate import griddata as griddataScipy
 ### SensorA
 ########
 
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
 
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
@@ -128,12 +128,22 @@ from scipy.interpolate import griddata as griddataScipy
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60.eop'
+
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90.eop'
+
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.eop'
 
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop'
 
 #########################
 ### Paper 1 TC 1: Omnidirectional camera calibration
@@ -159,11 +169,11 @@ eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/Tr
 maxK = 4
 
 # do we want to plot things
-doPlot = False
+doPlot = True
 
 # do we want to apply linear or cubic smoothing to the predictions
 doSmoothing = False
-smoothingMethod = 'linear'
+smoothingMethod = 'nearest' # 'linear' or 'nearest'
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -270,7 +280,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         
         if (doPlot):
             plt.figure()
-            plt.imshow(grid_interpolatedResidualsX)
+            plt.imshow(grid_interpolatedResidualsX, vmin=-abs(labels_train[:,0]).max(), vmax=abs(labels_train[:,0]).max())
             plt.colorbar();
             plt.title('Interpolated x residuals')
             
@@ -457,7 +467,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
                           vmax=abs(zi).max(), vmin=-abs(zi).max())
         plt.colorbar()  # draw colorbar
         plt.title('x residuals: Sensor ' + str(sensorID))
-        
+            
         plt.figure()
         # grid the data.
         zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 0] + mean_label[0], xi, yi, interp='linear')
@@ -491,6 +501,48 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.scatter(features_train_original[:, 0], features_train_original[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('x model: Sensor ' + str(sensorID))
     
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contourf(xx, yy, zz, 100)
+        plt.colorbar()  # draw colorbar
+        plt.title('x model: Sensor ' + str(sensorID))
+
+       
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.imshow(zz, vmin=-abs(labels_train[:,0]+mean_label[0]).max(), vmax=abs(labels_train[:,0]+mean_label[0]).max())
+        plt.colorbar()  # draw colorbar
+        plt.title('x model: Sensor ' + str(sensorID))
+        
+        resampleSizeX = iop[indexIOP,4];
+        resampleSizeY = iop[indexIOP,5];
+
+        xx, yy = np.meshgrid(np.linspace(iop[indexIOP,2], iop[indexIOP,4], num=resampleSizeX, endpoint=False),
+                             np.linspace(iop[indexIOP,3], -iop[indexIOP,5], num=resampleSizeY, endpoint=False)) # endpoint should be true but numpy does something weird, probably a glitch
+    
+        # scale it first
+        X = np.hstack((np.reshape(xx,(-1,1)), np.reshape(yy,(-1,1))))
+        x_std = (X[:,0] - min_x) / (max_x - min_x)
+        x_scaled = x_std * (desire_max - desire_min) + desire_min 
+        y_std = (X[:,1] - min_y) / (max_y - min_y)
+        y_scaled = y_std * (desire_max - desire_min) + desire_min 
+        X = np.concatenate((x_scaled, y_scaled)).transpose()
+        
+        xx_std = (xx - min_x) / (max_x - min_x)
+        xx_scaled = xx_std * (desire_max - desire_min) + desire_min 
+        
+        yy_std = (yy - min_y) / (max_y - min_y)
+        yy_scaled = yy_std * (desire_max - desire_min) + desire_min 
+        
+        grid_interpolatedResidualsX = griddataScipy(features_train, labels_train[:,0]+mean_label[0], (xx_scaled,yy_scaled), method='nearest')
+        grid_interpolatedResidualsY = griddataScipy(features_train, labels_train[:,1]+mean_label[1], (xx_scaled,yy_scaled), method='nearest')
+        
+        plt.figure()
+        plt.imshow(grid_interpolatedResidualsX, vmin=-abs(labels_train[:,0]+mean_label[0]).max(), vmax=abs(labels_train[:,0]+mean_label[0]).max())
+        plt.colorbar();
+        plt.title('Interpolated x residuals')
+        
+
         
     #    fig = plt.figure()
     #    ax = fig.gca(projection='3d')
@@ -514,7 +566,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         # plot data points.
         plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('y residuals: Sensor ' + str(sensorID))
-        plt.show()
+#        plt.show()
     
         plt.figure()
         # grid the data.
@@ -527,7 +579,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         # plot data points.
     #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('y residuals: Sensor ' + str(sensorID))
-        plt.show()
+#        plt.show()
      
         zz = np.reshape(pred[:,1], np.shape(xx))
         plt.figure()
@@ -539,7 +591,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         # plot data points.
     #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('y model: Sensor ' + str(sensorID))
-        plt.show()
+#        plt.show()
         
         plt.figure()
         # contour the gridded data, plotting dots at the nonuniform data points.
@@ -550,7 +602,53 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         # plot data points.
         plt.scatter(features_train_original[:, 0], features_train_original[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('y model: Sensor ' + str(sensorID))
-        plt.show()
+#        plt.show()
+        
+                
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contourf(xx, yy, zz, 100)
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+        plt.title('y model: Sensor ' + str(sensorID))
+#        plt.show()
+        
+        
+        
+        
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.imshow(zz, vmin=-abs(labels_train[:,1]+mean_label[1]).max(), vmax=abs(labels_train[:,1]+mean_label[1]).max())
+        plt.colorbar()  # draw colorbar
+        plt.title('y model: Sensor ' + str(sensorID))
+        
+        resampleSizeX = iop[indexIOP,4];
+        resampleSizeY = iop[indexIOP,5];
+
+        xx, yy = np.meshgrid(np.linspace(iop[indexIOP,2], iop[indexIOP,4], num=resampleSizeX, endpoint=False),
+                             np.linspace(iop[indexIOP,3], -iop[indexIOP,5], num=resampleSizeY, endpoint=False)) # endpoint should be true but numpy does something weird, probably a glitch
+    
+        # scale it first
+        X = np.hstack((np.reshape(xx,(-1,1)), np.reshape(yy,(-1,1))))
+        x_std = (X[:,0] - min_x) / (max_x - min_x)
+        x_scaled = x_std * (desire_max - desire_min) + desire_min 
+        y_std = (X[:,1] - min_y) / (max_y - min_y)
+        y_scaled = y_std * (desire_max - desire_min) + desire_min 
+        X = np.concatenate((x_scaled, y_scaled)).transpose()
+        
+        xx_std = (xx - min_x) / (max_x - min_x)
+        xx_scaled = xx_std * (desire_max - desire_min) + desire_min 
+        
+        yy_std = (yy - min_y) / (max_y - min_y)
+        yy_scaled = yy_std * (desire_max - desire_min) + desire_min 
+        
+        grid_interpolatedResidualsY = griddataScipy(features_train, labels_train[:,1]+mean_label[1], (xx_scaled,yy_scaled), method='nearest')
+        
+        plt.figure()
+        plt.imshow(grid_interpolatedResidualsY, vmin=-abs(labels_train[:,1]+mean_label[1]).max(), vmax=abs(labels_train[:,1]+mean_label[1]).max())
+        plt.colorbar();
+        plt.title('Interpolated y residuals')
+            
             
         ### 1D Plots
         plt.figure()

@@ -49,16 +49,26 @@ from time import time
 ## Paper 2: X-ray
 #####
 
-inputPho = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.pho'
-inputEop = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.eop'
+#inputPho = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho'
+#inputEop = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.eop'
+#
+#outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.eop'
+#outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.eop'
+#
+#outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.pho'
+#outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.pho'
 
-outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.eop'
-outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.eop'
+inputPho = '/home/jckchow/BundleAdjustment/xrayData1/xray1.pho'
+inputEop = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
 
-outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.pho'
-outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.pho'
+outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingROP.eop'
+outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TestingROP.eop'
 
-chooseIncrement = 4
+outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingROP.pho'
+outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TestingROP.pho'
+
+
+chooseIncrement = 2
 
 #####
 ## Omni Paper 1 TC 1: Nikon

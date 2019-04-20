@@ -53,16 +53,6 @@ from scipy.interpolate import griddata as griddataScipy
 #NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_before/NNModel'
 #preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_before/preprocessing'
 
-
-# for plotting residuals
-inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP_linearSmoothing200/image.jck'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-# for plotting models
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.pho'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
-NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP_linearSmoothing200/NNModel'
-preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP_linearSmoothing200/preprocessing'
-
 ## for plotting residuals
 #inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP/image.jck'
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
@@ -71,6 +61,46 @@ preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_
 #eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
 #NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP/NNModel'
 #preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP/preprocessing'
+
+#
+## for plotting residuals
+#inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP_linearSmoothing200/image.jck'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+## for plotting models
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP_linearSmoothing200/NNModel'
+#preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30A_photoROP_linearSmoothing200/preprocessing'
+
+
+
+## for plotting residuals
+#inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_before/image.jck'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+## for plotting models
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_before/NNModel'
+#preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_before/preprocessing'
+
+# for plotting residuals
+inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/image.jck'
+iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+# for plotting models
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/NNModel'
+preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/preprocessing'
+
+
+## for plotting residuals
+#inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_linearSmoothing200/image.jck'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+## for plotting models
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_linearSmoothing200/NNModel'
+#preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_linearSmoothing200/preprocessing'
 #
 
 # do we want to apply linear or cubic smoothing to the predictions
@@ -144,8 +174,11 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     plt.colorbar();
     plt.title('x residuals')
     
+    print 'min x-res: ', min(image[:,3])
+    print 'max x-res: ', max(image[:,3])
+    
     plt.figure()
-    plt.imshow(grid_interpolatedResidualsX, vmin=-4, vmax=4)
+    plt.imshow(grid_interpolatedResidualsX, vmin=-4, vmax=5)
     plt.colorbar();
     plt.title('x residuals')
 
@@ -154,10 +187,15 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     plt.colorbar();
     plt.title('y residuals')
     
+    print 'min y-res: ', min(image[:,4])
+    print 'max y-res: ', max(image[:,4])
+    
     plt.figure()
-    plt.imshow(grid_interpolatedResidualsY, vmin=-4, vmax=4)
+    plt.imshow(grid_interpolatedResidualsY, vmin=-4, vmax=3.5)
     plt.colorbar();
     plt.title('y residuals')
+    
+
     
 
 ##########################################
@@ -236,7 +274,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print 'max x: ', max(pho[:,6])
 
     plt.figure()
-    plt.imshow(grid_interpolatedResidualsX, vmin=-31, vmax=21)
+    plt.imshow(grid_interpolatedResidualsX, vmin=-36.5, vmax=22)
     plt.colorbar();
     plt.title('x model')
 
@@ -248,6 +286,6 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print 'max y: ', max(pho[:,7])
 
     plt.figure()
-    plt.imshow(grid_interpolatedResidualsY, vmin=-30, vmax=16)
+    plt.imshow(grid_interpolatedResidualsY, vmin=-35, vmax=22.5)
     plt.colorbar();
     plt.title('y model')

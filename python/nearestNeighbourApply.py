@@ -92,11 +92,21 @@ from matplotlib.colors import ListedColormap
 #outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP_linearSmoothing200.pho'
 
 
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.pho'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.eop'
-NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_photoROP_old/NNModel'
-preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_photoROP_old/preprocessing'
-outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Training150AB_photoROP_old.pho'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.eop'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_photoROP_old/NNModel'
+#preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_photoROP_old/preprocessing'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Training150AB_photoROP_old.pho'
+
+phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.pho'
+eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.eop'
+NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30_photoROP_linearSmoothing200/NNModel'
+preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30_photoROP_linearSmoothing200/preprocessing'
+outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1Testing_Training30_photoROP_linearSmoothing200.pho'
+
+##########################################
+### User parameters
+##########################################
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -164,6 +174,5 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 ############################
 ### Output predicted corrections
 ############################
-
 np.savetxt(outputFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
 print "Program Succcessful ^-^"

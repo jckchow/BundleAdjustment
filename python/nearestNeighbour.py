@@ -28,12 +28,12 @@ import numpy as np
 from time import time
 from sklearn.preprocessing import MinMaxScaler
 from sklearn import neighbors
-from sklearn.grid_search import GridSearchCV
+from sklearn.model_selection import GridSearchCV
 from sklearn.externals import joblib
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import cm
-from matplotlib.mlab import griddata
+#from matplotlib.mlab import griddata
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.colors import ListedColormap
 from scipy.interpolate import griddata as griddataScipy
@@ -195,7 +195,7 @@ w = np.divide(image[:,(3,4)], image[:,(7,8)])
 outlierThreshold = 3000.0
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
-print "  Outlier removal threshold: ", outlierThreshold, " x sigma"
+print ("  Outlier removal threshold: ", outlierThreshold, " x sigma")
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)
 prevCorr = np.delete(pho, outlierIndex[:,0], axis=0)
@@ -220,7 +220,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     indexIOP = np.argwhere(iop[:,0] == sensorID) # iop of the current sensor
     indexEOP = np.argwhere(eop[:,1] == sensorID) # eop of the current sensor
 
-    print "  Processing sensor: ", sensorID
+    print ("  Processing sensor: ", sensorID)
     
     ##########################################
     ### Training
@@ -304,15 +304,15 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
 #        regCV.fit(interpolatedTraining, interpolatedResiduals)
         regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
-        print "    Best in sample score: ", regCV.best_score_
-        print "    CV value for K ( between 3 and", maxK-1,"): ", regCV.best_estimator_.n_neighbors
-        print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
+        print ("    Best in sample score: ", regCV.best_score_)
+        print ("    CV value for K ( between 3 and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
+        print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
         
         # train with the best K parameter
         t0 = time()   
         reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
         reg.fit(interpolatedTraining, interpolatedResiduals)
-        print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
+        print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
         
 #        # Tune rNN using CV
 #        minSpacing = 0.5*( (xx_scaled[0,1] - xx_scaled[0,0]) + (yy_scaled[0,0] - yy_scaled[1,0]) )
@@ -346,17 +346,17 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
         regCV.fit(features_train, labels_train)
-        print "    Best in sample score: ", regCV.best_score_
-        print "    CV value for K ( between 3 and", maxK-1,"): ", regCV.best_estimator_.n_neighbors
-        print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
+        print ("    Best in sample score: ", regCV.best_score_)
+        print ("    CV value for K ( between 3 and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
+        print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
 
         # train with the best K parameter
         t0 = time()   
         reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
         reg.fit(features_train, labels_train)
-        print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
+        print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
 
-    print "    Done Training"
+    print ("    Done Training")
     # save the preprocessing info
     joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], 'preprocessing'+str(sensorID.astype(int))+'.pkl')     
     # save the learned NN model
@@ -364,7 +364,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     ##########################################
     ### Prediction
     ########################################## 
-    print "    Start Prediction..."
+    print ("    Start Prediction...")
     EOP2IOP = np.unique(eop[indexEOP,0]) # should not be needed since it should be unique already
     
     stationsWithThisIOP = []
@@ -386,7 +386,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     correction = reg.predict(pho_scaled) + mean_label # add the mean back        
     
     pho[stationsWithThisIOP,(6,7)] = correction
-    print"    Done predicting:", round(time()-t0, 3), "s"
+    print ("    Done predicting:", round(time()-t0, 3), "s")
     
     ##########################################
     ### Calculate Error from inliers only
@@ -398,19 +398,19 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
     avgSensorCost += cost/float(len(indexImage))
-    print "    Weighted x score: ", weightedScore
-    print "    Average weighted x score: ", weightedScore/len(indexImage)
+    print ("    Weighted x score: ", weightedScore)
+    print ("    Average weighted x score: ", weightedScore/len(indexImage))
 
     v = (np.reshape(labels_train[:,1],(-1,1)) - np.reshape(reg.predict(features_train)[:,1],(-1,1))) / inliers[indexImage,8]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
     avgSensorCost += cost/float(len(indexImage))
-    print "    Weighted y score: ", weightedScore
-    print "    Average weighted y score: ", weightedScore/len(indexImage)
-    print "      Weighted total score: ", sensorCost    
-    print "      Average weighted total score: ", avgSensorCost    
-    print "      Number of samples: ", len(indexImage), " inliers out of a total of ", len(indexImageAll), " (", round(100.0*(float(len(indexImage))/float(len(indexImageAll))),1), "%)"
-    print "    Done calculating error:", round(time()-t0, 3), "s"  
+    print ("    Weighted y score: ", weightedScore)
+    print ("    Average weighted y score: ", weightedScore/len(indexImage))
+    print ("      Weighted total score: ", sensorCost)    
+    print ("      Average weighted total score: ", avgSensorCost)    
+    print ("      Number of samples: ", len(indexImage), " inliers out of a total of ", len(indexImageAll), " (", round(100.0*(float(len(indexImage))/float(len(indexImageAll))),1), "%)")
+    print ("    Done calculating error:", round(time()-t0, 3), "s")  
     
     # log total cost and total number of samples for output
     cost += sensorCost
@@ -444,6 +444,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.title('Image measurements for sensor ' + str(sensorID))
         plt.xlabel('x')
         plt.ylabel('y')
+        plt.show()
     #    plt.xlim([iop[indexIOP,2], iop[indexIOP,4]]) # set it to the image format
     #    plt.ylim([iop[indexIOP,3], -iop[indexIOP,5]])
         
@@ -457,63 +458,11 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         y_scaled = y_std * (desire_max - desire_min) + desire_min 
         xi = x_scaled.flatten()
         yi = y_scaled.flatten()
-    
-        plt.figure()
-        # grid the data.
-        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 0] + mean_label[0], xi, yi, interp='linear')
-        # contour the gridded data, plotting dots at the nonuniform data points.
-        CS = plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
-        CS = plt.contourf(xi, yi, zi, 15,
-                          vmax=abs(zi).max(), vmin=-abs(zi).max())
-        plt.colorbar()  # draw colorbar
-        plt.title('x residuals: Sensor ' + str(sensorID))
-            
-        plt.figure()
-        # grid the data.
-        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 0] + mean_label[0], xi, yi, interp='linear')
-        # contour the gridded data, plotting dots at the nonuniform data points.
-        CS = plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
-        CS = plt.contourf(xi, yi, zi, 15,
-                          vmax=abs(zi).max(), vmin=-abs(zi).max())
-        plt.colorbar()  # draw colorbar
-        # plot data points.
-        plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
-        plt.title('x residuals: Sensor ' + str(sensorID))
-    
-        zz = np.reshape(pred[:,0], np.shape(xx))
-        plt.figure()
-        # contour the gridded data, plotting dots at the nonuniform data points.
-        CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
-        CS = plt.contourf(xx, yy, zz, 15,
-                          vmax=abs(zi).max(), vmin=-abs(zi).max())
-        plt.colorbar()  # draw colorbar
-        # plot data points.
-    #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
-        plt.title('x model: Sensor ' + str(sensorID))
-        
-        plt.figure()
-        # contour the gridded data, plotting dots at the nonuniform data points.
-        CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
-        CS = plt.contourf(xx, yy, zz, 15,
-                          vmax=abs(zz).max(), vmin=-abs(zz).max())
-        plt.colorbar()  # draw colorbar
-        # plot data points.
-        plt.scatter(features_train_original[:, 0], features_train_original[:, 1], marker='o', color='red', s=5, zorder=10)
-        plt.title('x model: Sensor ' + str(sensorID))
-    
-        plt.figure()
-        # contour the gridded data, plotting dots at the nonuniform data points.
-        CS = plt.contourf(xx, yy, zz, 100)
-        plt.colorbar()  # draw colorbar
-        plt.title('x model: Sensor ' + str(sensorID))
-
        
-        plt.figure()
-        # contour the gridded data, plotting dots at the nonuniform data points.
-        CS = plt.imshow(zz, vmin=-abs(labels_train[:,0]+mean_label[0]).max(), vmax=abs(labels_train[:,0]+mean_label[0]).max())
-        plt.colorbar()  # draw colorbar
-        plt.title('x model: Sensor ' + str(sensorID))
-        
+#        ####################### Converting to scipy
+#        ###############grid_x, grid_y = np.mgrid(xi, yi)
+    
+        # define grid.
         resampleSizeX = iop[indexIOP,4];
         resampleSizeY = iop[indexIOP,5];
 
@@ -533,6 +482,91 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         
         yy_std = (yy - min_y) / (max_y - min_y)
         yy_scaled = yy_std * (desire_max - desire_min) + desire_min 
+    
+        plt.figure()
+        # grid the data.
+        zi = griddataScipy(features_train, labels_train[:, 0] + mean_label[0], (xx_scaled,yy_scaled), method='linear')
+
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xi, yi, zi, 15,
+                          vmax=abs(zi[~np.isnan(zi)]).max(), vmin=-abs(zi[~np.isnan(zi)]).max())
+        plt.colorbar()  # draw colorbar
+        plt.title('x residuals: Sensor ' + str(sensorID))
+        plt.show()
+                    
+        plt.figure()
+        # grid the data.
+        #zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 0] + mean_label[0], xi, yi, interp='linear')
+        zi = griddataScipy(features_train, labels_train[:, 0] + mean_label[0], (xx_scaled,yy_scaled), method='linear')
+ 
+       # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xi, yi, zi, 15,
+                          vmax=abs(zi[~np.isnan(zi)]).max(), vmin=-abs(zi[~np.isnan(zi)]).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+        plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('x residuals: Sensor ' + str(sensorID))
+        plt.show()
+    
+        zz = np.reshape(pred[:,0], np.shape(xx))
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xx, yy, zz, 15,
+                          vmax=abs(zz).max(), vmin=-abs(zz).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+    #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('x model: Sensor ' + str(sensorID))
+        plt.show()
+        
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
+        CS = plt.contourf(xx, yy, zz, 15,
+                          vmax=abs(zz).max(), vmin=-abs(zz).max())
+        plt.colorbar()  # draw colorbar
+        # plot data points.
+        plt.scatter(features_train_original[:, 0], features_train_original[:, 1], marker='o', color='red', s=5, zorder=10)
+        plt.title('x model: Sensor ' + str(sensorID))
+        plt.show()
+    
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.contourf(xx, yy, zz, 100)
+        plt.colorbar()  # draw colorbar
+        plt.title('x model: Sensor ' + str(sensorID))
+        plt.show()
+
+       
+        plt.figure()
+        # contour the gridded data, plotting dots at the nonuniform data points.
+        CS = plt.imshow(zz, vmin=-abs(labels_train[:,0]+mean_label[0]).max(), vmax=abs(labels_train[:,0]+mean_label[0]).max())
+        plt.colorbar()  # draw colorbar
+        plt.title('x model: Sensor ' + str(sensorID))
+        plt.show()
+        
+#        resampleSizeX = iop[indexIOP,4];
+#        resampleSizeY = iop[indexIOP,5];
+#
+#        xx, yy = np.meshgrid(np.linspace(iop[indexIOP,2], iop[indexIOP,4], num=resampleSizeX, endpoint=False),
+#                             np.linspace(iop[indexIOP,3], -iop[indexIOP,5], num=resampleSizeY, endpoint=False)) # endpoint should be true but numpy does something weird, probably a glitch
+#    
+#        # scale it first
+#        X = np.hstack((np.reshape(xx,(-1,1)), np.reshape(yy,(-1,1))))
+#        x_std = (X[:,0] - min_x) / (max_x - min_x)
+#        x_scaled = x_std * (desire_max - desire_min) + desire_min 
+#        y_std = (X[:,1] - min_y) / (max_y - min_y)
+#        y_scaled = y_std * (desire_max - desire_min) + desire_min 
+#        X = np.concatenate((x_scaled, y_scaled)).transpose()
+#        
+#        xx_std = (xx - min_x) / (max_x - min_x)
+#        xx_scaled = xx_std * (desire_max - desire_min) + desire_min 
+#        
+#        yy_std = (yy - min_y) / (max_y - min_y)
+#        yy_scaled = yy_std * (desire_max - desire_min) + desire_min 
         
         grid_interpolatedResidualsX = griddataScipy(features_train, labels_train[:,0]+mean_label[0], (xx_scaled,yy_scaled), method='nearest')
         grid_interpolatedResidualsY = griddataScipy(features_train, labels_train[:,1]+mean_label[1], (xx_scaled,yy_scaled), method='nearest')
@@ -541,6 +575,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.imshow(grid_interpolatedResidualsX, vmin=-abs(labels_train[:,0]+mean_label[0]).max(), vmax=abs(labels_train[:,0]+mean_label[0]).max())
         plt.colorbar();
         plt.title('Interpolated x residuals')
+        plt.show()
         
 
         
@@ -557,41 +592,43 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
         plt.figure()
         # grid the data.
-        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 1] + mean_label[1], xi, yi, interp='linear')
+#        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 1] + mean_label[1], xi, yi, interp='linear')
+        zi = griddataScipy(features_train, labels_train[:, 1] + mean_label[1], (xx_scaled,yy_scaled), method='linear')
         # contour the gridded data, plotting dots at the nonuniform data points.
         CS = plt.contourf(xi, yi, zi, 15, linewidths=0.5, colors='k')
         CS = plt.contourf(xi, yi, zi, 15,
-                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+                          vmax=abs(zi[~np.isnan(zi)]).max(), vmin=-abs(zi[~np.isnan(zi)]).max())
         plt.colorbar()  # draw colorbar
         # plot data points.
         plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('y residuals: Sensor ' + str(sensorID))
-#        plt.show()
+        plt.show()
     
         plt.figure()
         # grid the data.
-        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 1] + mean_label[1], xi, yi, interp='linear')
+#        zi = griddata(features_train[:, 0], features_train[:, 1], labels_train[:, 1] + mean_label[1], xi, yi, interp='linear')
+        zi = griddataScipy(features_train, labels_train[:, 1] + mean_label[1], (xx_scaled,yy_scaled), method='linear')
         # contour the gridded data, plotting dots at the nonuniform data points.
         CS = plt.contourf(xi, yi, zi, 15, linewidths=0.5, colors='k')
         CS = plt.contourf(xi, yi, zi, 15,
-                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+                          vmax=abs(zi[~np.isnan(zi)]).max(), vmin=-abs(zi[~np.isnan(zi)]).max())
         plt.colorbar()  # draw colorbar
         # plot data points.
     #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('y residuals: Sensor ' + str(sensorID))
-#        plt.show()
+        plt.show()
      
         zz = np.reshape(pred[:,1], np.shape(xx))
         plt.figure()
         # contour the gridded data, plotting dots at the nonuniform data points.
         CS = plt.contour(xx, yy, zz, 15, linewidths=0.5, colors='k')
         CS = plt.contourf(xx, yy, zz, 15,
-                          vmax=abs(zi).max(), vmin=-abs(zi).max())
+                          vmax=abs(zz).max(), vmin=-abs(zz).max())
         plt.colorbar()  # draw colorbar
         # plot data points.
     #    plt.scatter(features_train[:, 0], features_train[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('y model: Sensor ' + str(sensorID))
-#        plt.show()
+        plt.show()
         
         plt.figure()
         # contour the gridded data, plotting dots at the nonuniform data points.
@@ -602,7 +639,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         # plot data points.
         plt.scatter(features_train_original[:, 0], features_train_original[:, 1], marker='o', color='red', s=5, zorder=10)
         plt.title('y model: Sensor ' + str(sensorID))
-#        plt.show()
+        plt.show()
         
                 
         plt.figure()
@@ -611,7 +648,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.colorbar()  # draw colorbar
         # plot data points.
         plt.title('y model: Sensor ' + str(sensorID))
-#        plt.show()
+        plt.show()
         
         
         
@@ -621,6 +658,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         CS = plt.imshow(zz, vmin=-abs(labels_train[:,1]+mean_label[1]).max(), vmax=abs(labels_train[:,1]+mean_label[1]).max())
         plt.colorbar()  # draw colorbar
         plt.title('y model: Sensor ' + str(sensorID))
+        plt.show()
         
         resampleSizeX = iop[indexIOP,4];
         resampleSizeY = iop[indexIOP,5];
@@ -648,7 +686,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.imshow(grid_interpolatedResidualsY, vmin=-abs(labels_train[:,1]+mean_label[1]).max(), vmax=abs(labels_train[:,1]+mean_label[1]).max())
         plt.colorbar();
         plt.title('Interpolated y residuals')
-            
+        plt.show()            
             
         ### 1D Plots
         plt.figure()
@@ -656,24 +694,28 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.title('Horizontal: Sensor ' + str(sensorID))
         plt.xlabel('x')
         plt.ylabel('x residuals')
+        plt.show()
     
         plt.figure()
         plt.scatter( features_train[:, 0], labels_train[:, 1] + mean_label[1])
         plt.title('Horizontal: Sensor ' + str(sensorID))
         plt.xlabel('x')
         plt.ylabel('y residuals')  
+        plt.show()
     
         plt.figure()
         plt.scatter( features_train[:, 1], labels_train[:, 0] + mean_label[0])
         plt.title('Vertical: Sensor ' + str(sensorID))
         plt.xlabel('y')
         plt.ylabel('x residuals')
+        plt.show()
     
         plt.figure()
         plt.scatter( features_train[:, 1], labels_train[:, 1] + mean_label[1])
         plt.title('Vertical: Sensor ' + str(sensorID))
         plt.xlabel('y')
         plt.ylabel('y residuals')  
+        plt.show()
         
         plt.figure()
         plt.scatter( np.sqrt((np.reshape(xx,(-1,1))-xp)**2 + (np.reshape(yy,(-1,1))-yp)**2), pred[:, 0], label='model', color='blue')
@@ -682,6 +724,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.xlabel('r')
         plt.ylabel('x residuals')
         plt.legend(loc="best")    
+        plt.show()
     
         plt.figure()
         plt.scatter( np.sqrt((np.reshape(xx,(-1,1))-xp)**2 + (np.reshape(yy,(-1,1))-yp)**2), pred[:, 1], label='model', color='blue')
@@ -690,10 +733,11 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.xlabel('r')
         plt.ylabel('y residuals')
         plt.legend(loc="best")    
+        plt.show()
 
 errors = np.asarray(errors)
-print "SensorID, Cost, NumSamples, K"
-print errors
+print ("SensorID, Cost, NumSamples, K")
+print (errors)
  
 ############################
 ### Output predicted corrections
@@ -703,9 +747,9 @@ outputCost = np.asarray(outputCost)
 
 t0 = time()
 np.savetxt(phoFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
-print "outputting KNNCost.jck"
+print ("outputting KNNCost.jck")
 
-print "TotalCost, Redundancy"
-print outputCost
+print ("TotalCost, Redundancy")
+print (outputCost)
 np.savetxt('/home/jckchow/BundleAdjustment/build/kNNCost.jck', outputCost, '%f %f', delimiter=' ', newline='\n')
-print"Done outputting results:", round(time()-t0, 3), "s"
+print ("Done outputting results:", round(time()-t0, 3), "s")

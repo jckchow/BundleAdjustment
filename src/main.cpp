@@ -36,7 +36,7 @@
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
 #define NUMITERATION 1
-#define DEBUGMODE 0
+#define DEBUGMODE 1
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
@@ -184,16 +184,16 @@
 // // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 ////////
 /// Sensor B
@@ -397,15 +397,15 @@
 // #define INPUTROPFILENAME ""
 
 // for training Nikon
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 // // for training Go Pro Hero 3 Silver Edition
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.pho"
@@ -418,6 +418,21 @@
 // #define INPUTROPFILENAME ""
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// 
+/// Paper 2 Omnidirectional Camera Journal Paper
+/// 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// for training Nikon
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -1234,7 +1249,8 @@ int main(int argc, char** argv) {
     std::vector<double> leastSquaresCost;
     std::vector<double> leastSquaresRedundancy;
     std::vector<double> machineLearnedCost;
-    std::vector<double> machineLearnedRedundancy;    
+    std::vector<double> machineLearnedRedundancy;
+    bool doML = true;
     //////////////////////////////////////
     /// Read in the data from files
     //////////////////////////////////////
@@ -1847,33 +1863,39 @@ int main(int argc, char** argv) {
         // ceres::LossFunction* loss2 = NULL;
         // loss2 = new ceres::CauchyLoss(0.5);
 
-        // // Conventional collinearity condition
-        // for(int n = 0; n < imageX.size(); n++) // loop through all observations
-        // {
-        //      std::vector<int>::iterator it;
-        //      it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
-        //      int indexPoint = std::distance(xyzTarget.begin(),it);
-        //      // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+        // Conventional collinearity condition, no machine learning
+        for(int n = 0; n < imageX.size(); n++) // loop through all observations
+        {
+             std::vector<int>::iterator it;
+             it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+             int indexPoint = std::distance(xyzTarget.begin(),it);
+             // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
 
-        //      it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
-        //      int indexPose = std::distance(eopStation.begin(),it);
-        //      // std::cout<<"index: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+             it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+             int indexPose = std::distance(eopStation.begin(),it);
+             // std::cout<<"index: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
 
-        //      it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
-        //      int indexSensor = std::distance(iopCamera.begin(),it);
-        //      // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
+             it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+             int indexSensor = std::distance(iopCamera.begin(),it);
+             // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
 
-        //     //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
-        //     //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+            //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+            //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
-        //     ceres::CostFunction* cost_function =
-        //         new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 7>(
-        //             new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-        //     problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+            ceres::CostFunction* cost_function =
+                new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 7>(
+                    new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+            problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-        //     problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-        //     problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-        // }
+            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+
+            variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
+            variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
+
+            // no machine learning so turn off the Python learning script at the end
+            doML = false;
+        }
 
         if (INITIALIZEAP && iterNum == 0)
         {
@@ -1968,83 +1990,83 @@ int main(int argc, char** argv) {
         }
 
 
-        if(ROPMODE)
-        {
-            std::cout<<"  Doing absolute ROP constraint..."<<std::endl;
-        }
-        // Collinearity condition with machine learned parameters and ROP
-        for(int n = 0; n < imageX.size(); n++) // loop through all observations
-        {
-            std::vector<int>::iterator it;
-            it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
-            int indexPoint = std::distance(xyzTarget.begin(),it);
-            // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+        // if(ROPMODE)
+        // {
+        //     std::cout<<"  Doing absolute ROP constraint..."<<std::endl;
+        // }
+        // // Collinearity condition with machine learned parameters and ROP
+        // for(int n = 0; n < imageX.size(); n++) // loop through all observations
+        // {
+        //     std::vector<int>::iterator it;
+        //     it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+        //     int indexPoint = std::distance(xyzTarget.begin(),it);
+        //     // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
 
-            it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
-            int indexPose = std::distance(eopStation.begin(),it);
-            // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+        //     it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+        //     int indexPose = std::distance(eopStation.begin(),it);
+        //     // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
 
-            it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
-            int indexSensor = std::distance(iopCamera.begin(),it);
-            // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl; 
+        //     it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+        //     int indexSensor = std::distance(iopCamera.begin(),it);
+        //     // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl; 
 
-            it = std::find(ropSlave.begin(), ropSlave.end(), iopCamera[indexSensor]);
-            int indexROPSlave = std::distance(ropSlave.begin(),it);
-            // std::cout<<"indexROPSlave: "<<indexROPSlave<<", ID: "<< iopCamera[indexSensor]<<std::endl; 
+        //     it = std::find(ropSlave.begin(), ropSlave.end(), iopCamera[indexSensor]);
+        //     int indexROPSlave = std::distance(ropSlave.begin(),it);
+        //     // std::cout<<"indexROPSlave: "<<indexROPSlave<<", ID: "<< iopCamera[indexSensor]<<std::endl; 
 
-            // for book keeping
-            imageReferenceID[n] = iopCamera[indexSensor];
+        //     // for book keeping
+        //     imageReferenceID[n] = iopCamera[indexSensor];
 
-            //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
-            //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+        //     //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+        //     //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
-            // ceres::CostFunction* cost_function =
-            //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
-            //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-            //tproblem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
+        //     // ceres::CostFunction* cost_function =
+        //     //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
+        //     //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+        //     //tproblem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
 
-            // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-            // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-            // problem.SetParameterBlockConstant(&MLP[n][0]);
+        //     // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+        //     // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+        //     // problem.SetParameterBlockConstant(&MLP[n][0]);
 
-            if (ROPMODE && it!=ropSlave.end() && iopCamera[indexSensor] == *it) // is a slave in ROP constraint
-            {
-                it = std::find(eopStation.begin(), eopStation.end(), imageStation[n] - ropID[indexROPSlave][2]);
-                int indexPoseMaster = std::distance(eopStation.begin(),it);
-                // std::cout<<"indexPoseMaster: "<<indexPoseMaster<<", ID: "<< imageStation[n] - ropID[indexROPSlave][2]<<std::endl;
-                // std::cout<<"indexROP: "<< indexROPSlave<<std::endl;        
+        //     if (ROPMODE && it!=ropSlave.end() && iopCamera[indexSensor] == *it) // is a slave in ROP constraint
+        //     {
+        //         it = std::find(eopStation.begin(), eopStation.end(), imageStation[n] - ropID[indexROPSlave][2]);
+        //         int indexPoseMaster = std::distance(eopStation.begin(),it);
+        //         // std::cout<<"indexPoseMaster: "<<indexPoseMaster<<", ID: "<< imageStation[n] - ropID[indexROPSlave][2]<<std::endl;
+        //         // std::cout<<"indexROP: "<< indexROPSlave<<std::endl;        
 
-                // Absolute equality constraint version of ROP
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityMachineLearnedROP, 2, 6, 6, 3, 3, 7>(
-                        new collinearityMachineLearnedROP(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPoseMaster][0], &ROP[indexROPSlave][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+        //         // Absolute equality constraint version of ROP
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<collinearityMachineLearnedROP, 2, 6, 6, 3, 3, 7>(
+        //                 new collinearityMachineLearnedROP(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+        //         problem.AddResidualBlock(cost_function, loss, &EOP[indexPoseMaster][0], &ROP[indexROPSlave][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
             
-                problem.SetParameterBlockConstant(&ROP[indexROPSlave][0]);
-            }
-            // else if(eopCamera[indexPose] != ropSlave[indexROPSlave]) // not a slave in ROP constraint
-            else
-            {
-                //std::cout<<imageX[n]- IOP[indexSensor][0]<<", "<<imageY[n]- IOP[indexSensor][1]<<", "<<sqrt( std::pow(imageX[n]-IOP[indexSensor][0],2) + std::pow(imageY[n]-IOP[indexSensor][1],2) )<<std::endl;
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
-                        new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+        //         problem.SetParameterBlockConstant(&ROP[indexROPSlave][0]);
+        //     }
+        //     // else if(eopCamera[indexPose] != ropSlave[indexROPSlave]) // not a slave in ROP constraint
+        //     else
+        //     {
+        //         //std::cout<<imageX[n]- IOP[indexSensor][0]<<", "<<imageY[n]- IOP[indexSensor][1]<<", "<<sqrt( std::pow(imageX[n]-IOP[indexSensor][0],2) + std::pow(imageY[n]-IOP[indexSensor][1],2) )<<std::endl;
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+        //                 new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+        //         problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<omniCollinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
-                //         new omniCollinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]); 
+        //         // ceres::CostFunction* cost_function =
+        //         //     new ceres::AutoDiffCostFunction<omniCollinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+        //         //         new omniCollinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+        //         // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]); 
 
-                // problem.SetParameterBlockConstant(&EOP[indexSensor][0]); 
-                // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); 
-            }
-            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-            problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+        //         // problem.SetParameterBlockConstant(&EOP[indexSensor][0]); 
+        //         // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); 
+        //     }
+        //     problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+        //     problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
-            variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
-            variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
-        }
+        //     variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
+        //     variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
+        // }
 
         // // Collinearity condition with machine learned parameters
         // for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -2332,7 +2354,8 @@ int main(int argc, char** argv) {
         // options.minimizer_type = ceres::LINE_SEARCH;
         // options.line_search_direction_type = ceres::BFGS;
         // options.trust_region_strategy_type = ceres::DOGLEG;
-        options.max_num_iterations = 1000;
+        // options.max_num_iterations = 1000;
+        options.max_num_iterations = 10;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
@@ -2379,8 +2402,8 @@ int main(int argc, char** argv) {
         if (true)
         {
             
-            std::cout<<"  Writing APs to screen..."<<std::endl;
-            std::cout<<iopCamera[0]<<", "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
+            std::cout<<"  Writing APs (a1, a2, k1, k2, k3, p1, p2) to screen..."<<std::endl;
+            std::cout<<"       Sensor " << iopCamera[0]<<": "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
         }
 
         if (true)
@@ -3311,8 +3334,14 @@ int main(int argc, char** argv) {
         Eigen::MatrixXd imageRedundancy(imageX.size(), 2);
         Eigen::MatrixXd reprojectionErrors(1, 3);
         reprojectionErrors.setZero();
+
+        std::cout<<"size: "<<imageX.size()<<std::endl;
+        std::cout<<"size: "<<CvDiag.size()<<std::endl;
+        std::cout<<"size: "<<residuals.size()<<std::endl;
+        std::cout<<"size: "<<redundancyNumber.size()<<std::endl;
         for (int n = 0; n<imageX.size(); n++)
         {
+            std::cout<<residuals[2*n]<<", "<< residuals[2*n+1]<<std::endl;
             imageResiduals(n,0) = residuals[2*n] * imageXStdDev[n]; 
             imageResiduals(n,1) = residuals[2*n+1] * imageYStdDev[n];
 
@@ -3331,6 +3360,7 @@ int main(int argc, char** argv) {
             reprojectionErrors(0,2) +=  imageResiduals(n,0) * imageResiduals(n,0) + imageResiduals(n,1) * imageResiduals(n,1);
 
         }
+        std::cout<<"Done size: "<<imageX.size()<<std::endl;
         if(DEBUGMODE)
         {
             std::cout<<"Residuals:"<<std::endl;
@@ -3576,40 +3606,43 @@ int main(int argc, char** argv) {
         //     }
 
 
-        PyRun_SimpleString("t0 = TIME.clock()");        
-        PyRun_SimpleString("print 'Start doing machine learning in Python' ");    
-
-        //system("python ~/BundleAdjustment/python/gaussianProcess.py");
-        system("python ~/BundleAdjustment/python/nearestNeighbour.py");
-
-        PyRun_SimpleString("print 'Done doing machine learning regression:', round(TIME.clock()-t0, 3), 's' ");
-
-        // read in the machine learned cost
-        inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
-        std::vector<double> MLCost;
-        std::vector<double> MLRedundancy;
-        while (true) 
+        if (doML) // if not running a conventional bundle adjustment
         {
-            double c1, c2;
-            inp >> c1 >> c2;
+            PyRun_SimpleString("t0 = TIME.clock()");        
+            PyRun_SimpleString("print 'Start doing machine learning in Python' ");    
 
-            MLCost.push_back(c1);
-            MLRedundancy.push_back(c2);
+            //system("python ~/BundleAdjustment/python/gaussianProcess.py");
+            system("python ~/BundleAdjustment/python/nearestNeighbour.py");
 
-            if( inp.eof() )
-                break;
+            PyRun_SimpleString("print 'Done doing machine learning regression:', round(TIME.clock()-t0, 3), 's' ");
+
+            // read in the machine learned cost
+            inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
+            std::vector<double> MLCost;
+            std::vector<double> MLRedundancy;
+            while (true) 
+            {
+                double c1, c2;
+                inp >> c1 >> c2;
+
+                MLCost.push_back(c1);
+                MLRedundancy.push_back(c2);
+
+                if( inp.eof() )
+                    break;
+            }
+            
+            MLCost.pop_back();
+            MLRedundancy.pop_back();
+
+            inp.close();
+
+            machineLearnedCost.push_back(MLCost[0]);
+            machineLearnedRedundancy.push_back(MLRedundancy[0]);
         }
-        
-        MLCost.pop_back();
-        MLRedundancy.pop_back();
-
-        inp.close();
-
-        machineLearnedCost.push_back(MLCost[0]);
-        machineLearnedRedundancy.push_back(MLRedundancy[0]);
     }
  
-    if (true)
+    if (doML)
         {
             std::cout<<"  Writing least squares costs to file..."<<std::endl;
             FILE *fout = fopen("costs.jck", "w");

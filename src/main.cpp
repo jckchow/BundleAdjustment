@@ -1859,7 +1859,7 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL;
-        loss = new ceres::HuberLoss(1.0);
+        //loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
         // loss2 = new ceres::CauchyLoss(0.5);
@@ -2374,6 +2374,8 @@ int main(int argc, char** argv) {
 
         // storing it for comparison in this EM like routine
         leastSquaresCost.push_back(summary.final_cost);
+        double aposterioriStdDev = 1.0;
+        double aposterioriVariance = 1.0;
 
         /////////////
         // Ad-hoc fix
@@ -2452,13 +2454,15 @@ int main(int argc, char** argv) {
                 // std::cout<<"     A Posteriori Std Dev: "<<sqrt(aposteriorVariance(0,0))<<std::endl;
 
                 // approximate the redundancy as 2*numImagePts - 6*EOP -3*XYZ - 7DatumPoints, this ignores #AP, IOP and pseudo obs
-                double redundancy = 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() - 7;
-                std::cout<<"     Estimated Redundancy: "<<redundancy<<std::endl;
-                redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced;
+                // double redundancy = 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() - 7;
+                // std::cout<<"     Estimated Redundancy: "<<redundancy<<std::endl;
+                double redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced;
                 std::cout<<"     Ceres Redundancy: "<<redundancy<<std::endl;
-                double aposterioriVariance = 2*summary.final_cost / redundancy;
+                aposterioriVariance = 2*summary.final_cost / redundancy;
+                aposterioriVariance = 1.0;
+                aposterioriStdDev = sqrt(aposterioriVariance);
                 std::cout<<"     A Posteriori Variance: "<<aposterioriVariance<<std::endl;
-                std::cout<<"     A Posteriori Std Dev: "<<sqrt(aposterioriVariance)<<std::endl;
+                std::cout<<"     A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
 
             }
         }
@@ -2542,7 +2546,7 @@ int main(int argc, char** argv) {
         if (COMPUTECX)
         {
             PyRun_SimpleString("t0 = TIME.clock()");     
-            PyRun_SimpleString("print 'Start computing covariance matrix' ");  
+            PyRun_SimpleString("print 'Start computing cofactor matrix' ");  
             ceres::Covariance::Options covarianceOoptions;
             ceres::Covariance covariance(covarianceOoptions);
 
@@ -2692,7 +2696,7 @@ int main(int argc, char** argv) {
 
             covariance.Compute(covariance_blocks, &problem);
 
-            std::cout<<"   Done Computing Covariance Block"<<std::endl;
+            std::cout<<"   Done Computing Cofactor Matrix Block"<<std::endl;
             // //double covariance_X[X.size() * X.size()];
             // Eigen::MatrixXd covariance_X(XYZ.size(), 3);
             // // covariance_X.resize(X.size() * X.size());
@@ -2717,6 +2721,9 @@ int main(int argc, char** argv) {
                 xyzVariance(i,1) = variance_X(1);
                 xyzVariance(i,2) = variance_X(2);
 
+                xyzVariance(i,0) *= aposterioriVariance;
+                xyzVariance(i,1) *= aposterioriVariance;
+                xyzVariance(i,2) *= aposterioriVariance;
             //  std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
             //  std::cout<<"covariance matrix: "<<std::endl;
             //  std::cout<<covariance_X<<std::endl;
@@ -2740,6 +2747,13 @@ int main(int argc, char** argv) {
                 eopVariance(i,3) = variance_X(3);
                 eopVariance(i,4) = variance_X(4);
                 eopVariance(i,5) = variance_X(5);
+
+                eopVariance(i,0) *= aposterioriVariance;
+                eopVariance(i,1) *= aposterioriVariance;
+                eopVariance(i,2) *= aposterioriVariance;
+                eopVariance(i,3) *= aposterioriVariance;
+                eopVariance(i,4) *= aposterioriVariance;
+                eopVariance(i,5) *= aposterioriVariance;
             }
 
             // Eigen::MatrixXd iopVariance(IOP.size(),3);
@@ -2753,6 +2767,10 @@ int main(int argc, char** argv) {
                 iopVariance(i,1) = variance_X(1);
                 iopVariance(i,2) = variance_X(2);
 
+
+                iopVariance(i,0) *= aposterioriVariance;
+                iopVariance(i,1) *= aposterioriVariance;
+                iopVariance(i,2) *= aposterioriVariance;
                 // // store the full variance-covariance matrix
                 // for (int n = 0; n < covariance_X.rows(); n++)
                 //     for (int m = 0; m < covariance_X.cols(); m++)
@@ -2773,6 +2791,15 @@ int main(int argc, char** argv) {
                 apVariance(i,4) = variance_X(4);
                 apVariance(i,5) = variance_X(5);
                 apVariance(i,6) = variance_X(6);
+
+                apVariance(i,0) *= aposterioriVariance;
+                apVariance(i,1) *= aposterioriVariance;
+                apVariance(i,2) *= aposterioriVariance;
+                apVariance(i,3) *= aposterioriVariance;
+                apVariance(i,4) *= aposterioriVariance;
+                apVariance(i,5) *= aposterioriVariance;
+                apVariance(i,6) *= aposterioriVariance;
+
 
                 // // store the full variance-covariance matrix
                 // for (int n = 0; n < covariance_X.rows(); n++)
@@ -2811,6 +2838,13 @@ int main(int argc, char** argv) {
                     ropVariance(i,3) = variance_X(3);
                     ropVariance(i,4) = variance_X(4);
                     ropVariance(i,5) = variance_X(5);
+
+                    ropVariance(i,0) *= aposterioriVariance;
+                    ropVariance(i,1) *= aposterioriVariance;
+                    ropVariance(i,2) *= aposterioriVariance;
+                    ropVariance(i,3) *= aposterioriVariance;
+                    ropVariance(i,4) *= aposterioriVariance;
+                    ropVariance(i,5) *= aposterioriVariance;
                 }
             }
 
@@ -3361,7 +3395,7 @@ int main(int argc, char** argv) {
         {
             std::cout<<"NOT computing Cv covariance matrix of the residuals"<<std::endl;
             // leastSquaresRedundancy.push_back(0.0);
-            leastSquaresRedundancy.push_back(summary.num_residuals - summary.num_parameters);
+            leastSquaresRedundancy.push_back(summary.num_residuals_reduced - summary.num_parameters_reduced);
         }
 
         Eigen::MatrixXd imageResiduals(imageX.size(), 2);

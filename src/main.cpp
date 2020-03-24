@@ -36,13 +36,13 @@
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
 #define NUMITERATION 1
-#define DEBUGMODE 1
+#define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
@@ -397,7 +397,8 @@
 // #define INPUTROPFILENAME ""
 
 // for training Nikon
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
+//#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingDeleteMe.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
@@ -1885,7 +1886,7 @@ int main(int argc, char** argv) {
             ceres::CostFunction* cost_function =
                 new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 7>(
                     new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-            problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+            problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
             problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
             problem.SetParameterBlockConstant(&AP[indexSensor][0]);
@@ -2360,7 +2361,7 @@ int main(int argc, char** argv) {
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
         std::cout << summary.FullReport() << "\n";
-
+       
         // condition for terminating least squares
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
         if ( leastSquaresCost.size() > 50 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
@@ -2426,6 +2427,40 @@ int main(int argc, char** argv) {
                     fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
                 }
                 fclose(fout);       
+
+
+            if (true) // complete the a posteriori variance factor for scaling the Cx later
+            {
+                std::cout<<"  Estimating A Posterior Variance Factor..."<<std::endl;
+                // Eigen::SparseMatrix<double> P;
+                // P.resize(variances.size(), variances.size());
+                // std::vector<Eigen::Triplet<double> > tripletP(variances.size());
+                // int indexTripletP= 0;
+                // for (int i = 0; i < variances.size(); i++)
+                // {
+                //     tripletP[indexTripletP] = Eigen::Triplet<double>(i, i, 1.0 / variances[i]);
+                //     indexTripletP++;
+                // }
+                // P.setFromTriplets(tripletP.begin(), tripletP.end());
+
+                // Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
+                // //std::cout<<"size: "<<v.size()<<std::endl;
+                // Eigen::MatrixXd aposteriorVariance = v.transpose() * P * v;
+                // //std::cout<<"size: "<<aposteriorVariance.size()<<std::endl;
+
+                // std::cout<<"     A Posteriori Variance: "<<aposteriorVariance<<std::endl;
+                // std::cout<<"     A Posteriori Std Dev: "<<sqrt(aposteriorVariance(0,0))<<std::endl;
+
+                // approximate the redundancy as 2*numImagePts - 6*EOP -3*XYZ - 7DatumPoints, this ignores #AP, IOP and pseudo obs
+                double redundancy = 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() - 7;
+                std::cout<<"     Estimated Redundancy: "<<redundancy<<std::endl;
+                redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced;
+                std::cout<<"     Ceres Redundancy: "<<redundancy<<std::endl;
+                double aposterioriVariance = 2*summary.final_cost / redundancy;
+                std::cout<<"     A Posteriori Variance: "<<aposterioriVariance<<std::endl;
+                std::cout<<"     A Posteriori Std Dev: "<<sqrt(aposterioriVariance)<<std::endl;
+
+            }
         }
 
 
@@ -3335,13 +3370,13 @@ int main(int argc, char** argv) {
         Eigen::MatrixXd reprojectionErrors(1, 3);
         reprojectionErrors.setZero();
 
-        std::cout<<"size: "<<imageX.size()<<std::endl;
-        std::cout<<"size: "<<CvDiag.size()<<std::endl;
-        std::cout<<"size: "<<residuals.size()<<std::endl;
-        std::cout<<"size: "<<redundancyNumber.size()<<std::endl;
+        // std::cout<<"size: "<<imageX.size()<<std::endl;
+        // std::cout<<"size: "<<CvDiag.size()<<std::endl;
+        // std::cout<<"size: "<<residuals.size()<<std::endl;
+        // std::cout<<"size: "<<redundancyNumber.size()<<std::endl;
         for (int n = 0; n<imageX.size(); n++)
         {
-            std::cout<<residuals[2*n]<<", "<< residuals[2*n+1]<<std::endl;
+            // std::cout<<residuals[2*n]<<", "<< residuals[2*n+1]<<std::endl;
             imageResiduals(n,0) = residuals[2*n] * imageXStdDev[n]; 
             imageResiduals(n,1) = residuals[2*n+1] * imageYStdDev[n];
 

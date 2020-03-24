@@ -41,7 +41,7 @@
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
@@ -1954,8 +1954,8 @@ int main(int argc, char** argv) {
                     new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
             problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-            problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-            problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+            // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+            // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
             variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
             variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -2178,40 +2178,6 @@ int main(int argc, char** argv) {
         //     variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
         // }
 
-        // if(true)
-        // {
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of IOPs instead of all
-        //         std::vector<int> fixIOP;
-        //         fixIOP.push_back(0); //xp
-        //         fixIOP.push_back(1); //yp
-        //         fixIOP.push_back(2); //c
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixIOP);
-        //         problem.SetParameterization(&IOP[n][0], subset_parameterization);
-        //     }
-        // }
-
-        // if(true)
-        // {
-        //     std::cout<<"Fixing a subset of the AP"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
-        //         // fixAP.push_back(3); //k2
-        //         // fixAP.push_back(4); //k3
-        //         // fixAP.push_back(5); //p1
-        //         // fixAP.push_back(6); //p2
-
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
-        //     }
-        // }
-
         if (WEIGHTEDROPMODE)
         {
             std::cout<<"  Doing weighted ROP constraint..."<<std::endl;
@@ -2374,14 +2340,49 @@ int main(int argc, char** argv) {
             }
         }
 
+
+        // if(true)
+        // {
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixIOP;
+        //         fixIOP.push_back(0); //xp
+        //         fixIOP.push_back(1); //yp
+        //         fixIOP.push_back(2); //c
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixIOP);
+        //         problem.SetParameterization(&IOP[n][0], subset_parameterization);
+        //     }
+        // }
+
+        if(true)
+        {
+            std::cout<<"Fixing a subset of the AP"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                fixAP.push_back(0); //a1
+                fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                fixAP.push_back(3); //k2
+                fixAP.push_back(4); //k3
+                fixAP.push_back(5); //p1
+                fixAP.push_back(6); //p2
+
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
+            }
+        }
+
         // // prior on the IOP. Useful for X-ray data
         // if (true)
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
-        //         double xpStdDev = 1.0;
-        //         double ypStdDev = 1.0;
-        //         double cStdDev  = 1.0;
+        //         double xpStdDev = 10.0;
+        //         double ypStdDev = 10.0;
+        //         double cStdDev  = 10.0;
         //         ceres::CostFunction* cost_function =
         //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
         //                 new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
@@ -2399,13 +2400,13 @@ int main(int argc, char** argv) {
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
-        //         double a1StdDev  = 1.0E-10;
-        //         double a2StdDev  = 1.0E-10;
-        //         double k1StdDev  = 1.0E5;
-        //         double k2StdDev  = 1.0E5;
-        //         double k3StdDev  = 1.0E5;
-        //         double p1StdDev  = 1.0E5;
-        //         double p2StdDev  = 1.0E5;
+        //         double a1StdDev  = 1.0E1;
+        //         double a2StdDev  = 1.0E1;
+        //         double k1StdDev  = 1.0E1;
+        //         double k2StdDev  = 1.0E1;
+        //         double k3StdDev  = 1.0E1;
+        //         double p1StdDev  = 1.0E1;
+        //         double p2StdDev  = 1.0E1;
 
         //         ceres::CostFunction* cost_function =
         //             new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
@@ -2415,10 +2416,10 @@ int main(int argc, char** argv) {
         //         variances.push_back(a1StdDev*a1StdDev);
         //         variances.push_back(a2StdDev*a2StdDev);
         //         variances.push_back(k1StdDev*k1StdDev);
-        //         variances.push_back(k2StdDev*k1StdDev);
-        //         variances.push_back(k1StdDev*k3StdDev);
-        //         variances.push_back(k1StdDev*p1StdDev);
-        //         variances.push_back(k1StdDev*p2StdDev);
+        //         variances.push_back(k2StdDev*k2StdDev);
+        //         variances.push_back(k3StdDev*k3StdDev);
+        //         variances.push_back(p1StdDev*p1StdDev);
+        //         variances.push_back(p2StdDev*p2StdDev);
 
         //     }
         // }

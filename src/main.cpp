@@ -42,7 +42,7 @@
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 #define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
@@ -397,8 +397,8 @@
 // #define INPUTROPFILENAME ""
 
 // for training Nikon
-//#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingDeleteMe.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingDeleteMe.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
@@ -538,6 +538,72 @@ struct constrainPoint {
   const double XStdDev_;
   const double YStdDev_;
   const double ZStdDev_;
+
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Pseudo observation of AP
+/// Input:    a1       - Some constant value
+///           a2
+///           k1
+///           k2
+///           k3
+///           p1
+///           p2
+///           a1StdDev - weight to constrain it
+///           a2StdDev
+///           k1StdDev
+///           k2StdDev
+///           k3StdDev
+///           p1StdDev
+///           p2StdDev
+/// Unknowns: AP     - the object space coordinate
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct constrainAP {
+  
+  constrainAP(double a1, double a2, double k1, double k2, double k3, double p1, double p2, double a1StdDev, double a2StdDev, double k1StdDev, double k2StdDev, double k3StdDev, double p1StdDev, double p2StdDev)
+        : a1_(a1), a2_(a2), k1_(k1), k2_(k2), k3_(k3), p1_(p1), p2_(p2), a1StdDev_(a1StdDev), a2StdDev_(a2StdDev), k1StdDev_(k1StdDev), k2StdDev_(k2StdDev), k3StdDev_(k3StdDev), p1StdDev_(p1StdDev), p2StdDev_(p2StdDev){}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const AP, T* residual) const {
+
+  residual[0] = AP[0] - T(a1_);
+  residual[1] = AP[1] - T(a2_);
+  residual[2] = AP[2] - T(k1_);
+  residual[3] = AP[3] - T(k2_);
+  residual[4] = AP[4] - T(k3_);
+  residual[5] = AP[5] - T(p1_);
+  residual[6] = AP[6] - T(p2_);
+
+  residual[0] /= T(a1StdDev_);
+  residual[1] /= T(a2StdDev_);
+  residual[2] /= T(k1StdDev_);
+  residual[3] /= T(k2StdDev_);
+  residual[4] /= T(k3StdDev_);
+  residual[5] /= T(p1StdDev_);
+  residual[6] /= T(p2StdDev_);
+
+  return true;
+  }
+
+ private:
+  // what we want to constraint the point to
+  const double a1_;
+  const double a2_;
+  const double k1_;
+  const double k2_;
+  const double k3_;
+  const double p1_;
+  const double p2_;
+
+  const double a1StdDev_;
+  const double a2StdDev_;
+  const double k1StdDev_;
+  const double k2StdDev_;
+  const double k3StdDev_;
+  const double p1StdDev_;
+  const double p2StdDev_;
 
 };
 
@@ -1859,7 +1925,7 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL;
-        //loss = new ceres::HuberLoss(1.0);
+        loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
         // loss2 = new ceres::CauchyLoss(0.5);
@@ -2135,9 +2201,9 @@ int main(int argc, char** argv) {
         //         std::vector<int> fixAP;
         //         fixAP.push_back(0); //a1
         //         fixAP.push_back(1); //a2
-        //         //fixAP.push_back(2); //k1
-        //         //fixAP.push_back(3); //k2
-        //         //fixAP.push_back(4); //k3
+        //         // fixAP.push_back(2); //k1
+        //         // fixAP.push_back(3); //k2
+        //         // fixAP.push_back(4); //k3
         //         // fixAP.push_back(5); //p1
         //         // fixAP.push_back(6); //p2
 
@@ -2313,9 +2379,9 @@ int main(int argc, char** argv) {
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
-        //         double xpStdDev = 10.0;
-        //         double ypStdDev = 10.0;
-        //         double cStdDev  = 10.0;
+        //         double xpStdDev = 1.0;
+        //         double ypStdDev = 1.0;
+        //         double cStdDev  = 1.0;
         //         ceres::CostFunction* cost_function =
         //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
         //                 new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
@@ -2324,6 +2390,36 @@ int main(int argc, char** argv) {
         //         variances.push_back(xpStdDev*xpStdDev);
         //         variances.push_back(ypStdDev*ypStdDev);
         //         variances.push_back(cStdDev*cStdDev);
+        //     }
+        // }
+
+
+        // // prior on the AP
+        // if (true)
+        // {
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         double a1StdDev  = 1.0E-10;
+        //         double a2StdDev  = 1.0E-10;
+        //         double k1StdDev  = 1.0E5;
+        //         double k2StdDev  = 1.0E5;
+        //         double k3StdDev  = 1.0E5;
+        //         double p1StdDev  = 1.0E5;
+        //         double p2StdDev  = 1.0E5;
+
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
+        //                 new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev));
+        //         problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
+
+        //         variances.push_back(a1StdDev*a1StdDev);
+        //         variances.push_back(a2StdDev*a2StdDev);
+        //         variances.push_back(k1StdDev*k1StdDev);
+        //         variances.push_back(k2StdDev*k1StdDev);
+        //         variances.push_back(k1StdDev*k3StdDev);
+        //         variances.push_back(k1StdDev*p1StdDev);
+        //         variances.push_back(k1StdDev*p2StdDev);
+
         //     }
         // }
 
@@ -2459,11 +2555,10 @@ int main(int argc, char** argv) {
                 double redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced;
                 std::cout<<"     Ceres Redundancy: "<<redundancy<<std::endl;
                 aposterioriVariance = 2*summary.final_cost / redundancy;
-                aposterioriVariance = 1.0;
                 aposterioriStdDev = sqrt(aposterioriVariance);
                 std::cout<<"     A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"     A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
-
+                aposterioriVariance = 1.0; // LOOKS LIKE WE DON'T NEED TO USE IT IN CERES
             }
         }
 

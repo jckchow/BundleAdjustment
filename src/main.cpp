@@ -3765,6 +3765,71 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
         }   
 
+                
+        // Do quality control
+        if(true)
+        {
+            PyRun_SimpleString("t0 = TIME.clock()");        
+            PyRun_SimpleString("print 'Start computing the object space reconstruction error relative to the ground truth (QC): DOES NOT assume everything is in the same order' ");  
+            std::cout<<"  Ground truth filename: "<<INPUTXYZTRUTHFILENAME<<std::endl;
+
+            inp.open(INPUTXYZTRUTHFILENAME);
+            std::vector<double> XYZTruthID;
+            std::vector<std::vector<double> >XYZTruth;
+            while (true) 
+            {
+                int c0;
+                double c1, c2, c3, c4, c5, c6; 
+                inp >> c0 >> c1 >> c2 >> c3 >> c4 >> c5 >> c6;
+
+                XYZTruthID.push_back(c0);
+
+                std::vector<double>temp;
+                temp.resize(3);
+                temp[0] = c1;
+                temp[1] = c2;
+                temp[2] = c3;
+                XYZTruth.push_back(temp);
+
+                if( inp.eof() ) 
+                    break;
+            }
+
+            XYZTruthID.pop_back();
+            XYZTruth.pop_back();
+            inp.close();
+
+            std::cout << "  Number of XYZ Ground Truth Read: "<< XYZTruth.size() << std::endl;
+            std::cout << "  Number of XYZ estimated        : "<< XYZ.size() << std::endl;
+
+            double RMSE_X = 0.0;
+            double RMSE_Y = 0.0;
+            double RMSE_Z = 0.0;
+            for (int i = 0; i < XYZTruthID.size(); i++)
+            {
+                for (int j = 0; j < xyzTarget.size(); j++)
+                {
+                    if (xyzTarget[j] == XYZTruthID[i])
+                    {
+                        RMSE_X += pow(XYZ[j][0] - XYZTruth[i][0],2.0);
+                        RMSE_Y += pow(XYZ[j][1] - XYZTruth[i][1],2.0);
+                        RMSE_Z += pow(XYZ[j][2] - XYZTruth[i][2],2.0);
+                        break;
+                    }
+                }
+            }
+            RMSE_X /= XYZTruth.size();
+            RMSE_Y /= XYZTruth.size();
+            RMSE_Z /= XYZTruth.size();
+
+            RMSE_X = sqrt(RMSE_X);
+            RMSE_Y = sqrt(RMSE_Y);
+            RMSE_Z = sqrt(RMSE_Z);
+            
+            std::cout<<"    RMSE X, Y, Z, Total: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
+            PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
+        }   
+
         // for(int i = 0; i < leastSquaresCost.size(); ++i)
         //     {
         //     std::cout<<2.0*leastSquaresCost[i]<<std::endl;

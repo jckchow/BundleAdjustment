@@ -43,7 +43,7 @@
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 #define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
@@ -2413,8 +2413,10 @@ int main(int argc, char** argv) {
         // }
 
         if(true)
-        {
-            std::cout<<"Fixing a subset of the AP"<<std::endl;
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"   Fixing a subset of the AP"<<std::endl;
+            std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
             for(int n = 0; n < iopCamera.size(); n++)
             {
                 // Fix part of APs instead of all
@@ -2425,7 +2427,7 @@ int main(int argc, char** argv) {
                 // fixAP.push_back(3); //k2
                 // fixAP.push_back(4); //k3
                 // fixAP.push_back(5); //p1
-                fixAP.push_back(6); //p2
+                // fixAP.push_back(6); //p2
 
                 ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
                 problem.SetParameterization(&AP[n][0], subset_parameterization);
@@ -2457,13 +2459,13 @@ int main(int argc, char** argv) {
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
-        //         double a1StdDev  = 1.0E0;
-        //         double a2StdDev  = 1.0E0;
+        //         double a1StdDev  = 1.0E-6;
+        //         double a2StdDev  = 1.0E-6;
         //         double k1StdDev  = 1.0E0;
         //         double k2StdDev  = 1.0E0;
         //         double k3StdDev  = 1.0E0;
         //         double p1StdDev  = 1.0E0;
-        //         double p2StdDev  = 1.0E0;
+        //         double p2StdDev  = 1.0E-6;
 
         //         ceres::CostFunction* cost_function =
         //             new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
@@ -3318,7 +3320,17 @@ int main(int argc, char** argv) {
         // Eigen::MatrixXd Cv; //covariance of the residuals
         Eigen::VectorXd CvDiag;
 
+        // ceres::Problem::EvaluateOptions evaluateOptions;
+        // std::cout<<"Number of param blocks: "<<problem.NumParameterBlocks()<<std::endl;
+        // std::vector<double*> parameterBlocks;
+        // problem.GetParameterBlocks(&parameterBlocks);
+        // evaluateOptions.parameter_blocks = parameterBlocks;
+        // problem.Evaluate(evaluateOptions, &cost, &residuals, NULL, &jacobian);
+
         problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, &jacobian);
+
+        // problem2.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, &jacobian);
+
 
         // set some default values if we are not actually calculating Cv
         redundancyNumber.setConstant(1E6);
@@ -3439,6 +3451,7 @@ int main(int argc, char** argv) {
                 // }
                 // computing the covariance matrix of the adjusted observations
                 std::cout<<"  Start computing Cv..."<<std::endl;
+                std::cout<<"     Cx dimensions: "<<Cx.rows()<<" by "<<Cx.cols()<<std::endl;
                 PyRun_SimpleString("t0 = TIME.clock()");        
                 Eigen::SparseMatrix<double> CxSparse = Cx.sparseView();
                 PyRun_SimpleString("print '    Converting matrices:', round(TIME.clock()-t0, 3), 's' ");      
@@ -3448,13 +3461,13 @@ int main(int argc, char** argv) {
 
                 // // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
                 Eigen::SparseMatrix<double> CxAT = (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
-                PyRun_SimpleString("print '    Multiplying first matrices:', round(TIME.clock()-t0, 3), 's' ");
+                PyRun_SimpleString("print '    Multiplying first matrices Cx*AT:', round(TIME.clock()-t0, 3), 's' ");
                 PyRun_SimpleString("t0 = TIME.clock()");        
 
                 for (int i = 0; i < variances.size(); i++)
                 {
                     Eigen::SparseMatrix<double> temp = (A.row(i) * CxAT.col(i));
-                    //std::cout<<"temp: "<<temp.rows()<<", "<<temp.cols()<<" = "<<temp.coeff(0,0)<<std::endl;
+                    // std::cout<<"temp: "<<temp.rows()<<", "<<temp.cols()<<" = "<<temp.coeff(0,0)<<std::endl;
                     CvDiag(i) = variances[i] - temp.coeff(0,0);
                 }
 
@@ -3472,7 +3485,7 @@ int main(int argc, char** argv) {
 
                 //Eigen::SparseMatrix<double> D = ttt.sparseView();
                 // Eigen::SparseMatrix<double> Cl_hat = A * Cx.selfadjointView<Eigen::Upper>() * A.transpose();
-                PyRun_SimpleString("print '    Multiplying matrices:', round(TIME.clock()-t0, 3), 's' ");
+                PyRun_SimpleString("print '    Multiplying matrices A*Cx:', round(TIME.clock()-t0, 3), 's' ");
 
                 // Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
                 // Eigen::SparseMatrix<double> Cl_hat = A * Cx * A.transpose();
@@ -3582,7 +3595,7 @@ int main(int argc, char** argv) {
             reprojectionErrors(0,2) +=  imageResiduals(n,0) * imageResiduals(n,0) + imageResiduals(n,1) * imageResiduals(n,1);
 
         }
-        std::cout<<"Done size: "<<imageX.size()<<std::endl;
+        // std::cout<<"Done size: "<<imageX.size()<<std::endl;
         if(DEBUGMODE)
         {
             std::cout<<"Residuals:"<<std::endl;

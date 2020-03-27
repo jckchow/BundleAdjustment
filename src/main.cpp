@@ -30,6 +30,7 @@
 #include <string>
 #include <sstream>
 #include <Eigen/Sparse>
+
 //#include <pcl/point_types.h>
 //#include <pcl/filters/voxel_grid.h>
 
@@ -41,7 +42,7 @@
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
@@ -396,17 +397,17 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// for training Nikon
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingDeleteMe.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
+// // for training Nikon
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingDeleteMe.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTrainingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/TrainingTesting/nikonTraining.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // // for training Go Pro Hero 3 Silver Edition
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.pho"
@@ -424,16 +425,16 @@
 /// Paper 2 Omnidirectional Camera Journal Paper
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// for training Nikon
+//for training Nikon
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikon.xyz"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon/nikonTruth.xyz"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight.xyz"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -473,6 +474,17 @@ double calcStdDev(std::vector<double> v)
     double stdev = std::sqrt(sq_sum / v.size());
 
     return stdev;
+}
+
+// function for randomly selecting a point between min and max
+int rangeRandomNumber (int min, int max){
+    int n = max - min + 1;
+    int remainder = RAND_MAX % n;
+    int x;
+    do{
+        x = rand();
+    }while (x >= RAND_MAX - remainder);
+    return min + x % n;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -659,7 +671,7 @@ struct collinearity {
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
   T x_bar = T(x_) - T(xp_);
   T y_bar = T(y_) - T(yp_);
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+  T r = sqrt(x_bar*x_bar + y_bar*y_bar) / 1000.0; // arbitrary scale for stability
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
@@ -692,7 +704,6 @@ struct collinearity {
   const double yp_;
 
 };
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Collinearity Equation With Machine Learned Parameters as unknowns
@@ -1881,6 +1892,48 @@ int main(int argc, char** argv) {
 
         PyRun_SimpleString("print 'Done reading data:', round(TIME.clock()-t0, 3), 's' ");
 
+
+        // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // /// RANSAC Resection
+        // //////////////////////////////////////////////////////////////////////////////////////////////////////////////   
+        // PyRun_SimpleString("print 'RANSAC Single Photo Resection...' ");
+    
+        // ceres::Problem problemResection;
+
+        // // define the parameters in the order we want
+        // // EOP             
+        // for(int n = 0; n < EOP.size(); n++) 
+        //     problemResection.AddParameterBlock(&EOP[n][0], 6);  
+
+        // ceres::LossFunction* loss = NULL;
+        // loss = new ceres::HuberLoss(1.0);
+        // // loss = new ceres::CauchyLoss(0.5);
+
+        // // Conventional collinearity condition, no machine learning
+        // for(int n = 0; n < imageX.size(); n++) // loop through all observations
+        // {
+        //      std::vector<int>::iterator it;
+        //      it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+        //      int indexPoint = std::distance(xyzTarget.begin(),it);
+        //      // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+
+        //      it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+        //      int indexPose = std::distance(eopStation.begin(),it);
+        //      // std::cout<<"index: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+
+        //     //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+        //     //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+
+        //     ceres::CostFunction* cost_function =
+        //         new ceres::AutoDiffCostFunction<singlePhotoResection, 2, 6>(
+        //             new singlePhotoResection(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], xyzX[indexPoint], xyzY[indexPoint], xyzZ[indexPoint]));
+        //     problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0]);  
+
+        // }
+
+        // PyRun_SimpleString("print 'RANSAC Single Photo Resection DONE' ");
+
+
         // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // /// Initialize the unknowns
         // //////////////////////////////////////////////////////////////////////////////////////////////////////////////   
@@ -1913,9 +1966,9 @@ int main(int argc, char** argv) {
         for(int n = 0; n < XYZ.size(); n++) 
             problem.AddParameterBlock(&XYZ[n][0], 3);  
         for(int n = 0; n < IOP.size(); n++) 
-            problem.AddParameterBlock(&IOP[n][0], 3);  
+            problem.AddParameterBlock(&IOP[n][0], 3);
         for(int n = 0; n < AP.size(); n++) 
-            problem.AddParameterBlock(&AP[n][0], 7);  
+            problem.AddParameterBlock(&AP[n][0], 7);   
         // for(int n = 0; n < MLP.size(); n++) 
         //     problem.AddParameterBlock(&MLP[n][0], 2);  
         if(ROPMODE || WEIGHTEDROPMODE)
@@ -1948,6 +2001,10 @@ int main(int argc, char** argv) {
 
             //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
             //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+
+
+            // for book keeping
+            imageReferenceID[n] = iopCamera[indexSensor];
 
             ceres::CostFunction* cost_function =
                 new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 7>(
@@ -2365,8 +2422,8 @@ int main(int argc, char** argv) {
                 fixAP.push_back(0); //a1
                 fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
-                fixAP.push_back(3); //k2
-                fixAP.push_back(4); //k3
+                // fixAP.push_back(3); //k2
+                // fixAP.push_back(4); //k3
                 fixAP.push_back(5); //p1
                 fixAP.push_back(6); //p2
 
@@ -2400,13 +2457,13 @@ int main(int argc, char** argv) {
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
-        //         double a1StdDev  = 1.0E1;
-        //         double a2StdDev  = 1.0E1;
-        //         double k1StdDev  = 1.0E1;
-        //         double k2StdDev  = 1.0E1;
-        //         double k3StdDev  = 1.0E1;
-        //         double p1StdDev  = 1.0E1;
-        //         double p2StdDev  = 1.0E1;
+        //         double a1StdDev  = 1.0E0;
+        //         double a2StdDev  = 1.0E0;
+        //         double k1StdDev  = 1.0E0;
+        //         double k2StdDev  = 1.0E0;
+        //         double k3StdDev  = 1.0E0;
+        //         double p1StdDev  = 1.0E0;
+        //         double p2StdDev  = 1.0E0;
 
         //         ceres::CostFunction* cost_function =
         //             new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
@@ -2453,7 +2510,7 @@ int main(int argc, char** argv) {
         // options.line_search_direction_type = ceres::BFGS;
         // options.trust_region_strategy_type = ceres::DOGLEG;
         // options.max_num_iterations = 1000;
-        options.max_num_iterations = 10;
+        options.max_num_iterations = 20;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
@@ -3711,59 +3768,59 @@ int main(int argc, char** argv) {
 
 
 
-        
-        // Do quality control
-        if(true)
-        {
-            PyRun_SimpleString("t0 = TIME.clock()");        
-            PyRun_SimpleString("print 'Start computing the object space reconstruction error relative to the ground truth (QC): Assumes everything is in the same order' ");  
-            std::cout<<"  Ground truth filename: "<<INPUTXYZTRUTHFILENAME<<std::endl;
+        /////// OLD OBSELETE
+        // // Do quality control
+        // if(true)
+        // {
+        //     PyRun_SimpleString("t0 = TIME.clock()");        
+        //     PyRun_SimpleString("print 'Start computing the object space reconstruction error relative to the ground truth (QC): Assumes everything is in the same order' ");  
+        //     std::cout<<"  Ground truth filename: "<<INPUTXYZTRUTHFILENAME<<std::endl;
 
-            inp.open(INPUTXYZTRUTHFILENAME);
-            std::vector<std::vector<double> >XYZTruth;
-            while (true) 
-            {
-                int c0;
-                double c1, c2, c3, c4, c5, c6; 
-                inp >> c0 >> c1 >> c2 >> c3 >> c4 >> c5 >> c6;
+        //     inp.open(INPUTXYZTRUTHFILENAME);
+        //     std::vector<std::vector<double> >XYZTruth;
+        //     while (true) 
+        //     {
+        //         int c0;
+        //         double c1, c2, c3, c4, c5, c6; 
+        //         inp >> c0 >> c1 >> c2 >> c3 >> c4 >> c5 >> c6;
 
-                std::vector<double>temp;
-                temp.resize(3);
-                temp[0] = c1;
-                temp[1] = c2;
-                temp[2] = c3;
-                XYZTruth.push_back(temp);
+        //         std::vector<double>temp;
+        //         temp.resize(3);
+        //         temp[0] = c1;
+        //         temp[1] = c2;
+        //         temp[2] = c3;
+        //         XYZTruth.push_back(temp);
 
-                if( inp.eof() ) 
-                    break;
-            }
+        //         if( inp.eof() ) 
+        //             break;
+        //     }
 
-            XYZTruth.pop_back();
-            inp.close();
+        //     XYZTruth.pop_back();
+        //     inp.close();
 
-            std::cout << "  Number of XYZ Ground Truth Read: "<< XYZTruth.size() << std::endl;
-            std::cout << "  Number of XYZ estimated        : "<< XYZ.size() << std::endl;
+        //     std::cout << "  Number of XYZ Ground Truth Read: "<< XYZTruth.size() << std::endl;
+        //     std::cout << "  Number of XYZ estimated        : "<< XYZ.size() << std::endl;
 
-            double RMSE_X = 0.0;
-            double RMSE_Y = 0.0;
-            double RMSE_Z = 0.0;
-            for (int i = 0; i < XYZ.size(); i++)
-            {
-                RMSE_X += pow(XYZ[i][0] - XYZTruth[i][0],2.0);
-                RMSE_Y += pow(XYZ[i][1] - XYZTruth[i][1],2.0);
-                RMSE_Z += pow(XYZ[i][2] - XYZTruth[i][2],2.0);
-            }
-            RMSE_X /= XYZTruth.size();
-            RMSE_Y /= XYZTruth.size();
-            RMSE_Z /= XYZTruth.size();
+        //     double RMSE_X = 0.0;
+        //     double RMSE_Y = 0.0;
+        //     double RMSE_Z = 0.0;
+        //     for (int i = 0; i < XYZ.size(); i++)
+        //     {
+        //         RMSE_X += pow(XYZ[i][0] - XYZTruth[i][0],2.0);
+        //         RMSE_Y += pow(XYZ[i][1] - XYZTruth[i][1],2.0);
+        //         RMSE_Z += pow(XYZ[i][2] - XYZTruth[i][2],2.0);
+        //     }
+        //     RMSE_X /= XYZTruth.size();
+        //     RMSE_Y /= XYZTruth.size();
+        //     RMSE_Z /= XYZTruth.size();
 
-            RMSE_X = sqrt(RMSE_X);
-            RMSE_Y = sqrt(RMSE_Y);
-            RMSE_Z = sqrt(RMSE_Z);
+        //     RMSE_X = sqrt(RMSE_X);
+        //     RMSE_Y = sqrt(RMSE_Y);
+        //     RMSE_Z = sqrt(RMSE_Z);
             
-            std::cout<<"    RMSE X, Y, Z, Total: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<". "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
-            PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
-        }   
+        //     std::cout<<"    RMSE X, Y, Z, Total: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<". "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
+        //     PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
+        // }   
 
                 
         // Do quality control

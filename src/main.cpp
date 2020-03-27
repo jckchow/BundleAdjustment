@@ -43,9 +43,10 @@
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 #define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
+#define PLOTRESULTS 1 // plots the outputs using python
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -2460,34 +2461,34 @@ int main(int argc, char** argv) {
         // }
 
 
-        // // prior on the AP
-        // if (true)
-        // {
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         double a1StdDev  = 1.0E-6;
-        //         double a2StdDev  = 1.0E-6;
-        //         double k1StdDev  = 1.0E0;
-        //         double k2StdDev  = 1.0E0;
-        //         double k3StdDev  = 1.0E0;
-        //         double p1StdDev  = 1.0E0;
-        //         double p2StdDev  = 1.0E-6;
+        // prior on the AP
+        if (true)
+        {
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                double a1StdDev  = 1.0E-6;
+                double a2StdDev  = 1.0E-6;
+                double k1StdDev  = 1.0E0;
+                double k2StdDev  = 1.0E0;
+                double k3StdDev  = 1.0E-6;
+                double p1StdDev  = 1.0E-6;
+                double p2StdDev  = 1.0E-6;
 
-        //         ceres::CostFunction* cost_function =
-        //             new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
-        //                 new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev));
-        //         problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
+                        new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev));
+                problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
 
-        //         variances.push_back(a1StdDev*a1StdDev);
-        //         variances.push_back(a2StdDev*a2StdDev);
-        //         variances.push_back(k1StdDev*k1StdDev);
-        //         variances.push_back(k2StdDev*k2StdDev);
-        //         variances.push_back(k3StdDev*k3StdDev);
-        //         variances.push_back(p1StdDev*p1StdDev);
-        //         variances.push_back(p2StdDev*p2StdDev);
+                variances.push_back(a1StdDev*a1StdDev);
+                variances.push_back(a2StdDev*a2StdDev);
+                variances.push_back(k1StdDev*k1StdDev);
+                variances.push_back(k2StdDev*k2StdDev);
+                variances.push_back(k3StdDev*k3StdDev);
+                variances.push_back(p1StdDev*p1StdDev);
+                variances.push_back(p2StdDev*p2StdDev);
 
-        //     }
-        // }
+            }
+        }
 
         // if(DEBUGMODE)
         // {
@@ -2609,11 +2610,11 @@ int main(int argc, char** argv) {
 
                 // Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
                 // //std::cout<<"size: "<<v.size()<<std::endl;
-                // Eigen::MatrixXd aposteriorVariance = v.transpose() * P * v;
+                // Eigen::MatrixXd vTPv = v.transpose() * v;
                 // //std::cout<<"size: "<<aposteriorVariance.size()<<std::endl;
 
-                // std::cout<<"     A Posteriori Variance: "<<aposteriorVariance<<std::endl;
-                // std::cout<<"     A Posteriori Std Dev: "<<sqrt(aposteriorVariance(0,0))<<std::endl;
+                // std::cout<<"     vTPv: "<<vTPv(0,0)<<std::endl;
+                // std::cout<<"     sqrt(vTPv): "<<sqrt(vTPv(0,0))<<std::endl;
 
                 // approximate the redundancy as 2*numImagePts - 6*EOP -3*XYZ - 7DatumPoints, this ignores #AP, IOP and pseudo obs
                 // double redundancy = 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() - 7;
@@ -2625,6 +2626,13 @@ int main(int argc, char** argv) {
                 std::cout<<"     A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"     A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
                 // aposterioriVariance = 1.0; // LOOKS LIKE WE DON'T NEED TO USE IT IN CERES
+
+                Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
+                //std::cout<<"size: "<<v.size()<<std::endl;
+                Eigen::MatrixXd vTPv = v.transpose() * v;
+                //std::cout<<"size: "<<aposteriorVariance.size()<<std::endl;
+                std::cout<<"     vTPv: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
+                std::cout<<"     sqrt(vTPv): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
             }
         }
 
@@ -3949,15 +3957,25 @@ int main(int argc, char** argv) {
     }
  
     if (doML)
+    {
+        std::cout<<"  Writing least squares costs to file..."<<std::endl;
+        FILE *fout = fopen("costs.jck", "w");
+        for(int i = 0; i < leastSquaresCost.size(); ++i)
         {
-            std::cout<<"  Writing least squares costs to file..."<<std::endl;
-            FILE *fout = fopen("costs.jck", "w");
-            for(int i = 0; i < leastSquaresCost.size(); ++i)
-            {
-                fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", 2.0*leastSquaresCost[i], leastSquaresRedundancy[i], machineLearnedCost[i], machineLearnedRedundancy[i] );
-            }
-            fclose(fout);
+            fprintf(fout, "%.6lf %.6lf %.6lf %.6lf\n", 2.0*leastSquaresCost[i], leastSquaresRedundancy[i], machineLearnedCost[i], machineLearnedRedundancy[i] );
         }
+        fclose(fout);
+    }
+
+
+    if (PLOTRESULTS)
+    {
+        PyRun_SimpleString("t0 = TIME.clock()");        
+        PyRun_SimpleString("print 'Start plotting results in Python' ");    
+        system("python ~/BundleAdjustment/python/plotBundleAdjustment.py");
+        PyRun_SimpleString("print 'Done plotting results:', round(TIME.clock()-t0, 3), 's' ");
+
+    }
 
     PyRun_SimpleString("print '----------------------------Program Successful ^-^, Total Run Time:', round(TIME.clock()-totalTime, 3), 's', '----------------------------', ");
     return 0;

@@ -669,9 +669,9 @@ struct collinearity {
 
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
-  T x_bar = T(x_) - T(xp_);
-  T y_bar = T(y_) - T(yp_);
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar) / 1000.0; // arbitrary scale for stability
+  T x_bar = (T(x_) - T(xp_)) / 1000.0; // arbitrary scale for stability
+  T y_bar = (T(y_) - T(yp_)) / 1000.0; // arbitrary scale for stability
+  T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
@@ -2424,7 +2424,7 @@ int main(int argc, char** argv) {
                 // fixAP.push_back(2); //k1
                 // fixAP.push_back(3); //k2
                 // fixAP.push_back(4); //k3
-                fixAP.push_back(5); //p1
+                // fixAP.push_back(5); //p1
                 fixAP.push_back(6); //p2
 
                 ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
@@ -2616,7 +2616,7 @@ int main(int argc, char** argv) {
                 aposterioriStdDev = sqrt(aposterioriVariance);
                 std::cout<<"     A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"     A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
-                aposterioriVariance = 1.0; // LOOKS LIKE WE DON'T NEED TO USE IT IN CERES
+                // aposterioriVariance = 1.0; // LOOKS LIKE WE DON'T NEED TO USE IT IN CERES
             }
         }
 

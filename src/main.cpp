@@ -43,7 +43,7 @@
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
 #define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
@@ -1949,8 +1949,12 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("t0 = TIME.clock()");        
         PyRun_SimpleString("print 'Start building Ceres-Solver cost functions' ");
     
-        std::vector<int> imageReferenceID; // for use when outting the residuals
-        imageReferenceID.resize(imageX.size());
+        std::vector<int> sensorReferenceID; // for use when outting the residuals
+        std::vector<int> pointReferenceID; // for use when outting the residuals
+        std::vector<int> frameReferenceID;  // for use when outting the residuals
+        sensorReferenceID.resize(imageX.size());
+        pointReferenceID.resize(imageX.size());
+        frameReferenceID.resize(imageX.size());
         std::vector<double> variances;
         ceres::Problem problem;
 
@@ -2004,7 +2008,9 @@ int main(int argc, char** argv) {
 
 
             // for book keeping
-            imageReferenceID[n] = iopCamera[indexSensor];
+            sensorReferenceID[n] = iopCamera[indexSensor]; // which sensor was used
+            pointReferenceID[n]  = xyzTarget[indexPoint];  // ID of the target point this observation corresponds to
+            frameReferenceID[n]  = eopStation[indexPose];
 
             ceres::CostFunction* cost_function =
                 new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 7>(
@@ -2139,7 +2145,7 @@ int main(int argc, char** argv) {
         //     // std::cout<<"indexROPSlave: "<<indexROPSlave<<", ID: "<< iopCamera[indexSensor]<<std::endl; 
 
         //     // for book keeping
-        //     imageReferenceID[n] = iopCamera[indexSensor];
+        //     sensorReferenceID[n] = iopCamera[indexSensor];
 
         //     //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
         //     //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
@@ -2209,7 +2215,7 @@ int main(int argc, char** argv) {
         //     // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl; 
 
         //     // for book keeping
-        //     imageReferenceID[n] = iopCamera[indexSensor];
+        //     sensorReferenceID[n] = iopCamera[indexSensor];
 
         //     //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
         //     //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
@@ -2412,27 +2418,27 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        if(true)
-        {   
-            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-            std::cout<<"   Fixing a subset of the AP"<<std::endl;
-            std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
-            for(int n = 0; n < iopCamera.size(); n++)
-            {
-                // Fix part of APs instead of all
-                std::vector<int> fixAP;
-                fixAP.push_back(0); //a1
-                fixAP.push_back(1); //a2
-                // fixAP.push_back(2); //k1
-                // fixAP.push_back(3); //k2
-                // fixAP.push_back(4); //k3
-                // fixAP.push_back(5); //p1
-                // fixAP.push_back(6); //p2
+        // if(true)
+        // {   
+        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+        //     std::cout<<"   Fixing a subset of the AP"<<std::endl;
+        //     std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         // Fix part of APs instead of all
+        //         std::vector<int> fixAP;
+        //         // fixAP.push_back(0); //a1
+        //         fixAP.push_back(1); //a2
+        //         // fixAP.push_back(2); //k1
+        //         // fixAP.push_back(3); //k2
+        //         // fixAP.push_back(4); //k3
+        //         // fixAP.push_back(5); //p1
+        //         // fixAP.push_back(6); //p2
 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
-                problem.SetParameterization(&AP[n][0], subset_parameterization);
-            }
-        }
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
+        //     }
+        // }
 
         // // prior on the IOP. Useful for X-ray data
         // if (true)
@@ -2582,7 +2588,7 @@ int main(int argc, char** argv) {
                 FILE *fout = fopen("image.jck", "w");
                 for(int i = 0; i < imageTarget.size(); ++i)
                 {
-                    fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
+                    fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
                 }
                 fclose(fout);       
 
@@ -3613,7 +3619,7 @@ int main(int argc, char** argv) {
             FILE *fout = fopen("image.jck", "w");
             for(int i = 0; i < imageTarget.size(); ++i)
             {
-                fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.2lf %.2lf %.6lf %.6lf\n", imageReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1), imageRedundancy(i,0), imageRedundancy(i,1), imageResidualsStdDev(i,0), imageResidualsStdDev(i,1));
+                fprintf(fout, "%i %i %i %.6lf %.6lf %.6lf %.6lf %.2lf %.2lf %.6lf %.6lf\n", pointReferenceID[i], frameReferenceID[i], sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1), imageRedundancy(i,0), imageRedundancy(i,1), imageResidualsStdDev(i,0), imageResidualsStdDev(i,1));
             }
             fclose(fout);
         }

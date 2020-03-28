@@ -46,7 +46,8 @@
 #define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
-#define PLOTRESULTS 1 // plots the outputs using python
+
+#define PLOTRESULTS 0 // plots the outputs using python
 
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -428,12 +429,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //for training Nikon
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.pho"
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened_VCE.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.iop"
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.eop"
 #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight.xyz"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight2.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 #define INPUTROPFILENAME ""
 
@@ -1402,6 +1405,15 @@ int main(int argc, char** argv) {
 
         std::cout << "    Approximate redundancy (2*img - 6*EOP - 3*XYZ): "<< 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() << std::endl;
 
+        if (imageX.size() >=5)
+        {
+            std::cout << "    First 5 lines of input image file "<< std::endl;
+            for (int i = 0; i < 5; i++)
+            {
+                std::cout<<" \t " <<imageTarget[i]<<" \t "<<imageStation[i]<<" \t "<<imageX[i]<<" \t "<<imageY[i]<<" \t "<<imageXStdDev[i]<<" \t "<<imageYStdDev[i]<<" \t "<<imageXCorr[i]<<" \t "<<imageYCorr[i]<<std::endl;
+            }
+        }
+
         /// write a temporary *.pho file for communicating with python
         if (iterNum == 0) // only do this for first iteration where we copy the file
         {
@@ -1473,6 +1485,15 @@ int main(int argc, char** argv) {
         std::sort (eopCameraID.begin(), eopCameraID.end()); // must sort before the following unique function works
         eopCameraID.erase(std::unique(eopCameraID.begin(), eopCameraID.end()), eopCameraID.end());
         std::cout << "    Number of cameras read: "<< eopCameraID.size() << std::endl;
+
+        if (eopStation.size() >=2)
+        {
+            std::cout << "    First 2 lines of EOP file "<< std::endl;
+            for (int i = 0; i < 2; i++)
+            {
+                std::cout<<" \t " <<eopStation[i]<<" \t "<<eopCamera[i]<<" \t "<<eopXo[i]<<" \t "<<eopYo[i]<<" \t "<<eopZo[i]<<" \t "<<eopOmega[i]<<" \t "<<eopPhi[i]<<" \t "<<eopKappa[i]<<std::endl;
+            }
+        }
 
         std::vector<std::vector<double> > ROP;
         std::vector<std::vector<int> >ropID;
@@ -1888,6 +1909,15 @@ int main(int argc, char** argv) {
             for (int i = 0; i < xyzTarget.size(); i++)
             {
                 std::cout<<xyzTarget[i]<<" \t "<<xyzX[i]<<" \t "<<xyzY[i]<<" \t "<<xyzZ[i]<<" \t "<<xyzXStdDev[i]<<" \t "<<xyzYStdDev[i]<<" \t "<<xyzZStdDev[i]<<std::endl;
+            }
+        }
+
+        if (xyzTarget.size() >=5)
+        {
+            std::cout << "    First 5 lines of XYZ file "<< std::endl;
+            for (int i = 0; i < 5; i++)
+            {
+                std::cout<<" \t " <<xyzX[i]<<" \t "<<xyzY[i]<<" \t "<<xyzZ[i]<<" \t "<<xyzXStdDev[i]<<" \t "<<xyzYStdDev[i]<<" \t "<<xyzZStdDev[i]<<std::endl;
             }
         }
 
@@ -2594,7 +2624,7 @@ int main(int argc, char** argv) {
                 fclose(fout);       
 
 
-            if (true) // complete the a posteriori variance factor for scaling the Cx later
+            if (true) // compute the a posteriori variance factor for scaling the Cx later
             {
                 std::cout<<"  Estimating A Posterior Variance Factor..."<<std::endl;
                 // Eigen::SparseMatrix<double> P;
@@ -2625,7 +2655,6 @@ int main(int argc, char** argv) {
                 aposterioriStdDev = sqrt(aposterioriVariance);
                 std::cout<<"     A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"     A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
-                // aposterioriVariance = 1.0; // LOOKS LIKE WE DON'T NEED TO USE IT IN CERES
 
                 Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
                 //std::cout<<"size: "<<v.size()<<std::endl;
@@ -2633,6 +2662,9 @@ int main(int argc, char** argv) {
                 //std::cout<<"size: "<<aposteriorVariance.size()<<std::endl;
                 std::cout<<"     vTPv: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
                 std::cout<<"     sqrt(vTPv): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
+
+                aposterioriVariance = 1.0; // LOOKS LIKE WE DON'T NEED TO USE IT IN CERES
+                // aposterioriVariance = vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size());
             }
         }
 
@@ -2716,8 +2748,10 @@ int main(int argc, char** argv) {
         {
             PyRun_SimpleString("t0 = TIME.clock()");     
             PyRun_SimpleString("print 'Start computing cofactor matrix' ");  
-            ceres::Covariance::Options covarianceOoptions;
-            ceres::Covariance covariance(covarianceOoptions);
+            ceres::Covariance::Options covarianceOptions;
+            covarianceOptions.apply_loss_function = true;
+            // covarianceOptions.algorithm_type = ceres::DENSE_SVD;
+            ceres::Covariance covariance(covarianceOptions);
 
             std::vector<std::pair<const double*, const double*> > covariance_blocks;
 
@@ -3335,10 +3369,11 @@ int main(int argc, char** argv) {
         Eigen::VectorXd CvDiag;
 
         // ceres::Problem::EvaluateOptions evaluateOptions;
-        // std::cout<<"Number of param blocks: "<<problem.NumParameterBlocks()<<std::endl;
-        // std::vector<double*> parameterBlocks;
-        // problem.GetParameterBlocks(&parameterBlocks);
-        // evaluateOptions.parameter_blocks = parameterBlocks;
+        // // std::cout<<"Number of param blocks: "<<problem.NumParameterBlocks()<<std::endl;
+        // // std::vector<double*> parameterBlocks;
+        // // problem.GetParameterBlocks(&parameterBlocks);
+        // // evaluateOptions.parameter_blocks = parameterBlocks;
+        // evaluateOptions.apply_loss_function = true;
         // problem.Evaluate(evaluateOptions, &cost, &residuals, NULL, &jacobian);
 
         problem.Evaluate(ceres::Problem::EvaluateOptions(), &cost, &residuals, NULL, &jacobian);
@@ -3465,7 +3500,7 @@ int main(int argc, char** argv) {
                 // }
                 // computing the covariance matrix of the adjusted observations
                 std::cout<<"  Start computing Cv..."<<std::endl;
-                std::cout<<"     Cx dimensions: "<<Cx.rows()<<" by "<<Cx.cols()<<std::endl;
+                std::cout<<"    Cx dimensions: "<<Cx.rows()<<" by "<<Cx.cols()<<std::endl;
                 PyRun_SimpleString("t0 = TIME.clock()");        
                 Eigen::SparseMatrix<double> CxSparse = Cx.sparseView();
                 PyRun_SimpleString("print '    Converting matrices:', round(TIME.clock()-t0, 3), 's' ");      
@@ -3476,7 +3511,7 @@ int main(int argc, char** argv) {
                 // // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
                 Eigen::SparseMatrix<double> CxAT = (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
                 PyRun_SimpleString("print '    Multiplying first matrices Cx*AT:', round(TIME.clock()-t0, 3), 's' ");
-                PyRun_SimpleString("t0 = TIME.clock()");        
+                PyRun_SimpleString("t0 = TIME.clock()");
 
                 for (int i = 0; i < variances.size(); i++)
                 {
@@ -3523,6 +3558,25 @@ int main(int argc, char** argv) {
                 }
                 leastSquaresRedundancy.push_back(sumRedundancyNumber);
                 std::cout<<"    Sum of redundancy numbers: "<<sumRedundancyNumber<<std::endl;
+
+                double vTPvImage = 0.0;
+                double dof = 0.0;
+                // std::cout<<"Variance size: "<<variances.size()<<std::endl;
+                // std::cout<<"imageX size: "<<imageX.size()<<std::endl;
+                // std::cout<<"residuals size: "<<residuals.size()<<std::endl;
+                // std::cout<<"redundancyNumber size: "<<redundancyNumber.size()<<std::endl;
+                for (int i = 0; i < imageX.size(); i++)
+                {
+                    vTPvImage += pow(residuals[2*i], 2.0);
+                    vTPvImage += pow(residuals[2*i+1], 2.0);
+                    dof += redundancyNumber(2*i);
+                    dof += redundancyNumber(2*i+1);
+                }
+                std::cout<<"    Sum of image redundancy numbers: "<<dof<<std::endl;
+                std::cout<<"    vTPv: "<<vTPvImage<<std::endl;
+                std::cout<<"    A posteriori of image for rescaling (aposteriori/apriori): "<<vTPvImage / dof <<std::endl;
+                std::cout<<"    A posteriori stdDev of image for rescaling (aposteriori/apriori): "<<sqrt(vTPvImage / dof) <<std::endl;
+
                 // if(DEBUGMODE)
                 // {
                 //     std::cout<<"    Writing Cl to file..."<<std::endl;

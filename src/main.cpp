@@ -42,8 +42,8 @@
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
@@ -429,13 +429,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //for training Nikon
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened_VCE.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened_VCE.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight.xyz"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.xyz"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight2.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 #define INPUTROPFILENAME ""
@@ -675,6 +675,96 @@ struct collinearity {
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
   T x_bar = (T(x_) - T(xp_)) / 1000.0; // arbitrary scale for stability
   T y_bar = (T(y_) - T(yp_)) / 1000.0; // arbitrary scale for stability
+  T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
+
+  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+
+  T x_true = x + IOP[0] + delta_x;
+  T y_true = y + IOP[1] + delta_y;
+
+  // actual cost function
+  residual[0] = x_true - T(x_); // x-residual
+  residual[1] = y_true - T(y_); // y-residual    
+
+//   std::cout<<"x_diff, y_diff: "<<residual[0]<<", "<<residual[1]<<std::endl;
+
+  residual[0] /= T(xStdDev_);
+  residual[1] /= T(yStdDev_);
+
+  return true;
+  }
+
+ private:
+  const double x_;
+  const double y_;
+  const double xStdDev_;
+  const double yStdDev_;
+  const double xp_;
+  const double yp_;
+
+};
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Collinearity Equation with Stereographic Projection
+/// Input:    x       - x observation
+///           y       - y observation
+///           xStdDev - noise
+///           yStdDev - noise
+/// Unknowns: x      - some unknown parameter in the adjustment
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct collinearityStereographic {
+  
+  collinearityStereographic(double x, double y, double xStdDev, double yStdDev, double xp, double yp)
+        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, const T* const radius, T* residual) const {
+
+  // rotation from map to sensor
+  T r11 = cos(EOP[1]) * cos(EOP[2]);
+  T r12 = cos(EOP[0]) * sin(EOP[2]) + sin(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+  T r13 = sin(EOP[0]) * sin(EOP[2]) - cos(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+
+  T r21 = -cos(EOP[1]) * sin(EOP[2]);
+  T r22 = cos(EOP[0]) * cos(EOP[2]) - sin(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+  T r23 = sin(EOP[0]) * cos(EOP[2]) + cos(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+
+  T r31 = sin(EOP[1]);
+  T r32 = -sin(EOP[0]) * cos(EOP[1]);
+  T r33 = cos(EOP[0]) * cos(EOP[1]);
+
+  // rigid body transformation
+  // Object space coordinates oordinates in sensor frame
+  T Xs = r11 * ( XYZ[0] - EOP[3] ) + r12 * ( XYZ[1] - EOP[4] ) + r13 * ( XYZ[2] - EOP[5] );
+  T Ys = r21 * ( XYZ[0] - EOP[3] ) + r22 * ( XYZ[1] - EOP[4] ) + r23 * ( XYZ[2] - EOP[5] );
+  T Zs = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
+
+
+  // Project coordinates onto a circle with radius equal to the focal length
+  T lambda = radius[0] / sqrt(Xs*Xs + Ys*Ys + Zs*Zs);
+
+  T Xc = lambda * Xs;
+  T Yc = lambda * Ys;
+  T Zc = lambda * Zs;
+
+  // stereographic projection of point on sphere onto image place
+  T x = (radius[0] + IOP[2])/(radius[0] - Zc) * Xc;
+  T y = (radius[0] + IOP[2])/(radius[0] - Zc) * Yc;
+
+//   std::cout<<"x, y: "<<x+T(xp_)<<", "<<y+T(yp_)<<std::endl;
+//   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
+
+
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  T x_bar = (T(x_) - T(xp_)) / 1000.0; // arbitrary scale for numerical stability
+  T y_bar = (T(y_) - T(yp_)) / 1000.0; // arbitrary scale for numerical stability
   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
@@ -2016,46 +2106,112 @@ int main(int argc, char** argv) {
         loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
-        // loss2 = new ceres::CauchyLoss(0.5);
+        // loss = new ceres::CauchyLoss(0.5);
+
 
         // Conventional collinearity condition, no machine learning
-        for(int n = 0; n < imageX.size(); n++) // loop through all observations
+        if (false)
         {
-             std::vector<int>::iterator it;
-             it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
-             int indexPoint = std::distance(xyzTarget.begin(),it);
-             // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+            std::cout<<"   Running conventional collinearity equations"<<std::endl;
+            for(int n = 0; n < imageX.size(); n++) // loop through all observations
+            {
+                std::vector<int>::iterator it;
+                it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+                int indexPoint = std::distance(xyzTarget.begin(),it);
+                //  std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
 
-             it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
-             int indexPose = std::distance(eopStation.begin(),it);
-             // std::cout<<"index: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+                it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+                int indexPose = std::distance(eopStation.begin(),it);
+                //  std::cout<<"index: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
 
-             it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
-             int indexSensor = std::distance(iopCamera.begin(),it);
-             // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
+                it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+                int indexSensor = std::distance(iopCamera.begin(),it);
+                // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
 
-            //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
-            //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+                //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+                //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
+                // for book keeping
+                sensorReferenceID[n] = iopCamera[indexSensor]; // which sensor was used
+                pointReferenceID[n]  = xyzTarget[indexPoint];  // ID of the target point this observation corresponds to
+                frameReferenceID[n]  = eopStation[indexPose];
 
-            // for book keeping
-            sensorReferenceID[n] = iopCamera[indexSensor]; // which sensor was used
-            pointReferenceID[n]  = xyzTarget[indexPoint];  // ID of the target point this observation corresponds to
-            frameReferenceID[n]  = eopStation[indexPose];
+                // imageXStdDev[n] *= 10000.0;
+                // imageYStdDev[n] *= 10000.0;
 
-            ceres::CostFunction* cost_function =
-                new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 7>(
-                    new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-            problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 7>(
+                        new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-            // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-            // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
+            
 
-            variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
-            variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
+                variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
+                variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
 
-            // no machine learning so turn off the Python learning script at the end
-            doML = false;
+                // no machine learning so turn off the Python learning script at the end
+                doML = false;
+            }
+        }
+
+        // Stereographic collinearity condition, no machine learning
+        double radiusValue = 1.0E-9;
+        std::vector<double> radius;
+        radius.push_back(radiusValue + 1.0E-10);
+        if (true)
+        {
+            std::cout<<"   Running stereographic projection collinearity equations"<<std::endl;
+            std::cout<<"      Initial radius of sphere: "<<radius[0]<<std::endl;
+
+            problem.AddParameterBlock(&radius[0], 1);
+
+            for(int n = 0; n < imageX.size(); n++) // loop through all observations
+            {
+                std::vector<int>::iterator it;
+                it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+                int indexPoint = std::distance(xyzTarget.begin(),it);
+                //  std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+
+                it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+                int indexPose = std::distance(eopStation.begin(),it);
+                //  std::cout<<"index: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+
+                it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+                int indexSensor = std::distance(iopCamera.begin(),it);
+                // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
+
+                //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+                //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+
+                // for book keeping
+                sensorReferenceID[n] = iopCamera[indexSensor]; // which sensor was used
+                pointReferenceID[n]  = xyzTarget[indexPoint];  // ID of the target point this observation corresponds to
+                frameReferenceID[n]  = eopStation[indexPose];
+
+                // imageXStdDev[n] *= 10000.0;
+                // imageYStdDev[n] *= 10000.0;
+
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 7, 1>(
+                        new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &radius[0]);  
+
+                problem.SetParameterLowerBound(&radius[0], 0, radiusValue);
+
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
+                // problem.SetParameterBlockConstant(&radius[0]);
+
+                variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
+                variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
+
+                // no machine learning so turn off the Python learning script at the end
+                doML = false;
+            }
         }
 
         if (INITIALIZEAP && iterNum == 0)
@@ -2418,22 +2574,12 @@ int main(int argc, char** argv) {
         }
 
 
-        // define the datum by pseduo observations of the positions for defining the datum
-        if(true)
-        {
-            for(int n = 0; n < xyzTarget.size(); n++)
-            {
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
-                        new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
-                problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
 
-                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
-                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
-                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
-            }
-        }
-
+        /////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
+        /// Absolute constraints
+        /////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
 
         // if(true)
         // {
@@ -2458,18 +2604,112 @@ int main(int argc, char** argv) {
         //     {
         //         // Fix part of APs instead of all
         //         std::vector<int> fixAP;
-        //         // fixAP.push_back(0); //a1
+        //         fixAP.push_back(0); //a1
         //         fixAP.push_back(1); //a2
         //         // fixAP.push_back(2); //k1
         //         // fixAP.push_back(3); //k2
-        //         // fixAP.push_back(4); //k3
-        //         // fixAP.push_back(5); //p1
-        //         // fixAP.push_back(6); //p2
+        //         fixAP.push_back(4); //k3
+        //         fixAP.push_back(5); //p1
+        //         fixAP.push_back(6); //p2
 
         //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
         //         problem.SetParameterization(&AP[n][0], subset_parameterization);
         //     }
         // }
+
+        // if (true)
+        // {
+        //     problem.SetParameterBlockConstant(&XYZ[0][0]);
+
+        //     problem.SetParameterBlockConstant(&XYZ[10][0]);
+
+        // }
+
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(0); 
+        //         // fixXYZ.push_back(1); 
+        //         // fixXYZ.push_back(2); 
+
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[0][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(1); 
+        //         // fixXYZ.push_back(2); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[2][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(2); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[10][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(0); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[12][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(1); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[14][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(2); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[16][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(0); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[8][0], subset_parameterization);
+        // }
+
+        /////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
+        /// weighted constraints
+        /////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
+        // define the datum by pseduo observations of the positions for defining the datum
+        if(true)
+        {
+            for(int n = 0; n < xyzTarget.size(); n++)
+            {
+                xyzXStdDev[n] *= 10000.0;
+                xyzYStdDev[n] *= 10000.0;
+                xyzZStdDev[n] *= 10000.0;
+
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+                        new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
+                problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
+
+                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
+                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
+                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
+            }
+        }
 
         // // prior on the IOP. Useful for X-ray data
         // if (true)
@@ -2491,34 +2731,34 @@ int main(int argc, char** argv) {
         // }
 
 
-        // prior on the AP
-        if (true)
-        {
-            for(int n = 0; n < iopCamera.size(); n++)
-            {
-                double a1StdDev  = 1.0E-6;
-                double a2StdDev  = 1.0E-6;
-                double k1StdDev  = 1.0E0;
-                double k2StdDev  = 1.0E0;
-                double k3StdDev  = 1.0E-6;
-                double p1StdDev  = 1.0E-6;
-                double p2StdDev  = 1.0E-6;
+        // // prior on the AP
+        // if (true)
+        // {
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         double a1StdDev  = 1.0E-6;
+        //         double a2StdDev  = 1.0E-6;
+        //         double k1StdDev  = 1.0E0;
+        //         double k2StdDev  = 1.0E0;
+        //         double k3StdDev  = 1.0E-6;
+        //         double p1StdDev  = 1.0E-6;
+        //         double p2StdDev  = 1.0E-6;
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
-                        new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev));
-                problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
+        //                 new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev));
+        //         problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
 
-                variances.push_back(a1StdDev*a1StdDev);
-                variances.push_back(a2StdDev*a2StdDev);
-                variances.push_back(k1StdDev*k1StdDev);
-                variances.push_back(k2StdDev*k2StdDev);
-                variances.push_back(k3StdDev*k3StdDev);
-                variances.push_back(p1StdDev*p1StdDev);
-                variances.push_back(p2StdDev*p2StdDev);
+        //         variances.push_back(a1StdDev*a1StdDev);
+        //         variances.push_back(a2StdDev*a2StdDev);
+        //         variances.push_back(k1StdDev*k1StdDev);
+        //         variances.push_back(k2StdDev*k2StdDev);
+        //         variances.push_back(k3StdDev*k3StdDev);
+        //         variances.push_back(p1StdDev*p1StdDev);
+        //         variances.push_back(p2StdDev*p2StdDev);
 
-            }
-        }
+        //     }
+        // }
 
         // if(DEBUGMODE)
         // {
@@ -2549,7 +2789,7 @@ int main(int argc, char** argv) {
         // options.line_search_direction_type = ceres::BFGS;
         // options.trust_region_strategy_type = ceres::DOGLEG;
         // options.max_num_iterations = 1000;
-        options.max_num_iterations = 20;
+        options.max_num_iterations = 50;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
@@ -2600,6 +2840,12 @@ int main(int argc, char** argv) {
             
             std::cout<<"  Writing APs (a1, a2, k1, k2, k3, p1, p2) to screen..."<<std::endl;
             std::cout<<"       Sensor " << iopCamera[0]<<": "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
+        }
+
+        if (true)
+        {
+            std::cout<<"  Writing radius of stereographic projection sphere to screen..."<<std::endl;
+            std::cout<<"       Radius: "<< radius[0]<<std::endl;
         }
 
         if (true)
@@ -2657,14 +2903,17 @@ int main(int argc, char** argv) {
                 std::cout<<"     A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
 
                 Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
-                //std::cout<<"size: "<<v.size()<<std::endl;
+                // std::cout<<"size: "<<v.size()<<std::endl;
+                // std::cout<<"image size: "<<imageX.size()<<std::endl;
+
                 Eigen::MatrixXd vTPv = v.transpose() * v;
                 //std::cout<<"size: "<<aposteriorVariance.size()<<std::endl;
-                std::cout<<"     vTPv: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
-                std::cout<<"     sqrt(vTPv): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
+                std::cout<<"     vTPv/dof: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
+                std::cout<<"     sqrt(vTPv/dof): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
+                std::cout<<"     vTPv/ceresRedundancy: "<<vTPv(0,0)/redundancy<<std::endl;
 
                 aposterioriVariance = 1.0; // LOOKS LIKE WE DON'T NEED TO USE IT IN CERES
-                // aposterioriVariance = vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size());
+                // aposterioriVariance = vTPv(0,0)/redundancy;
             }
         }
 
@@ -2897,7 +3146,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-            covariance.Compute(covariance_blocks, &problem);
+            CHECK(covariance.Compute(covariance_blocks, &problem));
 
             std::cout<<"   Done Computing Cofactor Matrix Block"<<std::endl;
             // //double covariance_X[X.size() * X.size()];
@@ -3003,7 +3252,7 @@ int main(int argc, char** argv) {
                 apVariance(i,5) *= aposterioriVariance;
                 apVariance(i,6) *= aposterioriVariance;
 
-
+                std::cout<<"AP Std Dev: "<<sqrt(apVariance(i,0))<<", "<<sqrt(apVariance(i,1))<<", "<<sqrt(apVariance(i,2))<<", "<<sqrt(apVariance(i,3))<<", "<<sqrt(apVariance(i,4))<<", "<<sqrt(apVariance(i,5))<<", "<<sqrt(apVariance(i,6))<<std::endl;
                 // // store the full variance-covariance matrix
                 // for (int n = 0; n < covariance_X.rows(); n++)
                 //     for (int m = 0; m < covariance_X.cols(); m++)

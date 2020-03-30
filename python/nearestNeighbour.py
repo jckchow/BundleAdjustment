@@ -68,10 +68,10 @@ from scipy.interpolate import griddata as griddataScipy
 ### SensorA
 ########
 
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop'
 
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 #phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho'
@@ -165,21 +165,32 @@ eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/Tr
 #iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/gopro.iop'
 #eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro/TrainingTesting/goproTraining.eop'
 
-# Maximum number of neighbours to test (+1 of what you actually want)
-maxK = 4
 
-# do we want to plot things
+#########################
+### Paper 2 Omnidirectional camera calibration
+##########################
+# nikon D600 DSLR
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
+
+
+# Maximum number of neighbours to test (+1 of what you actually want)
+maxK = 50
+
+# do we want to plot things (True or False)
 doPlot = True
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = False
+doSmoothing = True
 smoothingMethod = 'nearest' # 'linear' or 'nearest'
 
 ##########################################
 ### read in the residuals output from bundle adjustment
 # x, y, v_x, v_y, redu_x, redu_y, vStdDev_x, vStdDev_y
 ##########################################
-image = np.genfromtxt(inputFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7,8))
+image = np.genfromtxt(inputFilename, delimiter=' ', skip_header=0, usecols = (2,3,4,5,6,7,8,9,10))
 iop =  np.genfromtxt(iopFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15))
 iop = np.atleast_2d(iop)
 eop = np.genfromtxt(eopFilename, delimiter=' ', skip_header=0, usecols = (0,1)).astype(int)
@@ -733,7 +744,6 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.xlabel('r')
         plt.ylabel('y residuals')
         plt.legend(loc="best")    
-        plt.show()
 
 errors = np.asarray(errors)
 print ("SensorID, Cost, NumSamples, K")

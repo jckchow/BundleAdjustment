@@ -2198,7 +2198,7 @@ int main(int argc, char** argv) {
 
 
         // Conventional collinearity condition, no machine learning
-        if (true)
+        if (false)
         {
             std::cout<<"   Running conventional collinearity equations"<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -2239,14 +2239,13 @@ int main(int argc, char** argv) {
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
-
+            }
                 // no machine learning so turn off the Python learning script at the end
                 doML = false;
-            }
         }
 
         // Stereographic collinearity condition, no machine learning
-        double radiusValue = 1.0E-10;
+        double radiusValue = 1.0E-6;
         std::vector<double> radius;
         radius.push_back(radiusValue*1.01);
         if (false)
@@ -2296,10 +2295,9 @@ int main(int argc, char** argv) {
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
-
-                // no machine learning so turn off the Python learning script at the end
-                doML = false;
             }
+            // no machine learning so turn off the Python learning script at the end
+            doML = false;
         }
 
         if (INITIALIZEAP && iterNum == 0)
@@ -2399,6 +2397,8 @@ int main(int argc, char** argv) {
         // {
         //     std::cout<<"  Doing absolute ROP constraint..."<<std::endl;
         // }
+        //
+        //
         // // Collinearity condition with machine learned parameters and ROP
         // for(int n = 0; n < imageX.size(); n++) // loop through all observations
         // {
@@ -2473,48 +2473,113 @@ int main(int argc, char** argv) {
         //     variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
         // }
 
-        // // Collinearity condition with machine learned parameters
-        // for(int n = 0; n < imageX.size(); n++) // loop through all observations
-        // {
-        //     std::vector<int>::iterator it;
-        //     it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
-        //     int indexPoint = std::distance(xyzTarget.begin(),it);
-        //     // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+        // Collinearity condition with machine learned parameters
+        if (true)
+        {
+            std::cout<<"   Running collinearity equations with machine learning calibration parameters"<<std::endl;
 
-        //     it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
-        //     int indexPose = std::distance(eopStation.begin(),it);
-        //     // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+            for(int n = 0; n < imageX.size(); n++) // loop through all observations
+            {
+                std::vector<int>::iterator it;
+                it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+                int indexPoint = std::distance(xyzTarget.begin(),it);
+                // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
 
-        //     it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
-        //     int indexSensor = std::distance(iopCamera.begin(),it);
-        //     // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl; 
+                it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+                int indexPose = std::distance(eopStation.begin(),it);
+                // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
 
-        //     // for book keeping
-        //     sensorReferenceID[n] = iopCamera[indexSensor];
+                it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+                int indexSensor = std::distance(iopCamera.begin(),it);
+                // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl; 
 
-        //     //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
-        //     //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+                // for book keeping
+                sensorReferenceID[n] = iopCamera[indexSensor];
 
-        //     // ceres::CostFunction* cost_function =
-        //     //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
-        //     //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-        //     // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
+                //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+                //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
-        //     // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-        //     // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-        //     // problem.SetParameterBlockConstant(&MLP[n][0]);
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
+                //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
 
-        //     ceres::CostFunction* cost_function =
-        //         new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
-        //             new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-        //     problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&MLP[n][0]);
 
-        //     problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-        //     problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                        new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-        //     variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
-        //     variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
-        // }
+                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+
+                variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
+                variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
+            }
+            // no machine learning so turn off the Python learning script at the end
+            doML = true;
+        }
+
+        // Stereographical projection collinearity condition with machine learned parameters
+        if (false)
+        {
+            std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
+            std::cout<<"      Initial radius of sphere: "<<radius[0]<<std::endl;
+
+            problem.AddParameterBlock(&radius[0], 1);
+
+            for(int n = 0; n < imageX.size(); n++) // loop through all observations
+            {
+                std::vector<int>::iterator it;
+                it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+                int indexPoint = std::distance(xyzTarget.begin(),it);
+                // std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+
+                it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+                int indexPose = std::distance(eopStation.begin(),it);
+                // std::cout<<"indexPose: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+
+                it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+                int indexSensor = std::distance(iopCamera.begin(),it);
+                // std::cout<<"indexSensor: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl; 
+
+                // for book keeping
+                sensorReferenceID[n] = iopCamera[indexSensor];
+
+                //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+                //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
+                //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
+
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&MLP[n][0]);
+
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<collinearityStereographicMachineLearnedSimple, 2, 6, 3, 3, 7, 1>(
+                        new collinearityStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
+                problem.SetParameterLowerBound(&radius[0], 0, radiusValue);
+
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
+                problem.SetParameterBlockConstant(&radius[0]);
+
+                variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
+                variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
+
+            }
+            // no machine learning so turn off the Python learning script at the end
+            doML = true;
+        }
 
         if (WEIGHTEDROPMODE)
         {
@@ -2949,13 +3014,13 @@ int main(int argc, char** argv) {
                 imageResiduals(n,1) = residuals[2*n+1] * imageYStdDev[n];
             }
             
-                std::cout<<"  Writing residuals to file..."<<std::endl;
-                FILE *fout = fopen("image.jck", "w");
-                for(int i = 0; i < imageTarget.size(); ++i)
-                {
-                    fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
-                }
-                fclose(fout);       
+                // std::cout<<"  Writing residuals to file..."<<std::endl;
+                // FILE *fout = fopen("image.jck", "w");
+                // for(int i = 0; i < imageTarget.size(); ++i)
+                // {
+                //     fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
+                // }
+                // fclose(fout);       
 
 
             if (true) // compute the a posteriori variance factor for scaling the Cx later
@@ -4015,7 +4080,7 @@ int main(int argc, char** argv) {
         if (true)
         {
             std::cout<<"  Writing residuals to file..."<<std::endl;
-            FILE *fout = fopen("residuals.jck", "w");
+            FILE *fout = fopen("image.jck", "w");
             for(int i = 0; i < imageTarget.size(); ++i)
             {
                 fprintf(fout, "%i %i %i %.6lf %.6lf %.6lf %.6lf %.2lf %.2lf %.6lf %.6lf\n", pointReferenceID[i], frameReferenceID[i], sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1), imageRedundancy(i,0), imageRedundancy(i,1), imageResidualsStdDev(i,0), imageResidualsStdDev(i,1));

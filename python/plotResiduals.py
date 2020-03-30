@@ -83,14 +83,14 @@ from scipy.interpolate import griddata as griddataScipy
 #NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_before/NNModel'
 #preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_before/preprocessing'
 
-# for plotting residuals
-inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/image.jck'
-iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
-# for plotting models
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
-NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/NNModel'
-preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/preprocessing'
+## for plotting residuals
+#inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/image.jck'
+#iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
+## for plotting models
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/NNModel'
+#preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/preprocessing'
 
 
 ## for plotting residuals
@@ -111,7 +111,7 @@ smoothingMethod = 'nearest' # 'linear' or 'nearest'
 ### read in the residuals output from bundle adjustment
 # x, y, v_x, v_y, redu_x, redu_y, vStdDev_x, vStdDev_y
 ##########################################
-image = np.genfromtxt(inputFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7,8))
+image = np.genfromtxt(inputFilename, delimiter=' ', skip_header=0, usecols = (2,3,4,5,6,7,8,9,10))
 iop =  np.genfromtxt(iopFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15))
 iop = np.atleast_2d(iop)
 

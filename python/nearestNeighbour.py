@@ -744,6 +744,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         plt.xlabel('r')
         plt.ylabel('y residuals')
         plt.legend(loc="best")    
+        plt.show()
+
 
 errors = np.asarray(errors)
 print ("SensorID, Cost, NumSamples, K")

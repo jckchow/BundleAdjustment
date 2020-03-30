@@ -36,7 +36,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1
+#define NUMITERATION 1 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
@@ -2474,7 +2474,7 @@ int main(int argc, char** argv) {
         // }
 
         // Collinearity condition with machine learned parameters
-        if (true)
+        if (false)
         {
             std::cout<<"   Running collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -2513,7 +2513,7 @@ int main(int argc, char** argv) {
                         new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -2524,7 +2524,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if (false)
+        if (true)
         {
             std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
             std::cout<<"      Initial radius of sphere: "<<radius[0]<<std::endl;
@@ -2552,19 +2552,10 @@ int main(int argc, char** argv) {
                 //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
                 //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
-                //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
-
-                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&MLP[n][0]);
-
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<collinearityStereographicMachineLearnedSimple, 2, 6, 3, 3, 7, 1>(
                         new collinearityStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &radius[0]);  
 
                 problem.SetParameterLowerBound(&radius[0], 0, radiusValue);
 
@@ -2948,7 +2939,7 @@ int main(int argc, char** argv) {
         std::cout << summary.BriefReport() << "\n";
         std::cout << summary.FullReport() << "\n";
        
-        // condition for terminating least squares
+        // condition for terminating the global ML least squares bundle adjustment routine
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
         if ( leastSquaresCost.size() > 50 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {

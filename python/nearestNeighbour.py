@@ -180,11 +180,11 @@ eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_0
 maxK = 50
 
 # do we want to plot things (True or False)
-doPlot = True
+doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
 doSmoothing = True
-smoothingMethod = 'nearest' # 'linear' or 'nearest'
+smoothingMethod = 'linear' # 'linear' or 'nearest'
 
 ##########################################
 ### read in the residuals output from bundle adjustment

@@ -25,7 +25,7 @@ import random
 ##################################
 ### User defined parameters
 ##################################   
-inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+inputFilename  = '/home/jckchow/BundleAdjustment/build/residuals.jck'
 outputDirectory = '/home/jckchow/BundleAdjustment/build/'
 
 

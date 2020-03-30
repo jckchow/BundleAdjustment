@@ -761,11 +761,10 @@ struct collinearityStereographic {
 //   std::cout<<"x, y: "<<x+T(xp_)<<", "<<y+T(yp_)<<std::endl;
 //   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
 
-
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
   T x_bar = (T(x_) - T(xp_)) / 1000.0; // arbitrary scale for numerical stability
   T y_bar = (T(y_) - T(yp_)) / 1000.0; // arbitrary scale for numerical stability
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
@@ -2110,7 +2109,7 @@ int main(int argc, char** argv) {
 
 
         // Conventional collinearity condition, no machine learning
-        if (false)
+        if (true)
         {
             std::cout<<"   Running conventional collinearity equations"<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -2145,7 +2144,7 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
             
 
@@ -2158,10 +2157,10 @@ int main(int argc, char** argv) {
         }
 
         // Stereographic collinearity condition, no machine learning
-        double radiusValue = 1.0E-9;
+        double radiusValue = 1.0E-10;
         std::vector<double> radius;
-        radius.push_back(radiusValue + 1.0E-10);
-        if (true)
+        radius.push_back(radiusValue*1.01);
+        if (false)
         {
             std::cout<<"   Running stereographic projection collinearity equations"<<std::endl;
             std::cout<<"      Initial radius of sphere: "<<radius[0]<<std::endl;
@@ -2202,9 +2201,9 @@ int main(int argc, char** argv) {
                 problem.SetParameterLowerBound(&radius[0], 0, radiusValue);
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
-                // problem.SetParameterBlockConstant(&radius[0]);
+                problem.SetParameterBlockConstant(&radius[0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -3927,7 +3926,7 @@ int main(int argc, char** argv) {
         if (true)
         {
             std::cout<<"  Writing residuals to file..."<<std::endl;
-            FILE *fout = fopen("image.jck", "w");
+            FILE *fout = fopen("residuals.jck", "w");
             for(int i = 0; i < imageTarget.size(); ++i)
             {
                 fprintf(fout, "%i %i %i %.6lf %.6lf %.6lf %.6lf %.2lf %.2lf %.6lf %.6lf\n", pointReferenceID[i], frameReferenceID[i], sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1), imageRedundancy(i,0), imageRedundancy(i,1), imageResidualsStdDev(i,0), imageResidualsStdDev(i,1));

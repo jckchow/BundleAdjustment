@@ -32,12 +32,14 @@ outputMATLABWorkspace = 'gopro.mat';
 mode = 1;
 
 % 1 = KNN, 2 = rNN
-filterMode = 2;
+filterMode = 1;
 KNN = 18; % using the # of img points nearest the principal point, assumed to be least effected by distortions
 rFilterDist = 800;
 
 
-% Single photo resection, times to try
+% Single photo resection
+% 1 = random initialization, 2 = nChoosek, where numRANSACIter will be set automatically
+ransacMode = 2;
 numRANSACIter = 1000; % number of RANSAC iterations to do
 
 %% Manually load a sample picture to choose the size of bounding box to accept
@@ -196,6 +198,7 @@ if (mode == 2)
     disp('Using stereographic projection collinearity equations for single photo resection')
 end
 for n = 1:1:length(ID_EOP_unique)
+    
     disp(['Image: ', num2str(n),' out of ', num2str(length(ID_EOP_unique))])
     I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
     perStationIndex = I;
@@ -266,7 +269,11 @@ for n = 1:1:length(ID_EOP_unique)
         mostInliersErrors = 1E10;
         disp(['      Starting RANSAC...'])
         [worldOrientation,worldLocation,inlierIdx,status] = estimateWorldCameraPose(imagePoints,worldPoints,cameraParams,'MaxNumTrials', 10000, 'MaxReprojectionError', 5);  
-
+        if (status ~= 0)
+        disp(['         Warning: I have to increase the RANSAC dist threshold'])            
+        [worldOrientation,worldLocation,inlierIdx,status] = estimateWorldCameraPose(imagePoints,worldPoints,cameraParams,'MaxNumTrials', 10000, 'MaxReprojectionError', 10);              
+        end
+        
             omega = pi;
             phi   = 0;
             kappa = 0;
@@ -302,11 +309,31 @@ for n = 1:1:length(ID_EOP_unique)
             end
 
         tic;
-        m = 4; % min number of points
+        if (mode == 1)
+            m = 3; % min number of points
+        end
+        
+        if (mode == 2)
+            m = 4; % min number of points
+        end
+        
+        if (ransacMode == 2)
+            % only good if k is <=15
+            disp(['         nChoosek is: ', num2str(nchoosek(length(imagePoints(:,1)), m)) ]);
+            r = nchoosek(1:length(imagePoints(:,1)), m);
+            numRANSACIter = length(r(:,1));
+            disp(['         Setting numRANSACIter to: ', num2str(numRANSACIter) ]);
+        end
         for ransacIter = 1:numRANSACIter
 
-            r = randperm(length(imagePoints(:,1)));
-            inliers = r(1:m);
+            if (ransacMode == 1)
+                r = randperm(length(imagePoints(:,1)));
+                inliers = r(1:m);
+            end
+            
+            if (ransacMode == 2)
+                inliers = r(ransacIter,:);
+            end
            
             lx = imagePoints(inliers,1);
             ly = imagePoints(inliers,2);

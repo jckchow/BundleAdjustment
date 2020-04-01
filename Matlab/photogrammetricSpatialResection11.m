@@ -31,8 +31,69 @@ outputMATLABWorkspace = 'gopro.mat';
 % 1 = collinearity, 2 = stereographic projection model
 mode = 1;
 
-numRANSACIter = 1000; % number of RANSAC iterations to do
+% 1 = KNN, 2 = rNN
+filterMode = 2;
 KNN = 18; % using the # of img points nearest the principal point, assumed to be least effected by distortions
+rFilterDist = 800;
+
+
+% Single photo resection, times to try
+numRANSACIter = 1000; % number of RANSAC iterations to do
+
+%% Manually load a sample picture to choose the size of bounding box to accept
+I = imread('C:/Users/jckch/OneDrive - University of Calgary/Google Drive/Omni-Directional Cameras/Data/Photos/GOPR0368.JPG');
+figure
+subplot(2,2,1)
+imshow(I)
+[rows, columns, numberOfColorChannels] = size(I);
+hold on;
+lineSpacing = 200; % Whatever you want.
+for row = 1 : lineSpacing : rows
+    line([1, columns], [row, row], 'Color', 'r', 'LineWidth', 1);
+end
+for col = 1 : lineSpacing : columns
+    line([col, col], [1, rows], 'Color', 'r', 'LineWidth', 1);
+end
+title(['rDist ~ ', num2str(floor( sqrt((rows/2).^2 + (columns/2).^2) ))])
+I = I(floor(rows/2) - floor(rows/4):floor(rows/2) + floor(rows/4), floor(columns/2) - floor(columns/4):floor(columns/2) + floor(columns/4));
+subplot(2,2,2)
+imshow(I)
+[rows, columns, numberOfColorChannels] = size(I);
+hold on;
+lineSpacing = lineSpacing/2; % Whatever you want.
+for row = 1 : lineSpacing : rows
+    line([1, columns], [row, row], 'Color', 'r', 'LineWidth', 1);
+end
+for col = 1 : lineSpacing : columns
+    line([col, col], [1, rows], 'Color', 'r', 'LineWidth', 1);
+end
+title(['rDist ~ ', num2str(floor( sqrt((rows/2).^2 + (columns/2).^2) ))])
+I = I(floor(rows/2) - floor(rows/4):floor(rows/2) + floor(rows/4), floor(columns/2) - floor(columns/4):floor(columns/2) + floor(columns/4));
+subplot(2,2,3)
+imshow(I)
+[rows, columns, numberOfColorChannels] = size(I);
+hold on;
+lineSpacing = lineSpacing/2; % Whatever you want.
+for row = 1 : lineSpacing : rows
+    line([1, columns], [row, row], 'Color', 'r', 'LineWidth', 1);
+end
+for col = 1 : lineSpacing : columns
+    line([col, col], [1, rows], 'Color', 'r', 'LineWidth', 1);
+end
+title(['rDist ~ ', num2str(floor( sqrt((rows/2).^2 + (columns/2).^2) ))])
+I = I(floor(rows/2) - floor(rows/4):floor(rows/2) + floor(rows/4), floor(columns/2) - floor(columns/4):floor(columns/2) + floor(columns/4));
+subplot(2,2,4)
+imshow(I)
+[rows, columns, numberOfColorChannels] = size(I);
+hold on;
+lineSpacing = lineSpacing/2; % Whatever you want.
+for row = 1 : lineSpacing : rows
+    line([1, columns], [row, row], 'Color', 'r', 'LineWidth', 1);
+end
+for col = 1 : lineSpacing : columns
+    line([col, col], [1, rows], 'Color', 'r', 'LineWidth', 1);
+end
+title(['rDist ~ ', num2str(floor( sqrt((rows/2).^2 + (columns/2).^2) ))])
 %% read and process the files
 
 % Read in the IOP file
@@ -179,8 +240,16 @@ for n = 1:1:length(ID_EOP_unique)
 %     plot((imagePoints(:,1)-xp), (-(imagePoints(:,2)+yp)),'b.')
     [dist_sorted,K] = sort(dist);
 %     KK = find(K <= KNN); % use only the K points close to the middle of the image
-    KK = K(1:KNN);
-
+    if (filterMode == 1)
+        KK = K(1:KNN);   
+        disp('      kNN filter mode')
+    end
+    
+    if (filterMode == 2)
+        KK = K(find(dist_sorted < rFilterDist));
+        disp('      rNN filter mode')
+    end
+    
     imagePoints = imagePoints(KK,:);
     worldPoints = worldPoints(KK,:);
     imagePointsID = imagePointsID(KK,:);

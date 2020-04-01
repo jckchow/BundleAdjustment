@@ -26,14 +26,14 @@ filenameImage = 'gopro.pho'; % outliers will be removed
 outputEOPFilename = 'gopro.eop';
 outputPhoFilename = 'gopro_screened.pho'; % without outliers based on single photo resection RANSAC
 outputXYZFilename = 'gopro_centred.xyz';
-outputMATLABWorkspace = 'gopro.mat';
+outputMATLABWorkspace = 'gopro_stereographic.mat';
 
 % 1 = collinearity, 2 = stereographic projection model
-mode = 1;
+mode = 2;
 
 % 1 = KNN, 2 = rNN
 filterMode = 1;
-KNN = 18; % using the # of img points nearest the principal point, assumed to be least effected by distortions
+KNN = 14; % using the # of img points nearest the principal point, assumed to be least effected by distortions
 rFilterDist = 800;
 
 
@@ -365,7 +365,15 @@ for n = 1:1:length(ID_EOP_unique)
 %             apostStdDev = sqrt(resnorm / (2*length(lx)));
 
             % Grow my inliers
-                inliers = r;
+%             if (ransacMode == 1)
+%                 inliers = r;
+%             end
+%             
+%             if (ransacMode == 2)
+%                 inliers = r(ransacIter,:);
+%             end
+                inliers = 1:length(imagePoints(:,1));
+            
                 lx = imagePoints(inliers,1);
                 ly = imagePoints(inliers,2);
                 X = worldPoints(inliers,1);

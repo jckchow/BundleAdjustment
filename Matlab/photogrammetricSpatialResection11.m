@@ -16,6 +16,7 @@ close all; clear all; clc;
 % outputEOPFilename = 'nikon.eop';
 % outputPhoFilename = 'nikon_screened.pho'; % without outliers based on single photo resection
 % outputXYZFilename = 'nikon_centred.xyz';
+% outputMATLABWorkspace = 'nikon.mat'
 
 pathname = 'C:\Users\jckch\OneDrive - University of Calgary\Google Drive\Omni-Directional Cameras\Data\GoPro\jacky_2020_03_31\';
 filenameIOP = 'gopro.iop'; % treat as constant
@@ -25,12 +26,13 @@ filenameImage = 'gopro.pho'; % outliers will be removed
 outputEOPFilename = 'gopro.eop';
 outputPhoFilename = 'gopro_screened.pho'; % without outliers based on single photo resection RANSAC
 outputXYZFilename = 'gopro_centred.xyz';
+outputMATLABWorkspace = 'gopro.mat';
 
 % 1 = collinearity, 2 = stereographic projection model
 mode = 1;
 
 numRANSACIter = 1000; % number of RANSAC iterations to do
-KNN = 30; % using the # of img points nearest the principal point, assumed to be least effected by distortions
+KNN = 18; % using the # of img points nearest the principal point, assumed to be least effected by distortions
 %% read and process the files
 
 % Read in the IOP file
@@ -75,6 +77,22 @@ img_stdDev = [data{5}, data{6}];
 img_corr = [data{7}, data{8}];
 
 ID_EOP_unique = unique(ID_EOP);
+
+% determine the min/max targets in images
+minTargetsInImage = 1E10;
+maxTargetsInImage = 0;
+for n = 1:1:length(ID_EOP_unique)
+    I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
+    if (length(I) < minTargetsInImage)
+        minTargetsInImage = length(I);
+    end
+    if (length(I) > maxTargetsInImage)
+        maxTargetsInImage = length(I);
+    end
+end
+disp('Done reading in all files')
+disp(['   Min targets, hence min K: ', num2str(minTargetsInImage)])
+disp(['   Max targets: ', num2str(maxTargetsInImage)])
 
 figure;
 plot(img(:,1),-img(:,2),'b.')
@@ -322,7 +340,7 @@ for n = 1:1:length(ID_EOP_unique)
         end
 
         disp(['      Number of RANSAC inliers for estimating EOP: ', num2str(length(mostInliers))])
-        toc
+        
 
         % Run one more estimation with most inliers again to update unknown parameters
         
@@ -345,7 +363,7 @@ for n = 1:1:length(ID_EOP_unique)
 %         apostStdDev = residuals * img_stdDev';
 
         disp(['         Reprojection error of inliers: ', num2str(apostStdDev)])
-
+        toc
 % % % % % %         % Calculate the RANSAC Inlier error statistics
 % % % % % %         e_threshold = mean(residuals)+ 3.091*std(residuals); %99.9 confidence
 % % % % % %      
@@ -648,6 +666,7 @@ xlabel('X')
 ylabel('Y')
 zlabel('Z')
 
+save([pathname, outputMATLABWorkspace])
 
 % plot the reprojection error
 % % % % % % % rng(0);

@@ -27,7 +27,7 @@ outputPhoFilename = 'gopro_screened.pho'; % without outliers based on single pho
 outputXYZFilename = 'gopro_centred.xyz';
 
 % 1 = collinearity, 2 = stereographic projection model
-mode = 2;
+mode = 1;
 
 numRANSACIter = 1000; % number of RANSAC iterations to do
 KNN = 30; % using the # of img points nearest the principal point, assumed to be least effected by distortions
@@ -324,7 +324,8 @@ for n = 1:1:length(ID_EOP_unique)
         disp(['      Number of RANSAC inliers for estimating EOP: ', num2str(length(mostInliers))])
         toc
 
-        % Run one more estimation with most inliers again
+        % Run one more estimation with most inliers again to update unknown parameters
+        
         inliers = mostInliers;
         lx = imagePoints(inliers,1);
         ly = imagePoints(inliers,2);
@@ -340,8 +341,10 @@ for n = 1:1:length(ID_EOP_unique)
             [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResection(param, cx, cy, X, Y, Z, lx, ly), x0, [], [], options);            
         end
             
-%         apostStdDev = sqrt(resnorm / (2*length(lx))); 
+        apostStdDev = sqrt(resnorm / (2*length(lx))); 
 %         apostStdDev = residuals * img_stdDev';
+
+        disp(['         Reprojection error of inliers: ', num2str(apostStdDev)])
 
 % % % % % %         % Calculate the RANSAC Inlier error statistics
 % % % % % %         e_threshold = mean(residuals)+ 3.091*std(residuals); %99.9 confidence
@@ -684,6 +687,32 @@ end
 hold off;
 title('Reprojection y Errors Before Outlier Removal')
 xlabel('Point ID')
+ylabel('Errors [pix]')
+
+rng(0);
+figure;
+for n = 1:1:length(ID_EOP_unique)
+    I = find(ID_EOP == ID_EOP_unique(n)); % I, gives you all the image measurements from that station
+
+    plot (sqrt(img(I,1).^2+img(I,2).^2), reprojectionError_original2(I,1),'.','color',rand(1,3))
+    hold on;
+end
+hold off;
+title('Reprojection x Errors Before Outlier Removal')
+xlabel('Radial Distance')
+ylabel('Errors [pix]')
+
+rng(0);
+figure;
+for n = 1:1:length(ID_EOP_unique)
+    I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
+
+    plot (sqrt(img(I,1).^2+img(I,2).^2), reprojectionError_original2(I,2),'.','color',rand(1,3))
+    hold on;
+end
+hold off;
+title('Reprojection y Errors Before Outlier Removal')
+xlabel('Radial Distance')
 ylabel('Errors [pix]')
 
 

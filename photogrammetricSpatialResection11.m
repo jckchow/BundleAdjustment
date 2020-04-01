@@ -241,11 +241,13 @@ for n = 1:1:length(ID_EOP_unique)
     [dist_sorted,K] = sort(dist);
 %     KK = find(K <= KNN); % use only the K points close to the middle of the image
     if (filterMode == 1)
-        KK = K(1:KNN);
+        KK = K(1:KNN);   
+        disp('      kNN filter mode')
     end
     
     if (filterMode == 2)
         KK = K(find(dist_sorted < rFilterDist));
+        disp('      rNN filter mode')
     end
     
     imagePoints = imagePoints(KK,:);

@@ -123,9 +123,9 @@ fclose(in);
 ID_XYZ = data{1};
 XYZ = [data{2}, data{3} data{4}];
 XYZ_stdDev = [data{5}, data{6} data{7}];
-% XYZ(:,1) = XYZ(:,1) - mean(XYZ(:,1)); % reduce to centroid
-% XYZ(:,2) = XYZ(:,2) - mean(XYZ(:,2));
-% XYZ(:,3) = XYZ(:,3) - mean(XYZ(:,3));
+XYZ(:,1) = XYZ(:,1) - mean(XYZ(:,1)); % reduce to centroid
+XYZ(:,2) = XYZ(:,2) - mean(XYZ(:,2));
+XYZ(:,3) = XYZ(:,3) - mean(XYZ(:,3));
 
 
 % read in the image points
@@ -1011,13 +1011,15 @@ for n = 1:length(OPKXYZ(:,1))
 end
 fclose(out);
 
-XYZOut = [worldPointsID, worldPoints, XYZ_stdDev];
+XYZOut = [ID_XYZ, XYZ, XYZ_stdDev];
 disp('Writing to *.xyz file X, Y, Z reduced to its centroid')
 out=fopen([pathname, outputXYZFilename],'w');
 for n = 1:length(XYZOut(:,1))
     fprintf(out, '%d \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f \t %.4f\n', XYZOut(n,1),XYZOut(n,2),XYZOut(n,3),XYZOut(n,4),XYZOut(n,5),XYZOut(n,6),XYZOut(n,7));
 end
 fclose(out);
+
+
 
 missing_obj = unique(missing_obj)
 

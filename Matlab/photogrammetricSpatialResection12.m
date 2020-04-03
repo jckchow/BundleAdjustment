@@ -29,17 +29,15 @@ outputXYZFilename = 'gopro_centred.xyz';
 outputMATLABWorkspace = 'gopro_stereographic.mat';
 
 % 1 = collinearity, 2 = stereographic projection model
-mode = 2;
-radiusInitial = 1E-6; % if mode is 2
+mode = 1;
 
 % run a resection based calibration of IOP and EOP simultaneously using all images
 doCalibration = false;
 
 % 1 = KNN, 2 = rNN
 filterMode = 1;
-KNN = 14; % using the # of img points nearest the principal point, assumed to be least effected by distortions
+KNN = 18; % using the # of img points nearest the principal point, assumed to be least effected by distortions
 rFilterDist = 800;
-
 
 % Single photo resection
 % 1 = random initialization, 2 = nChoosek, where numRANSACIter will be set automatically
@@ -118,6 +116,8 @@ K = [cx 0 0
      xp0 yp0 1]; %will apply xp and yp manually, hence it is zero in the K matrix
 % cameraParams = cameraParameters('IntrinsicMatrix',intrinsics.IntrinsicMatrix);
 cameraParams = cameraParameters('IntrinsicMatrix',K);
+
+radiusInitial = (cx+cy)/2; % if mode is 2
 
 % read in the object space file
 in=fopen([pathname, filenameXYZ],'r');
@@ -202,7 +202,7 @@ if (mode == 2)
     disp('Using stereographic projection collinearity equations for single photo resection')
 end
 
-allUnknowns = [xp0; yp0; (cx+cy)/2; radiusInitial];
+allUnknowns = [xp0; yp0; (cx+cy)/2];
 dataForCalibration = [];
 for n = 1:1:length(ID_EOP_unique)
     
@@ -275,10 +275,10 @@ for n = 1:1:length(ID_EOP_unique)
         mostInliers = [];
         mostInliersErrors = 1E10;
         disp(['      Starting RANSAC...'])
-        [worldOrientation,worldLocation,inlierIdx,status] = estimateWorldCameraPose(imagePoints,worldPoints,cameraParams,'MaxNumTrials', 10000, 'MaxReprojectionError', 5);  
+            [worldOrientation,worldLocation,inlierIdx,status] = estimateWorldCameraPose(imagePoints,worldPoints,cameraParams,'MaxNumTrials', 10000, 'MaxReprojectionError', 5);  
         if (status ~= 0)
-        disp(['         Warning: I have to increase the RANSAC dist threshold'])            
-        [worldOrientation,worldLocation,inlierIdx,status] = estimateWorldCameraPose(imagePoints,worldPoints,cameraParams,'MaxNumTrials', 10000, 'MaxReprojectionError', 10);              
+            disp(['         Warning: I have to increase the RANSAC dist threshold'])            
+            [worldOrientation,worldLocation,inlierIdx,status] = estimateWorldCameraPose(imagePoints,worldPoints,cameraParams,'MaxNumTrials', 10000, 'MaxReprojectionError', 10);              
         end
         
             omega = pi;
@@ -354,7 +354,7 @@ for n = 1:1:length(ID_EOP_unique)
             
             if (mode == 2)
                 lb = [-1E10; -1E10; -1E10; -1E10; -1E10; -1E10; 1E-9];
-                [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResection(param, cx, cy, X, Y, Z, lx, ly), x0, lb, [], options);
+                [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResection(param, X, Y, Z, lx, ly), x0, lb, [], options);
             end
 %             x0 = [x0; cx];
 %             m = 4;
@@ -390,7 +390,7 @@ for n = 1:1:length(ID_EOP_unique)
                 end
                 
                 if (mode == 2)
-                    v = stereographicResection(x, cx, cy, X, Y, Z, lx, ly);
+                    v = stereographicResection(x, X, Y, Z, lx, ly);
                 end
                 
                 residuals = reshape(v,length(X),2);
@@ -475,7 +475,8 @@ for n = 1:1:length(ID_EOP_unique)
         
         if (mode == 2)
             lb = [-1E10; -1E10; -1E10; -1E10; -1E10; -1E10; 1E-9];
-            [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResection(param, cx, cy, X, Y, Z, lx, ly), x0, lb, [], options);            
+            [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResection(param, X, Y, Z, lx, ly), x0, lb, [], options);            
+             disp(['         C = r+c: ', num2str(x0(7)), ' --> ', num2str(x(7))]);
         end
             
         apostStdDev = sqrt(resnorm / (2*length(lx))); 
@@ -502,7 +503,7 @@ for n = 1:1:length(ID_EOP_unique)
         end
         
         if (mode == 2)
-            residuals = stereographicResection(x, cx, cy, X, Y, Z, lx, ly);            
+            residuals = stereographicResection(x, X, Y, Z, lx, ly);            
         end
         
         residuals = reshape(residuals,length(X),2);
@@ -791,15 +792,24 @@ zlabel('Z')
 
 save([pathname, outputMATLABWorkspace])
 
+% plot the inliers
+figure;
+plot(img(:,1),-img(:,2),'r.', 'MarkerSize',10)
+hold on;
+plot(dataForCalibration(:,2), -dataForCalibration(:,3),'b.');
+hold off;
+xlim([-xp xp])
+ylim([yp -yp])
+title('Distribution of inlier points')
+
 % Big calibration
-options = optimoptions(@lsqnonlin,'Display', 'on');
+options = optimoptions(@lsqnonlin,'Display', 'iter', 'MaxIter', 500, 'MaxFunEvals', 1E10);
 if (mode == 2)
     if (doCalibration)
 %     v = stereographicResectionCalibration(allUnknowns, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1));
-    lb = ones(length(allUnknowns)) .* -1E10;
-    lb(3) = 1E-9; % c
-    lb(4) = 1E-9; % radius
-    [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResection(param, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1)), allUnknowns, lb, [], options);            
+    lb = ones(length(allUnknowns),1) .* -1E10;
+    lb(3) = 0.0; % C
+    [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResectionCalibration(param, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1)), allUnknowns, lb, [], options);            
 
     end
 end
@@ -1053,10 +1063,10 @@ end
 fclose(out);
 
 
-
 missing_obj = unique(missing_obj)
 
 disp("Success ^-^")
+
 
 % unknowns params u x 1
 function [v] = collinearityResection(param, cx, cy, X, Y, Z, lx, ly)
@@ -1218,7 +1228,7 @@ end
 % % end
 
 % unknowns params u x 1
-function [v] = stereographicResection(param, cx, cy, X, Y, Z, lx, ly)
+function [v] = stereographicResection(param, X, Y, Z, lx, ly)
 
     omega  = param(1);
     phi    = param(2);
@@ -1226,7 +1236,7 @@ function [v] = stereographicResection(param, cx, cy, X, Y, Z, lx, ly)
     Xo     = param(4);
     Yo     = param(5);
     Zo     = param(6);
-    radius = param(7);
+    C = param(7);
 
     m_11 = cos(phi) * cos(kappa) ;
     m_12 = sin(omega) * sin(phi) * cos(kappa) + cos(omega) * sin(kappa) ;
@@ -1242,7 +1252,7 @@ function [v] = stereographicResection(param, cx, cy, X, Y, Z, lx, ly)
        m_21 m_22 m_23;
        m_31 m_32 m_33];
 
-    T = [param(4); param(5); param(6)];
+    T = [Xo; Yo; Zo];
     
     fx = zeros(length(X),1);
     fy = zeros(length(X),1);
@@ -1250,13 +1260,19 @@ function [v] = stereographicResection(param, cx, cy, X, Y, Z, lx, ly)
         XYZ = [X(m); Y(m); Z(m)];
         XYZ_s = M * (XYZ - T);
 
-        lambda = radius / sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
-        
-        XYZ_c = lambda * XYZ_s;
+%         lambda = radius / sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
+%         
+%         XYZ_c = lambda * XYZ_s;
+% 
+%         % stereographic projection of point on sphere onto image place
+%         x_img = (radius + cx)/(radius - XYZ_c(3)) * XYZ_c(1);
+%         y_img = (radius + cy)/(radius - XYZ_c(3)) * XYZ_c(2);
 
+        d = sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
+        
         % stereographic projection of point on sphere onto image place
-        x_img = (radius + cx)/(radius - XYZ_c(3)) * XYZ_c(1);
-        y_img = (radius + cy)/(radius - XYZ_c(3)) * XYZ_c(2);
+        x_img = ( (C)/(d - XYZ_s(3)) )* XYZ_s(1);
+        y_img = ( (C)/(d - XYZ_s(3)) )* XYZ_s(2);
         
         fx(m) = x_img - lx(m);
         fy(m) = y_img + ly(m);
@@ -1275,9 +1291,9 @@ function [v] = stereographicResectionCalibration(param, X, Y, Z, lx, ly, EOP_ID)
 
     xp     = param(1);
     yp     = param(2);
-    c      = param(3);
-    radius = param(4);
-    numIOP = 4;
+    C      = param(3); % this is defined as C = radius + c
+%     radius = param(4);
+    numIOP = 3;
     
     uniqueID = unique(EOP_ID);
     for n = 1:length(uniqueID)
@@ -1303,7 +1319,7 @@ function [v] = stereographicResectionCalibration(param, X, Y, Z, lx, ly, EOP_ID)
            m_21 m_22 m_23;
            m_31 m_32 m_33];
 
-        T = [param(4); param(5); param(6)];
+        T = [Xo; Yo; Zo];
 
         
         I = find(EOP_ID == n);
@@ -1313,13 +1329,19 @@ function [v] = stereographicResectionCalibration(param, X, Y, Z, lx, ly, EOP_ID)
             XYZ = [X(I(m)); Y(I(m)); Z(I(m))];
             XYZ_s = M * (XYZ - T);
 
-            lambda = radius / sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
+%             lambda = radius / sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
+% 
+%             XYZ_c = lambda * XYZ_s;
+% 
+%             % stereographic projection of point on sphere onto image place
+%             x_img = (radius + c)/(radius - XYZ_c(3)) * XYZ_c(1);
+%             y_img = (radius + c)/(radius - XYZ_c(3)) * XYZ_c(2);
 
-            XYZ_c = lambda * XYZ_s;
+            d = sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
 
             % stereographic projection of point on sphere onto image place
-            x_img = (radius + c)/(radius - XYZ_c(3)) * XYZ_c(1);
-            y_img = (radius + c)/(radius - XYZ_c(3)) * XYZ_c(2);
+            x_img = xp + ( C/(d - XYZ_s(3)) )* XYZ_s(1);
+            y_img = yp + ( C/(d - XYZ_s(3)) )* XYZ_s(2);
 
             fx(m) = x_img - lx(I(m));
             fy(m) = y_img + ly(I(m));

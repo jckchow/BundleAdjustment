@@ -419,7 +419,7 @@ for n = 1:1:length(ID_EOP_unique)
                     mostInliers = inliers;
                 end
             end
-        end      
+        end
     end
     
     disp(['      Number of RANSAC inliers for estimating EOP: ', num2str(length(mostInliers))])
@@ -525,24 +525,37 @@ ylim([yp -yp])
 title('Distribution of inlier points')
 
 %% Big calibration
+load("C:\Users\jckch\OneDrive - University of Calgary\Google Drive\Omni-Directional Cameras\Data\GoPro\jacky_2020_03_31\gopro_stereographic.mat")
+
 options = optimoptions(@lsqnonlin,'Display', 'iter', 'MaxIter', 500, 'MaxFunEvals', 1E10);
 if (mode == 2)
     if (doCalibration)
-        %     v = stereographicResectionCalibration(allUnknowns, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1));
+        %     v = stereographicResectionCalibration(allUnknowns, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1))
         lb = ones(length(allUnknowns),1) .* -1E10;
         lb(3) = 0.0; % C
         [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResectionCalibration(param, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1)), allUnknowns, lb, [], options);
+        disp(['Apost StdDev: ', num2str(resnorm/length(residuals))]);
         
+        
+        numAP = 7;
+        allUnknowns = x;
+        allUnknowns = [allUnknowns(1:3); zeros(numAP,1); allUnknowns(4:end)];
+        lb = ones(length(allUnknowns),1) .* -1E10;
+        lb(3) = 0.0; % C
+        [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResectionCalibrationAP(param, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1)), allUnknowns, lb, [], options);
+         disp(['Apost StdDev: ', num2str(resnorm/length(residuals))]);
+
     end
     v = reshape(residuals,length(residuals)/2,2);
     e = sqrt( v(:,1).^2 + v(:,2).^2 );
     dist = sqrt(dataForCalibration(:,2).^2 + dataForCalibration(:,3).^2);
-    
+    alpha = incidenceAngle(x, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1));
+
     figure;
     subplot(2,3,1)
-    plot(dist, e, '.');
-    xlabel('Radial Distance')
-    ylabel('Norm residual')
+    plot(v(:,1), v(:,2), '.');
+    xlabel('v_x')
+    ylabel('v_y')
     title('Only inlier points after calibration')
     subplot(2,3,2)
     plot(dataForCalibration(:,2), v(:,1), '.');
@@ -553,9 +566,9 @@ if (mode == 2)
     xlabel('y')
     ylabel('v_y')
     subplot(2,3,4)
-    plot(v(:,1), v(:,2), '.');
-    xlabel('v_x')
-    ylabel('v_y')
+    plot(dist, e, '.');
+    xlabel('Radial Distance')
+    ylabel('Norm residual')
     subplot(2,3,5)
     plot(dist, v(:,1), '.');
     xlabel('Radial Distance')
@@ -563,6 +576,21 @@ if (mode == 2)
     subplot(2,3,6)
     plot(dist, v(:,2), '.');
     xlabel('Radial Distance')
+    ylabel('v_y')
+    
+    figure;
+    subplot(1,3,1)
+    plot(alpha*180/pi, e, '.');
+    xlabel('Incidence Angle')
+    ylabel('Norm residual')
+    title('Only inlier points after calibration')
+    subplot(1,3,2)
+    plot(alpha*180/pi, v(:,1), '.');
+    xlabel('Incidence Angle')
+    ylabel('v_x')
+    subplot(1,3,3)
+    plot(alpha*180/pi, v(:,2), '.');
+    xlabel('Incidence Angle')
     ylabel('v_y')
     
     figure;
@@ -624,16 +652,19 @@ if (mode == 2)
     
     % now plot all the data for seeing the residuals, this includes
     % non-inliers used during calibration
+    alpha = incidenceAngle(x, dataForTesting(:,4), dataForTesting(:,5), dataForTesting(:,6), dataForTesting(:,2), dataForTesting(:,3), dataForTesting(:,1));
     residuals = stereographicResectionCalibration(x, dataForTesting(:,4), dataForTesting(:,5), dataForTesting(:,6), dataForTesting(:,2), dataForTesting(:,3), dataForTesting(:,1));
     v = reshape(residuals,length(residuals)/2,2);
     e = sqrt( v(:,1).^2 + v(:,2).^2 );
     dist = sqrt(dataForTesting(:,2).^2 + dataForTesting(:,3).^2);
+    disp(['Apost StdDev: ', num2str(norm(residuals)/length(residuals))]);
+    
     
     figure;
     subplot(2,3,1)
-    plot(dist, e, '.');
-    xlabel('Radial Distance')
-    ylabel('Norm residual')
+    plot(v(:,1), v(:,2), '.');
+    xlabel('v_x')
+    ylabel('v_y')
     title('All points after calibration')
     subplot(2,3,2)
     plot(dataForTesting(:,2), v(:,1), '.');
@@ -644,9 +675,9 @@ if (mode == 2)
     xlabel('y')
     ylabel('v_y')
     subplot(2,3,4)
-    plot(v(:,1), v(:,2), '.');
-    xlabel('v_x')
-    ylabel('v_y')
+    plot(dist, e, '.');
+    xlabel('Radial Distance')
+    ylabel('Norm residual')
     subplot(2,3,5)
     plot(dist, v(:,1), '.');
     xlabel('Radial Distance')
@@ -656,6 +687,27 @@ if (mode == 2)
     xlabel('Radial Distance')
     ylabel('v_y')
     
+    figure;
+    subplot(1,3,1)
+    plot(alpha*180/pi, e, '.');
+    xlabel('Incidence Angle')
+    ylabel('Norm residual')
+    title('All points after calibration')
+    subplot(1,3,2)
+    plot(alpha*180/pi, v(:,1), '.');
+    xlabel('Incidence Angle')
+    ylabel('v_x')
+    subplot(1,3,3)
+    plot(alpha*180/pi, v(:,2), '.');
+    xlabel('Incidence Angle')
+    ylabel('v_y')
+    
+    I = find(e<100);
+    dataForTesting = dataForTesting(I,:);
+    v = v(I,:);
+    dist = dist(I,:);
+    alpha = alpha(I,:);
+    e = e(I,:);
     
     % All residuals before calibration
     v = [dataForTesting(:,7), dataForTesting(:,8)];
@@ -664,9 +716,9 @@ if (mode == 2)
     
     figure;
     subplot(2,3,1)
-    plot(dist, e, '.');
-    xlabel('Radial Distance')
-    ylabel('Norm residual')
+    plot(v(:,1), v(:,2), '.');
+    xlabel('v_x')
+    ylabel('v_y')
     title('All points before calibration')
     subplot(2,3,2)
     plot(dataForTesting(:,2), v(:,1), '.');
@@ -677,9 +729,9 @@ if (mode == 2)
     xlabel('y')
     ylabel('v_y')
     subplot(2,3,4)
-    plot(v(:,1), v(:,2), '.');
-    xlabel('v_x')
-    ylabel('v_y')
+    plot(dist, e, '.');
+    xlabel('Radial Distance')
+    ylabel('Norm residual')
     subplot(2,3,5)
     plot(dist, v(:,1), '.');
     xlabel('Radial Distance')
@@ -688,7 +740,7 @@ if (mode == 2)
     plot(dist, v(:,2), '.');
     xlabel('Radial Distance')
     ylabel('v_y')
-
+    
     
     
     % Inliers before calibration
@@ -698,9 +750,9 @@ if (mode == 2)
     
     figure;
     subplot(2,3,1)
-    plot(dist, e, '.');
-    xlabel('Radial Distance')
-    ylabel('Norm residual')
+    plot(v(:,1), v(:,2), '.');
+    xlabel('v_x')
+    ylabel('v_y')
     title('Inliers before calibration')
     subplot(2,3,2)
     plot(dataForCalibration(:,2), v(:,1), '.');
@@ -711,9 +763,9 @@ if (mode == 2)
     xlabel('y')
     ylabel('v_y')
     subplot(2,3,4)
-    plot(v(:,1), v(:,2), '.');
-    xlabel('v_x')
-    ylabel('v_y')
+    plot(dist, e, '.');
+    xlabel('Radial Distance')
+    ylabel('Norm residual')
     subplot(2,3,5)
     plot(dist, v(:,1), '.');
     xlabel('Radial Distance')
@@ -976,6 +1028,9 @@ fclose(out);
 missing_obj = unique(missing_obj)
 
 disp("Success ^-^")
+
+
+
 
 
 % unknowns params u x 1
@@ -1249,6 +1304,102 @@ v = [fxVec; fyVec];
 end
 
 % unknowns params u x 1
+function [v] = stereographicResectionCalibrationAP(param, X, Y, Z, lx, ly, EOP_ID)
+
+k1     = 0;
+k2     = 0;
+k3     = 0;
+p1     = 0;
+p2     = 0;
+a1     = 0;
+a2     = 0;
+
+fxVec = zeros(length(lx),1);
+fyVec = zeros(length(ly),1);
+
+xp     = param(1);
+yp     = param(2);
+C      = param(3); % this is defined as C = radius + c
+k1     = param(4);
+k2     = param(5);
+k3     = param(6);
+p1     = param(7);
+p2     = param(8);
+a1     = param(9);
+a2     = param(10);
+
+
+
+numIOP = 10; % change this myself depending on the number of unknowns
+
+uniqueID = unique(EOP_ID);
+for n = 1:length(uniqueID)
+    
+    omega  = param(numIOP+6*n-5);
+    phi    = param(numIOP+6*n-4);
+    kappa  = param(numIOP+6*n-3);
+    Xo     = param(numIOP+6*n-2);
+    Yo     = param(numIOP+6*n-1);
+    Zo     = param(numIOP+6*n-0);
+    
+    m_11 = cos(phi) * cos(kappa) ;
+    m_12 = sin(omega) * sin(phi) * cos(kappa) + cos(omega) * sin(kappa) ;
+    m_13 = -cos(omega) * sin(phi) * cos(kappa) + sin(omega) * sin(kappa) ;
+    m_21 = -cos(phi) * sin(kappa) ;
+    m_22 = -sin(omega) * sin(phi) * sin(kappa) + cos(omega) * cos(kappa) ;
+    m_23 = cos(omega) * sin(phi) * sin(kappa) + sin(omega) * cos(kappa) ;
+    m_31 = sin(phi) ;
+    m_32 = -sin(omega) * cos(phi) ;
+    m_33 = cos(omega) * cos(phi) ;
+    
+    M=[m_11 m_12 m_13;
+        m_21 m_22 m_23;
+        m_31 m_32 m_33];
+    
+    T = [Xo; Yo; Zo];
+    
+    I = find(EOP_ID == n);
+    fx = zeros(length(I),1);
+    fy = zeros(length(I),1);
+    for m=1:length(I)
+        XYZ = [X(I(m)); Y(I(m)); Z(I(m))];
+        XYZ_s = M * (XYZ - T);
+        
+        %             lambda = radius / sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
+        %
+        %             XYZ_c = lambda * XYZ_s;
+        %
+        %             % stereographic projection of point on sphere onto image place
+        %             x_img = (radius + c)/(radius - XYZ_c(3)) * XYZ_c(1);
+        %             y_img = (radius + c)/(radius - XYZ_c(3)) * XYZ_c(2);
+        
+        d = sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));      
+        
+        % camera correction model AP = k1, k2, k3, p1, p2, a1, a2 ...
+        APSCALE = 1000.0;
+        x_bar = lx(I(m)) / APSCALE; % arbitrary scale for numerical stability
+        y_bar = -ly(I(m)) / APSCALE; % arbitrary scale for numerical stability
+        r = sqrt(x_bar*x_bar + y_bar*y_bar);
+        
+        delta_x = x_bar*(k1*r*r+k2*r*r*r*r+k3*r*r*r*r*r*r) + p1*(r*r+2.0*x_bar*x_bar)+2.0*p2*x_bar*y_bar + a1*x_bar+a2*y_bar;
+        delta_y = y_bar*(k1*r*r+k2*r*r*r*r+k3*r*r*r*r*r*r) + p2*(r*r+2.0*y_bar*y_bar)+2.0*p1*x_bar*y_bar;
+             
+        % stereographic projection of point on sphere onto image place
+        x_img = xp + ( C/(d - XYZ_s(3)) )* XYZ_s(1) + delta_x;
+        y_img = yp + ( C/(d - XYZ_s(3)) )* XYZ_s(2) + delta_y;
+        
+        fx(m) = x_img - lx(I(m));
+        fy(m) = y_img + ly(I(m));
+    end
+    
+    fxVec(I) = fx;
+    fyVec(I) = fy;
+    
+end
+v = [fxVec; fyVec];
+end
+
+% unknowns params u x 1
 function [v] = incidenceAngle(param, X, Y, Z, lx, ly, EOP_ID)
 
 angle = zeros(length(X),1);
@@ -1295,7 +1446,7 @@ for n = 1:length(uniqueID)
         
         d = sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
         
-        angle(I) = acos(XYZ_s(3) / d);
+        angle(I(m)) = acos(-XYZ_s(3) / d);
     end
     
 end

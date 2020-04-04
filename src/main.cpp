@@ -36,7 +36,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 1000 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
@@ -429,23 +429,21 @@
 /// Paper 2 Omnidirectional Camera Journal Paper
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// //for all Nikon
-// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.pho"
+//for all Nikon
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
-// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened_VCE.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.xyz"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight2.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-//for all goPro
+// //for all goPro
 #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
 #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
@@ -2235,7 +2233,7 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
             
 
@@ -2247,7 +2245,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographic collinearity condition, no machine learning
-        if (true)
+        if (false)
         {
             std::cout<<"   RUNNING STEREOGRAPHIC PROJECTION COLLINEARITY EQUATIONS..."<<std::endl;
 
@@ -2285,7 +2283,7 @@ int main(int argc, char** argv) {
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -2519,7 +2517,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if (false)
+        if (true)
         {
             std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -2551,8 +2549,8 @@ int main(int argc, char** argv) {
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
 
-                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -2730,34 +2728,32 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        if(true)
-        {   
-            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-            std::cout<<"   Fixing a subset of the AP"<<std::endl;
-            std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
-            for(int n = 0; n < iopCamera.size(); n++)
-            {
-                // Fix part of APs instead of all
-                std::vector<int> fixAP;
-                fixAP.push_back(0); //a1
-                fixAP.push_back(1); //a2
-                // fixAP.push_back(2); //k1
-                // fixAP.push_back(3); //k2
-                fixAP.push_back(4); //k3
-                fixAP.push_back(5); //p1
-                fixAP.push_back(6); //p2
+        // if(true)
+        // {   
+        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+        //     std::cout<<"   Fixing a subset of the AP"<<std::endl;
+        //     std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         // Fix part of APs instead of all
+        //         std::vector<int> fixAP;
+        //         // fixAP.push_back(0); //a1
+        //         fixAP.push_back(1); //a2
+        //         // fixAP.push_back(2); //k1
+        //         // fixAP.push_back(3); //k2
+        //         // fixAP.push_back(4); //k3
+        //         // fixAP.push_back(5); //p1
+        //         // fixAP.push_back(6); //p2
 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
-                problem.SetParameterization(&AP[n][0], subset_parameterization);
-            }
-        }
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
+        //     }
+        // }
 
         // if (true)
         // {
         //     problem.SetParameterBlockConstant(&XYZ[0][0]);
-
         //     problem.SetParameterBlockConstant(&XYZ[10][0]);
-
         // }
 
         // if(true)

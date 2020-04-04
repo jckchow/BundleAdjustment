@@ -169,15 +169,21 @@ from scipy.interpolate import griddata as griddataScipy
 #########################
 ### Paper 2 Omnidirectional camera calibration
 ##########################
-# nikon D600 DSLR
+## nikon D600 DSLR
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho'
+#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop'
+#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
+
+# Go Pro 3 Silver Edition
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho'
-iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
+phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho'
+iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
 
 
 # Maximum number of neighbours to test (+1 of what you actually want)
-maxK = 50
+maxK = 10
 
 # do we want to plot things (True or False)
 doPlot = False

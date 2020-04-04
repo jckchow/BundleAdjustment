@@ -25,7 +25,7 @@ import random
 ##################################
 ### User defined parameters
 ##################################   
-inputFilename  = '/home/jckchow/BundleAdjustment/build/residuals.jck'
+inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 outputDirectory = '/home/jckchow/BundleAdjustment/build/'
 
 
@@ -69,21 +69,40 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     fig = plt.figure(figsize=(8.0, 5.0))
     for i in range(0,len(stationsUnique)):
         I = np.argwhere(frameID == stationsUnique[i])
-#        fig = plt.scatter(pointID[I], xResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
-        fig = plt.plot(pointID[I], xResidual[I], color=(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+        fig = plt.scatter(pointID[I], xResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+#        fig = plt.plot(pointID[I], xResidual[I], color=(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
     fig = plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
     fig = plt.xlabel('Point ID')
     fig = plt.ylabel('x Image Residuals')
     fig = plt.savefig(outputDirectory + str('xResiduals'), dpi=100, format="tif")
 #    plt.show()
 
-    random.seed( 1 );    
+    random.seed( 0 );    
     plt.figure()
     for i in range(0,len(stationsUnique)):
         I = np.argwhere(frameID == stationsUnique[i])
         plt.scatter(pointID[I], yResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
     plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
     plt.xlabel('Point ID')
+    plt.ylabel('y Image Residuals')
+#    plt.show()
+ 
+    # plot the residuals
+    plt.figure()
+    for i in range(0,len(stationsUnique)):
+        I = np.argwhere(frameID == stationsUnique[i])
+        plt.scatter(xImg[I], xResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+    plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
+    plt.xlabel('x')
+    plt.ylabel('x Image Residuals')
+    
+    # plot the residuals
+    plt.figure()
+    for i in range(0,len(stationsUnique)):
+        I = np.argwhere(frameID == stationsUnique[i])
+        plt.scatter(yImg[I], yResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+    plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
+    plt.xlabel('y')
     plt.ylabel('y Image Residuals')
 #    plt.show()
     

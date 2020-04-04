@@ -429,17 +429,26 @@
 /// Paper 2 Omnidirectional Camera Journal Paper
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//for training Nikon
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.pho"
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened_VCE.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.xyz"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight2.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
+// //for all Nikon
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.pho"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
+// // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened_VCE.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight2.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+//for all goPro
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
 #define INPUTROPFILENAME ""
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -727,7 +736,7 @@ struct collinearityStereographic {
 
   template <typename T>
   // unknown parameters followed by the output residual
-  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, const T* const radius, T* residual) const {
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, T* residual) const {
 
   // rotation from map to sensor
   T r11 = cos(EOP[1]) * cos(EOP[2]);
@@ -750,15 +759,12 @@ struct collinearityStereographic {
 
 
   // Project coordinates onto a circle with radius equal to the focal length
-  T lambda = radius[0] / sqrt(Xs*Xs + Ys*Ys + Zs*Zs);
-
-  T Xc = lambda * Xs;
-  T Yc = lambda * Ys;
-  T Zc = lambda * Zs;
+  T d = sqrt(Xs*Xs + Ys*Ys + Zs*Zs);
 
   // stereographic projection of point on sphere onto image place
-  T x = (radius[0] + IOP[2])/(radius[0] - Zc) * Xc;
-  T y = (radius[0] + IOP[2])/(radius[0] - Zc) * Yc;
+  // C = c + radius
+  T x = ( IOP[2]/(d - Zs) )* Xs;
+  T y = ( IOP[2]/(d - Zs) )* Ys;
 
 //   std::cout<<"x, y: "<<x+T(xp_)<<", "<<y+T(yp_)<<std::endl;
 //   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
@@ -991,7 +997,7 @@ struct collinearityStereographicMachineLearnedSimple {
 
   template <typename T>
   // unknown parameters followed by the output residual
-  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, const T* const radius, T* residual) const {
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, T* residual) const {
 
   // rotation from map to sensor
   T r11 = cos(EOP[1]) * cos(EOP[2]);
@@ -1012,15 +1018,11 @@ struct collinearityStereographicMachineLearnedSimple {
   T Zs = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
 
   // Project coordinates onto a circle with same radius. as radius approaches zero, we get the conventional collinearity equations back
-  T lambda = radius[0] / sqrt(Xs*Xs + Ys*Ys + Zs*Zs);
-
-  T Xc = lambda * Xs;
-  T Yc = lambda * Ys;
-  T Zc = lambda * Zs;
+  T d = sqrt(Xs*Xs + Ys*Ys + Zs*Zs);
 
   // stereographic projection of point on sphere onto image place
-  T x = (radius[0] + IOP[2])/(radius[0] - Zc) * Xc;
-  T y = (radius[0] + IOP[2])/(radius[0] - Zc) * Yc;
+  T x = (IOP[2])/(d - Zs) * Xs;
+  T y = (IOP[2])/(d - Zs) * Ys;
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
@@ -2095,7 +2097,7 @@ int main(int argc, char** argv) {
             std::cout << "    First 5 lines of XYZ file "<< std::endl;
             for (int i = 0; i < 5; i++)
             {
-                std::cout<<" \t " <<xyzX[i]<<" \t "<<xyzY[i]<<" \t "<<xyzZ[i]<<" \t "<<xyzXStdDev[i]<<" \t "<<xyzYStdDev[i]<<" \t "<<xyzZStdDev[i]<<std::endl;
+                std::cout<<" \t " <<xyzTarget[i]<<" \t " <<xyzX[i]<<" \t "<<xyzY[i]<<" \t "<<xyzZ[i]<<" \t "<<xyzXStdDev[i]<<" \t "<<xyzYStdDev[i]<<" \t "<<xyzZStdDev[i]<<std::endl;
             }
         }
 
@@ -2200,7 +2202,7 @@ int main(int argc, char** argv) {
         // Conventional collinearity condition, no machine learning
         if (false)
         {
-            std::cout<<"   Running conventional collinearity equations"<<std::endl;
+            std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
             {
                 std::vector<int>::iterator it;
@@ -2245,15 +2247,9 @@ int main(int argc, char** argv) {
         }
 
         // Stereographic collinearity condition, no machine learning
-        double radiusValue = 1.0E-6;
-        std::vector<double> radius;
-        radius.push_back(radiusValue*1.01);
-        if (false)
+        if (true)
         {
-            std::cout<<"   Running stereographic projection collinearity equations"<<std::endl;
-            std::cout<<"      Initial radius of sphere: "<<radius[0]<<std::endl;
-
-            problem.AddParameterBlock(&radius[0], 1);
+            std::cout<<"   RUNNING STEREOGRAPHIC PROJECTION COLLINEARITY EQUATIONS..."<<std::endl;
 
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
             {
@@ -2282,16 +2278,15 @@ int main(int argc, char** argv) {
                 // imageYStdDev[n] *= 10000.0;
 
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 7, 1>(
+                    new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 7>(
                         new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &radius[0]);  
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                problem.SetParameterLowerBound(&radius[0], 0, radiusValue);
+                problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
-                problem.SetParameterBlockConstant(&radius[0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -2524,12 +2519,9 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if (true)
+        if (false)
         {
             std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
-            std::cout<<"      Initial radius of sphere: "<<radius[0]<<std::endl;
-
-            problem.AddParameterBlock(&radius[0], 1);
 
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
             {
@@ -2553,16 +2545,15 @@ int main(int argc, char** argv) {
                 //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityStereographicMachineLearnedSimple, 2, 6, 3, 3, 7, 1>(
+                    new ceres::AutoDiffCostFunction<collinearityStereographicMachineLearnedSimple, 2, 6, 3, 3, 7>(
                         new collinearityStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &radius[0]);  
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                problem.SetParameterLowerBound(&radius[0], 0, radiusValue);
+                problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
-                problem.SetParameterBlockConstant(&radius[0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -2739,27 +2730,27 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        // if(true)
-        // {   
-        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"   Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
-        //         // fixAP.push_back(3); //k2
-        //         fixAP.push_back(4); //k3
-        //         fixAP.push_back(5); //p1
-        //         fixAP.push_back(6); //p2
+        if(true)
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"   Fixing a subset of the AP"<<std::endl;
+            std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                fixAP.push_back(0); //a1
+                fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                // fixAP.push_back(3); //k2
+                fixAP.push_back(4); //k3
+                fixAP.push_back(5); //p1
+                fixAP.push_back(6); //p2
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
-        //     }
-        // }
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
+            }
+        }
 
         // if (true)
         // {
@@ -2840,9 +2831,9 @@ int main(int argc, char** argv) {
         {
             for(int n = 0; n < xyzTarget.size(); n++)
             {
-                xyzXStdDev[n] *= 10000.0;
-                xyzYStdDev[n] *= 10000.0;
-                xyzZStdDev[n] *= 10000.0;
+                // xyzXStdDev[n] /= 1000.0;
+                // xyzYStdDev[n] /= 1000.0;
+                // xyzZStdDev[n] /= 1000.0;
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
@@ -2915,7 +2906,7 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        // for(int n = 0; n < X.size(); n++)bbb
+        // for(int n = 0; n < X.size(); n++)
         // std::cout<<"before X: "<<X[n]<<std::endl;
 
         PyRun_SimpleString("print 'Done building Ceres-Solver cost functions:', round(TIME.clock()-t0, 3), 's' ");
@@ -2933,7 +2924,7 @@ int main(int argc, char** argv) {
         // options.line_search_direction_type = ceres::BFGS;
         // options.trust_region_strategy_type = ceres::DOGLEG;
         // options.max_num_iterations = 1000;
-        options.max_num_iterations = 50;
+        options.max_num_iterations = 100;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
@@ -2984,12 +2975,6 @@ int main(int argc, char** argv) {
             
             std::cout<<"  Writing APs (a1, a2, k1, k2, k3, p1, p2) to screen..."<<std::endl;
             std::cout<<"       Sensor " << iopCamera[0]<<": "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
-        }
-
-        if (true)
-        {
-            std::cout<<"  Writing radius of stereographic projection sphere to screen..."<<std::endl;
-            std::cout<<"       Radius: "<< radius[0]<<std::endl;
         }
 
         if (true)

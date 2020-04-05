@@ -36,7 +36,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1000 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 500 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
@@ -2549,7 +2549,7 @@ int main(int argc, char** argv) {
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
 
-                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
@@ -2930,7 +2930,7 @@ int main(int argc, char** argv) {
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
         if ( leastSquaresCost.size() > 50 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
-            std::cout<<"-------------------------!!!!!!CONVERGED!!!!!!-------------------------"<<std::endl;
+            std::cout<<"-------------------------!!!!!!Machine Learning Bundle Adjustment CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
             std::cout<<"  LSA Cost Increased: "<<(summary.final_cost)<< " > " << (leastSquaresCost[leastSquaresCost.size()-1]) <<std::endl;
             break;
@@ -2964,6 +2964,13 @@ int main(int argc, char** argv) {
                 fprintf(fout, "%i %.6lf %.6lf %.6lf\n", iopCamera[i], IOP[i][0], IOP[i][1], IOP[i][2] );
             }
             fclose(fout);
+        }
+
+        if (true)
+        {
+            
+            std::cout<<"  Writing IOPs (xp, yp, c) to screen..."<<std::endl;
+            std::cout<<"       Sensor " << iopCamera[0]<<": "<< IOP[0][0]<<", "<< IOP[0][1]<<", "<< IOP[0][2]<<std::endl;
         }
 
         if (true)

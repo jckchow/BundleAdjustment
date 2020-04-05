@@ -183,13 +183,13 @@ eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_0
 
 
 # Maximum number of neighbours to test (+1 of what you actually want)
-maxK = 10
+maxK = 50
 
 # do we want to plot things (True or False)
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = True
+doSmoothing = False
 smoothingMethod = 'linear' # 'linear' or 'nearest'
 
 ##########################################
@@ -209,7 +209,8 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-outlierThreshold = 3000.0
+#outlierThreshold = 3000.0
+outlierThreshold = 1.96
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 print ("  Outlier removal threshold: ", outlierThreshold, " x sigma")
@@ -414,14 +415,14 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     v = (np.reshape(labels_train[:,0],(-1,1)) - np.reshape(reg.predict(features_train)[:,0],(-1,1))) / inliers[indexImage,7]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
-    avgSensorCost += cost/float(len(indexImage))
+    avgSensorCost += weightedScore/float(len(indexImage))
     print ("    Weighted x score: ", weightedScore)
     print ("    Average weighted x score: ", weightedScore/len(indexImage))
 
     v = (np.reshape(labels_train[:,1],(-1,1)) - np.reshape(reg.predict(features_train)[:,1],(-1,1))) / inliers[indexImage,8]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
-    avgSensorCost += cost/float(len(indexImage))
+    avgSensorCost += weightedScore/float(len(indexImage))
     print ("    Weighted y score: ", weightedScore)
     print ("    Average weighted y score: ", weightedScore/len(indexImage))
     print ("      Weighted total score: ", sensorCost)    

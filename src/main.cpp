@@ -36,14 +36,14 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 500 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 1 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
@@ -430,24 +430,24 @@
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //for all Nikon
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
-
-// //for all goPro
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 #define INPUTROPFILENAME ""
+
+// // //for all goPro
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -2190,15 +2190,15 @@ int main(int argc, char** argv) {
                 problem.AddParameterBlock(&ROP[n][0], 6);  
         }
 
-        ceres::LossFunction* loss = NULL;
-        loss = new ceres::HuberLoss(1.0);
+        ceres::LossFunction* loss = NULL; // default to normal Gaussian
+        // loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
         // loss = new ceres::CauchyLoss(0.5);
 
 
         // Conventional collinearity condition, no machine learning
-        if (false)
+        if (true)
         {
             std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -2219,7 +2219,7 @@ int main(int argc, char** argv) {
                 //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
                 //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
-                // for book keeping
+                // for book keeping and output later
                 sensorReferenceID[n] = iopCamera[indexSensor]; // which sensor was used
                 pointReferenceID[n]  = xyzTarget[indexPoint];  // ID of the target point this observation corresponds to
                 frameReferenceID[n]  = eopStation[indexPose];
@@ -2517,7 +2517,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if (true)
+        if (false)
         {
             std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -2549,7 +2549,7 @@ int main(int argc, char** argv) {
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
 
-                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
@@ -2827,9 +2827,9 @@ int main(int argc, char** argv) {
         {
             for(int n = 0; n < xyzTarget.size(); n++)
             {
-                // xyzXStdDev[n] /= 1000.0;
-                // xyzYStdDev[n] /= 1000.0;
-                // xyzZStdDev[n] /= 1000.0;
+                xyzXStdDev[n] /= 1000.0; //only used for debugging
+                xyzYStdDev[n] /= 1000.0;
+                xyzZStdDev[n] /= 1000.0;
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
@@ -2920,7 +2920,8 @@ int main(int argc, char** argv) {
         // options.line_search_direction_type = ceres::BFGS;
         // options.trust_region_strategy_type = ceres::DOGLEG;
         // options.max_num_iterations = 1000;
-        options.max_num_iterations = 100;
+        // options.max_num_iterations = 100;
+        options.max_num_iterations = 10;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";
@@ -2938,8 +2939,8 @@ int main(int argc, char** argv) {
 
         // storing it for comparison in this EM like routine
         leastSquaresCost.push_back(summary.final_cost);
-        double aposterioriStdDev = 1.0;
-        double aposterioriVariance = 1.0;
+        double aposterioriVarianceImageSpace = 1.0;
+        double aposterioriVarianceObjectSpace = 1.0;
 
         /////////////
         // Ad-hoc fix
@@ -2980,6 +2981,7 @@ int main(int argc, char** argv) {
             std::cout<<"       Sensor " << iopCamera[0]<<": "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
         }
 
+
         if (true)
         {
             std::vector<double> residuals;
@@ -3000,6 +3002,16 @@ int main(int argc, char** argv) {
                 //     fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf\n", sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1));
                 // }
                 // fclose(fout);       
+
+            // assumes the pseudo-observations (normal prior) on the XYZ position is the last cost functions we add
+            Eigen::MatrixXd XYZResiduals(XYZ.size(), 3);
+            for (int n = 0; n<XYZ.size(); n++)
+            {
+                int startIndex = residuals.size() - 3 * XYZ.size();
+                XYZResiduals(n,0) = residuals[startIndex + 3*n];
+                XYZResiduals(n,1) = residuals[startIndex + 3*n+1];
+                XYZResiduals(n,2) = residuals[startIndex + 3*n+2];
+            }
 
 
             if (true) // compute the a posteriori variance factor for scaling the Cx later
@@ -3027,12 +3039,14 @@ int main(int argc, char** argv) {
                 // approximate the redundancy as 2*numImagePts - 6*EOP -3*XYZ - 7DatumPoints, this ignores #AP, IOP and pseudo obs
                 // double redundancy = 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() - 7;
                 // std::cout<<"     Estimated Redundancy: "<<redundancy<<std::endl;
+                std::cout<<"     CERES GLOBAL A Posteriori Variance (using the robust weights): "<<std::endl;
                 double redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced;
-                std::cout<<"     Ceres Redundancy: "<<redundancy<<std::endl;
-                aposterioriVariance = 2*summary.final_cost / redundancy;
-                aposterioriStdDev = sqrt(aposterioriVariance);
-                std::cout<<"     A Posteriori Variance: "<<aposterioriVariance<<std::endl;
-                std::cout<<"     A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
+                std::cout<<"        Ceres Redundancy: "<<redundancy<<std::endl;
+                std::cout<<"        Ceres Error: "<<2*summary.final_cost<<std::endl;
+                double aposterioriVariance = 2*summary.final_cost / redundancy;
+                double aposterioriStdDev = sqrt(aposterioriVariance);
+                std::cout<<"        Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
+                std::cout<<"        Ceres A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
 
                 Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
                 // std::cout<<"size: "<<v.size()<<std::endl;
@@ -3040,12 +3054,31 @@ int main(int argc, char** argv) {
 
                 Eigen::MatrixXd vTPv = v.transpose() * v;
                 //std::cout<<"size: "<<aposteriorVariance.size()<<std::endl;
-                std::cout<<"     vTPv/dof: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
-                std::cout<<"     sqrt(vTPv/dof): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
-                std::cout<<"     vTPv/ceresRedundancy: "<<vTPv(0,0)/redundancy<<std::endl;
+                std::cout<<"     MANUAL GLOBAL A Posteriori Variance (assumes normal weights): "<<std::endl;
+                std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
+                std::cout<<"        vTPv/dof: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
+                std::cout<<"        sqrt(vTPv/dof): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
+                std::cout<<"        vTPv/ceresRedundancy: "<<vTPv(0,0)/redundancy<<std::endl;
+                std::cout<<"        sqrt(vTPv/ceresRedundancy): "<<sqrt(vTPv(0,0)/redundancy)<<std::endl;
 
-                aposterioriVariance = 1.0; // LOOKS LIKE WE DON'T NEED TO USE IT IN CERES
-                // aposterioriVariance = vTPv(0,0)/redundancy;
+                std::cout<<"     Image A Posteriori Variance: "<<std::endl;
+                vTPv = v.topRows(2*imageX.size()).transpose() * v.topRows(2*imageX.size());
+                std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
+                std::cout<<"        Approx dof: "<<(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
+                std::cout<<"        Approx a posteriori variance image (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
+                std::cout<<"        Approx a posteriori std dev image: "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
+
+                aposterioriVarianceImageSpace = vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size());
+
+                std::cout<<"     XYZ A Posteriori Variance: "<<std::endl;
+                vTPv = v.bottomRows(3*XYZ.size()).transpose() * v.bottomRows(3*XYZ.size());
+                std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
+                std::cout<<"        Approx dof: "<<(3*XYZ.size() - 7)<<std::endl; // 7 is for the datm definition;
+                std::cout<<"        Approx a posteriori variance XYZ (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(3*XYZ.size() - 7)<<std::endl;
+                std::cout<<"        Approx a posteriori std dev XYZ: "<<sqrt(vTPv(0,0)/(3*XYZ.size() - 7))<<std::endl;
+
+                
+                aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size() - 7);
             }
         }
 
@@ -3305,9 +3338,9 @@ int main(int argc, char** argv) {
                 xyzVariance(i,1) = variance_X(1);
                 xyzVariance(i,2) = variance_X(2);
 
-                xyzVariance(i,0) *= aposterioriVariance;
-                xyzVariance(i,1) *= aposterioriVariance;
-                xyzVariance(i,2) *= aposterioriVariance;
+                xyzVariance(i,0) *= aposterioriVarianceObjectSpace;
+                xyzVariance(i,1) *= aposterioriVarianceObjectSpace;
+                xyzVariance(i,2) *= aposterioriVarianceObjectSpace;
             //  std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
             //  std::cout<<"covariance matrix: "<<std::endl;
             //  std::cout<<covariance_X<<std::endl;
@@ -3332,12 +3365,12 @@ int main(int argc, char** argv) {
                 eopVariance(i,4) = variance_X(4);
                 eopVariance(i,5) = variance_X(5);
 
-                eopVariance(i,0) *= aposterioriVariance;
-                eopVariance(i,1) *= aposterioriVariance;
-                eopVariance(i,2) *= aposterioriVariance;
-                eopVariance(i,3) *= aposterioriVariance;
-                eopVariance(i,4) *= aposterioriVariance;
-                eopVariance(i,5) *= aposterioriVariance;
+                eopVariance(i,0) *= aposterioriVarianceObjectSpace;
+                eopVariance(i,1) *= aposterioriVarianceObjectSpace;
+                eopVariance(i,2) *= aposterioriVarianceObjectSpace;
+                eopVariance(i,3) *= aposterioriVarianceObjectSpace;
+                eopVariance(i,4) *= aposterioriVarianceObjectSpace;
+                eopVariance(i,5) *= aposterioriVarianceObjectSpace;
             }
 
             // Eigen::MatrixXd iopVariance(IOP.size(),3);
@@ -3352,9 +3385,9 @@ int main(int argc, char** argv) {
                 iopVariance(i,2) = variance_X(2);
 
 
-                iopVariance(i,0) *= aposterioriVariance;
-                iopVariance(i,1) *= aposterioriVariance;
-                iopVariance(i,2) *= aposterioriVariance;
+                iopVariance(i,0) *= aposterioriVarianceImageSpace;
+                iopVariance(i,1) *= aposterioriVarianceImageSpace;
+                iopVariance(i,2) *= aposterioriVarianceImageSpace;
                 // // store the full variance-covariance matrix
                 // for (int n = 0; n < covariance_X.rows(); n++)
                 //     for (int m = 0; m < covariance_X.cols(); m++)
@@ -3376,13 +3409,13 @@ int main(int argc, char** argv) {
                 apVariance(i,5) = variance_X(5);
                 apVariance(i,6) = variance_X(6);
 
-                apVariance(i,0) *= aposterioriVariance;
-                apVariance(i,1) *= aposterioriVariance;
-                apVariance(i,2) *= aposterioriVariance;
-                apVariance(i,3) *= aposterioriVariance;
-                apVariance(i,4) *= aposterioriVariance;
-                apVariance(i,5) *= aposterioriVariance;
-                apVariance(i,6) *= aposterioriVariance;
+                apVariance(i,0) *= aposterioriVarianceImageSpace;
+                apVariance(i,1) *= aposterioriVarianceImageSpace;
+                apVariance(i,2) *= aposterioriVarianceImageSpace;
+                apVariance(i,3) *= aposterioriVarianceImageSpace;
+                apVariance(i,4) *= aposterioriVarianceImageSpace;
+                apVariance(i,5) *= aposterioriVarianceImageSpace;
+                apVariance(i,6) *= aposterioriVarianceImageSpace;
 
                 std::cout<<"AP Std Dev: "<<sqrt(apVariance(i,0))<<", "<<sqrt(apVariance(i,1))<<", "<<sqrt(apVariance(i,2))<<", "<<sqrt(apVariance(i,3))<<", "<<sqrt(apVariance(i,4))<<", "<<sqrt(apVariance(i,5))<<", "<<sqrt(apVariance(i,6))<<std::endl;
                 // // store the full variance-covariance matrix
@@ -3423,12 +3456,12 @@ int main(int argc, char** argv) {
                     ropVariance(i,4) = variance_X(4);
                     ropVariance(i,5) = variance_X(5);
 
-                    ropVariance(i,0) *= aposterioriVariance;
-                    ropVariance(i,1) *= aposterioriVariance;
-                    ropVariance(i,2) *= aposterioriVariance;
-                    ropVariance(i,3) *= aposterioriVariance;
-                    ropVariance(i,4) *= aposterioriVariance;
-                    ropVariance(i,5) *= aposterioriVariance;
+                    ropVariance(i,0) *= aposterioriVarianceObjectSpace;
+                    ropVariance(i,1) *= aposterioriVarianceObjectSpace;
+                    ropVariance(i,2) *= aposterioriVarianceObjectSpace;
+                    ropVariance(i,3) *= aposterioriVarianceObjectSpace;
+                    ropVariance(i,4) *= aposterioriVarianceObjectSpace;
+                    ropVariance(i,5) *= aposterioriVarianceObjectSpace;
                 }
             }
 
@@ -3926,7 +3959,9 @@ int main(int argc, char** argv) {
                 //PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.clock()-t0, 3), 's' ");
 
                 // Cv = Cl - Cl_hat;
-                std::cout<<"  Done computing Cv"<<std::endl;
+                std::cout<<"  Done computing Cv = Cl(assumed not robust version) - Cl_hat"<<std::endl;
+
+                std::cout<<"    Ceres Redundancy: "<<summary.num_residuals_reduced - summary.num_parameters_reduced<<std::endl;
 
                 // compute the redundancy numbers
                 double sumRedundancyNumber = 0.0;
@@ -3938,10 +3973,10 @@ int main(int argc, char** argv) {
                     sumRedundancyNumber += redundancyNumber(i);
                 }
                 leastSquaresRedundancy.push_back(sumRedundancyNumber);
-                std::cout<<"    Sum of redundancy numbers: "<<sumRedundancyNumber<<std::endl;
+                std::cout<<"    Sum of ALL redundancy numbers: "<<sumRedundancyNumber<<std::endl;
 
                 double vTPvImage = 0.0;
-                double dof = 0.0;
+                double dofImage = 0.0;
                 // std::cout<<"Variance size: "<<variances.size()<<std::endl;
                 // std::cout<<"imageX size: "<<imageX.size()<<std::endl;
                 // std::cout<<"residuals size: "<<residuals.size()<<std::endl;
@@ -3950,13 +3985,30 @@ int main(int argc, char** argv) {
                 {
                     vTPvImage += pow(residuals[2*i], 2.0);
                     vTPvImage += pow(residuals[2*i+1], 2.0);
-                    dof += redundancyNumber(2*i);
-                    dof += redundancyNumber(2*i+1);
+                    dofImage += redundancyNumber(2*i);
+                    dofImage += redundancyNumber(2*i+1);
                 }
-                std::cout<<"    Sum of image redundancy numbers: "<<dof<<std::endl;
-                std::cout<<"    vTPv: "<<vTPvImage<<std::endl;
-                std::cout<<"    A posteriori of image for rescaling (aposteriori/apriori): "<<vTPvImage / dof <<std::endl;
-                std::cout<<"    A posteriori stdDev of image for rescaling (aposteriori/apriori): "<<sqrt(vTPvImage / dof) <<std::endl;
+                std::cout<<"    Sum of image redundancy numbers: "<<dofImage<<std::endl;
+                std::cout<<"       Image Only vTPv: "<<vTPvImage<<std::endl;
+                std::cout<<"       A posteriori of image for rescaling (aposteriori/apriori): "<<vTPvImage / dofImage <<std::endl;
+                std::cout<<"       A posteriori stdDev of image for rescaling (aposteriori/apriori): "<<sqrt(vTPvImage / dofImage) <<std::endl;
+
+                double vTPvXYZ = 0.0;
+                double dofXYZ = 0.0;
+                for (int i = 0; i < XYZ.size(); i++)
+                {
+                    int startIndex = residuals.size() - 3*XYZ.size();
+                    vTPvXYZ += pow(residuals[startIndex+3*i], 2.0);
+                    vTPvXYZ += pow(residuals[startIndex+3*i+1], 2.0);
+                    vTPvXYZ += pow(residuals[startIndex+3*i+2], 2.0);
+                    dofXYZ += redundancyNumber(startIndex+3*i);
+                    dofXYZ += redundancyNumber(startIndex+3*i+1);
+                    dofXYZ += redundancyNumber(startIndex+3*i+2);
+                }
+                std::cout<<"    Sum of XYZ redundancy numbers: "<<dofXYZ<<std::endl;
+                std::cout<<"       XYZ Only vTPv: "<<vTPvXYZ<<std::endl;
+                std::cout<<"       A posteriori of XYZ for rescaling (aposteriori/apriori): "<<vTPvXYZ / dofXYZ <<std::endl;
+                std::cout<<"       A posteriori stdDev of XYZ for rescaling (aposteriori/apriori): "<<sqrt(vTPvXYZ / dofXYZ) <<std::endl;
 
                 // if(DEBUGMODE)
                 // {

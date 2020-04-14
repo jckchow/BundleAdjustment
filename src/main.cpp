@@ -47,19 +47,19 @@
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
-#define PLOTRESULTS 0 // plots the outputs using python
+#define PLOTRESULTS 1 // plots the outputs using python
 
-// #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
-#define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
+#define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
+// #define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmTruth.xyz"
-#define INPUTROPFILENAME ""
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmTruth.xyz"
+// #define INPUTROPFILENAME ""
 
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho"
@@ -443,15 +443,15 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// // //for all goPro
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
-// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+// //for all goPro
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -766,9 +766,9 @@ struct collinearityStereographic {
   T d = sqrt(Xs*Xs + Ys*Ys + Zs*Zs);
 
   // stereographic projection of point on sphere onto image place
-  // C = c + radius
-  T x = ( IOP[2]/(d - Zs) )* Xs;
-  T y = ( IOP[2]/(d - Zs) )* Ys;
+  // C = c + radius --> approx it as 2 * c, which is what happens if we assume the image plane is tangent to the sphere
+  T x = ( T(2.0)*IOP[2]/(d - Zs) )* Xs;
+  T y = ( T(2.0)*IOP[2]/(d - Zs) )* Ys;
 
 //   std::cout<<"x, y: "<<x+T(xp_)<<", "<<y+T(yp_)<<std::endl;
 //   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
@@ -1031,8 +1031,9 @@ struct collinearityStereographicMachineLearnedSimple {
   T d = sqrt(Xs*Xs + Ys*Ys + Zs*Zs);
 
   // stereographic projection of point on sphere onto image place
-  T x = (IOP[2])/(d - Zs) * Xs;
-  T y = (IOP[2])/(d - Zs) * Ys;
+  // C = 2*c if we assume image plane is tangent to the circle
+  T x = (T(2.0)*IOP[2])/(d - Zs) * Xs;
+  T y = (T(2.0)*IOP[2])/(d - Zs) * Ys;
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
   T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
@@ -2251,7 +2252,7 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -2745,27 +2746,27 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        if(true)
-        {   
-            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-            std::cout<<"   Fixing a subset of the AP"<<std::endl;
-            std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
-            for(int n = 0; n < iopCamera.size(); n++)
-            {
-                // Fix part of APs instead of all
-                std::vector<int> fixAP;
-                fixAP.push_back(0); //a1
-                fixAP.push_back(1); //a2
-                // fixAP.push_back(2); //k1
-                // fixAP.push_back(3); //k2
-                // fixAP.push_back(4); //k3
-                // fixAP.push_back(5); //p1
-                // fixAP.push_back(6); //p2
+        // if(true)
+        // {   
+        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+        //     std::cout<<"   Fixing a subset of the AP"<<std::endl;
+        //     std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         // Fix part of APs instead of all
+        //         std::vector<int> fixAP;
+        //         fixAP.push_back(0); //a1
+        //         fixAP.push_back(1); //a2
+        //         // fixAP.push_back(2); //k1
+        //         fixAP.push_back(3); //k2
+        //         fixAP.push_back(4); //k3
+        //         fixAP.push_back(5); //p1
+        //         fixAP.push_back(6); //p2
 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
-                problem.SetParameterization(&AP[n][0], subset_parameterization);
-            }
-        }
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
+        //     }
+        // }
 
         // if (true)
         // {
@@ -2937,8 +2938,8 @@ int main(int argc, char** argv) {
         // options.line_search_direction_type = ceres::BFGS;
         // options.trust_region_strategy_type = ceres::DOGLEG;
         // options.max_num_iterations = 1000;
-        // options.max_num_iterations = 100;
-        options.max_num_iterations = 10;
+        options.max_num_iterations = 100;
+        // options.max_num_iterations = 10;
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem, &summary);
         std::cout << summary.BriefReport() << "\n";

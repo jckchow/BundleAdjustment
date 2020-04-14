@@ -26,6 +26,7 @@ import random
 ### User defined parameters
 ##################################   
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+iopFilename = '/home/jckchow/BundleAdjustment/build/iop.jck'
 outputDirectory = '/home/jckchow/BundleAdjustment/build/'
 
 
@@ -33,7 +34,6 @@ outputDirectory = '/home/jckchow/BundleAdjustment/build/'
 ### Read the data
 ##################################  
 data = np.genfromtxt(inputFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7,8, 9, 10))
-
 pointID         = data[:,0].astype(int);
 frameID         = data[:,1].astype(int);
 sensorID        = data[:,2].astype(int);
@@ -50,6 +50,20 @@ yResidualStdDev = data[:,10];
 sensorsUnique = np.unique(sensorID);
 stationsUnique = np.unique(frameID);
 
+
+# Read in the IOP file
+data = np.genfromtxt(iopFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6))
+data = np.atleast_2d(data);
+
+iopSensorID     = data[:,0].astype(int);
+xp              = data[:,1];
+yp              = data[:,2];
+c               = data[:,3];
+xpStdDev        = data[:,4];
+ypStdDev        = data[:,5];
+cStdDev         = data[:,6];
+
+
 ##################################
 ### Plot Data
 ################################## 
@@ -60,88 +74,119 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     cameraID = sensorsUnique[iter]; #currently sensor ID
     indexImage = np.argwhere(sensorID == cameraID);
+    indexSensor = np.argwhere(iopSensorID == cameraID);
     
     print ("  Processing sensor: ", cameraID)
     
     
-    # plot the residuals
-    random.seed( 0 );
-    fig = plt.figure(figsize=(8.0, 5.0))
-    for i in range(0,len(stationsUnique)):
-        I = np.argwhere(frameID == stationsUnique[i])
-        fig = plt.scatter(pointID[I], xResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
-#        fig = plt.plot(pointID[I], xResidual[I], color=(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
-    fig = plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
-    fig = plt.xlabel('Point ID')
-    fig = plt.ylabel('x Image Residuals')
-    fig = plt.savefig(outputDirectory + str('xResiduals'), dpi=100, format="tif")
-#    plt.show()
-
-    random.seed( 0 );    
-    plt.figure()
-    for i in range(0,len(stationsUnique)):
-        I = np.argwhere(frameID == stationsUnique[i])
-        plt.scatter(pointID[I], yResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
-    plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
-    plt.xlabel('Point ID')
-    plt.ylabel('y Image Residuals')
-#    plt.show()
+#    # plot the residuals
+#    random.seed( 0 );
+#    fig = plt.figure(figsize=(8.0, 5.0))
+#    for i in range(0,len(stationsUnique)):
+#        I = np.argwhere(frameID == stationsUnique[i])
+#        fig = plt.scatter(pointID[I], xResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+##        fig = plt.plot(pointID[I], xResidual[I], color=(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+#    fig = plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
+#    fig = plt.xlabel('Point ID')
+#    fig = plt.ylabel('x Image Residuals')
+#    fig = plt.savefig(outputDirectory + str('xResiduals'), dpi=100, format="tif")
+##    plt.show()
+#
+#    random.seed( 0 );    
+#    plt.figure()
+#    for i in range(0,len(stationsUnique)):
+#        I = np.argwhere(frameID == stationsUnique[i])
+#        plt.scatter(pointID[I], yResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+#    plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
+#    plt.xlabel('Point ID')
+#    plt.ylabel('y Image Residuals')
+##    plt.show()
  
     # plot the residuals
-    plt.figure()
+    random.seed(0);
+    fig = plt.figure()
+    fig = plt.subplot(311)
     for i in range(0,len(stationsUnique)):
         I = np.argwhere(frameID == stationsUnique[i])
-        plt.scatter(xImg[I], xResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+        plt.scatter(xImg[I]-xp[indexSensor], xResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
     plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
-    plt.xlabel('x')
-    plt.ylabel('x Image Residuals')
+    fig = plt.xlabel('x')
+    fig = plt.ylabel('$v_x$')
     
     # plot the residuals
-    plt.figure()
+#    plt.figure()
+    random.seed(0);
+    fig = plt.subplot(312)
     for i in range(0,len(stationsUnique)):
         I = np.argwhere(frameID == stationsUnique[i])
-        plt.scatter(yImg[I], yResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
-    plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
-    plt.xlabel('y')
-    plt.ylabel('y Image Residuals')
+        plt.scatter(yImg[I]-yp[indexSensor], yResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+#    fig = plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
+    fig = plt.xlabel('y')
+    fig = plt.ylabel('$v_y$')
 #    plt.show()
     
-    # plot the redundancy numbers
-    plt.figure()
+    # plot the residuals
+#    plt.figure()
+    random.seed(0);
+    fig = plt.subplot(313)
     for i in range(0,len(stationsUnique)):
         I = np.argwhere(frameID == stationsUnique[i])
-        plt.scatter(pointID[I], xRedundancy[I])
-    plt.title('Redundancy Numbers for Sensor ' + str(cameraID))
-    plt.xlabel('Point ID')
-    plt.ylabel('x Redundancy Number')
-#    plt.show()
+        x_bar = xImg[I] - xp[indexSensor];
+        y_bar = yImg[I] - yp[indexSensor];
+        r = np.sqrt( x_bar*x_bar + y_bar*y_bar );
+        v_r = np.concatenate((xResidual[I],yResidual[I]),axis=1) * np.concatenate((x_bar,y_bar),axis=1)/r
+        plt.scatter(r, yResidual[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+#    plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
+    fig = plt.xlabel('r')
+    fig = plt.ylabel('$v_r$')
+    fig = plt.tight_layout()
+#    plt.show()   
+    fig = plt.savefig(outputDirectory + str('residualsVertical'), dpi=100, format="tif")
+    
         
-    plt.figure()
-    for i in range(0,len(stationsUnique)):
-        I = np.argwhere(frameID == stationsUnique[i])
-        plt.scatter(pointID[I], yRedundancy[I])
-    plt.title('Redundancy Numbers for Sensor ' + str(cameraID))
-    plt.xlabel('Point ID')
-    plt.ylabel('y Redundancy Number')
-#    plt.show()
     
-    # plot the standard deviation of residuals
-    plt.figure()
-    for i in range(0,len(stationsUnique)):
-        I = np.argwhere(frameID == stationsUnique[i])
-        plt.scatter(pointID[I], xResidualStdDev[I])
-    plt.title('Std Dev of Residuals for Sensor ' + str(cameraID))
-    plt.xlabel('Point ID')
-    plt.ylabel('x Residual Std Dev')
-#    plt.show()
     
-    plt.figure()
-    for i in range(0,len(stationsUnique)):
-        I = np.argwhere(frameID == stationsUnique[i])
-        plt.scatter(pointID[I], yResidualStdDev[I])
-    plt.title('Std Dev of Residuals for Sensor ' + str(cameraID))
-    plt.xlabel('Point ID')
-    plt.ylabel('y Residual Std Dev')
+    
+    
+    
+    
+
+#    # plot the redundancy numbers
+#    plt.figure()
+#    for i in range(0,len(stationsUnique)):
+#        I = np.argwhere(frameID == stationsUnique[i])
+#        plt.scatter(pointID[I], xRedundancy[I])
+#    plt.title('Redundancy Numbers for Sensor ' + str(cameraID))
+#    plt.xlabel('Point ID')
+#    plt.ylabel('x Redundancy Number')
+##    plt.show()
+#        
+#    plt.figure()
+#    for i in range(0,len(stationsUnique)):
+#        I = np.argwhere(frameID == stationsUnique[i])
+#        plt.scatter(pointID[I], yRedundancy[I])
+#    plt.title('Redundancy Numbers for Sensor ' + str(cameraID))
+#    plt.xlabel('Point ID')
+#    plt.ylabel('y Redundancy Number')
+##    plt.show()
+#    
+#    # plot the standard deviation of residuals
+#    plt.figure()
+#    for i in range(0,len(stationsUnique)):
+#        I = np.argwhere(frameID == stationsUnique[i])
+#        plt.scatter(pointID[I], xResidualStdDev[I])
+#    plt.title('Std Dev of Residuals for Sensor ' + str(cameraID))
+#    plt.xlabel('Point ID')
+#    plt.ylabel('x Residual Std Dev')
+##    plt.show()
+#    
+#    plt.figure()
+#    for i in range(0,len(stationsUnique)):
+#        I = np.argwhere(frameID == stationsUnique[i])
+#        plt.scatter(pointID[I], yResidualStdDev[I])
+#    plt.title('Std Dev of Residuals for Sensor ' + str(cameraID))
+#    plt.xlabel('Point ID')
+#    plt.ylabel('y Residual Std Dev')
 #    plt.show()
 
 

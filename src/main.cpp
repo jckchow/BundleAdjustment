@@ -50,7 +50,7 @@
 #define PLOTRESULTS 0 // plots the outputs using python
 
 // #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
-#define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
+#define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 
 #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -686,8 +686,10 @@ struct collinearity {
 
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
-  T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for stability
-  T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for stability
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+//   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for stability
+//   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for stability
   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
@@ -772,8 +774,10 @@ struct collinearityStereographic {
 //   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
-  T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
-  T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+//   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
+//   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
   T r = sqrt(x_bar*x_bar + y_bar*y_bar);
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
@@ -858,8 +862,10 @@ struct collinearityMachineLearned {
 
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
-  T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
-  T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+//   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
+//   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
   T r = sqrt(x_bar*x_bar + y_bar*y_bar);
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
@@ -944,8 +950,10 @@ struct collinearityMachineLearnedSimple {
 
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
-  T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
-  T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+//   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
+//   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
   T r = sqrt(x_bar*x_bar + y_bar*y_bar);
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
@@ -1027,8 +1035,10 @@ struct collinearityStereographicMachineLearnedSimple {
   T y = (IOP[2])/(d - Zs) * Ys;
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
-  T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
-  T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+//   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
+//   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
   T r = sqrt(x_bar*x_bar + y_bar*y_bar);
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
@@ -1144,8 +1154,10 @@ struct collinearityMachineLearnedROP {
 
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
-  T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
-  T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+//   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
+//   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
   T r = sqrt(x_bar*x_bar + y_bar*y_bar);
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
@@ -1235,8 +1247,10 @@ struct omniCollinearityMachineLearnedSimple {
 
 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
-  T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
-  T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+//   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
+//   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
   T r = sqrt(x_bar*x_bar + y_bar*y_bar);
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
@@ -2239,7 +2253,6 @@ int main(int argc, char** argv) {
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
-            
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -2732,27 +2745,27 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        // if(true)
-        // {   
-        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"   Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
-        //         // fixAP.push_back(3); //k2
-        //         // fixAP.push_back(4); //k3
-        //         // fixAP.push_back(5); //p1
-        //         // fixAP.push_back(6); //p2
+        if(true)
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"   Fixing a subset of the AP"<<std::endl;
+            std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                fixAP.push_back(0); //a1
+                fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                // fixAP.push_back(3); //k2
+                // fixAP.push_back(4); //k3
+                // fixAP.push_back(5); //p1
+                // fixAP.push_back(6); //p2
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
-        //     }
-        // }
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
+            }
+        }
 
         // if (true)
         // {
@@ -2827,24 +2840,24 @@ int main(int argc, char** argv) {
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
         // define the datum by pseduo observations of the positions for defining the datum
-        // if(true)
-        // {
-        //     for(int n = 0; n < xyzTarget.size(); n++)
-        //     {
-        //         // xyzXStdDev[n] /= 1000.0; //only used for debugging
-        //         // xyzYStdDev[n] /= 1000.0;
-        //         // xyzZStdDev[n] /= 1000.0;
+        if(true)
+        {
+            for(int n = 0; n < xyzTarget.size(); n++)
+            {
+                // xyzXStdDev[n] /= 1000.0; //only used for debugging
+                // xyzYStdDev[n] /= 1000.0;
+                // xyzZStdDev[n] /= 1000.0;
 
-        //         ceres::CostFunction* cost_function =
-        //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
-        //                 new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
-        //         problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+                        new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
+                problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
 
-        //         variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
-        //         variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
-        //         variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
-        //     }
-        // }
+                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
+                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
+                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
+            }
+        }
 
         // // prior on the IOP. Useful for X-ray data
         // if (true)

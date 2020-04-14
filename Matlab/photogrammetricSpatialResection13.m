@@ -1,3 +1,4 @@
+function photogrammetricSpaitalResection13
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Program: Single photo resection
@@ -242,8 +243,8 @@ for n = 1:1:length(ID_EOP_unique)
     %     [worldOrientation1,worldLocation1,inlierIdx,status] = estimateWorldCameraPose(imagePoints,worldPoints,cameraParams);
     
     % filter the points by proximity to middle of image
-    ID_img_original = ID_img;
-    ID_EOP_original = ID_EOP;
+    ID_img_original = imagePointsID;
+    ID_EOP_original = ones(length(imagePointsID),1) .* double(ID_EOP_unique(n));
     imagePoints_original = imagePoints; % all image points even not filtered
     worldPoints_original = worldPoints;
     dist = sqrt(imagePoints(:,1).^2 + (-imagePoints(:,2)).^2);
@@ -474,7 +475,7 @@ for n = 1:1:length(ID_EOP_unique)
     
     reprojectionError_original2(perStation,:) = residuals;
     
-    dataForTesting = [dataForTesting; [n.*ones(length(lx),1), lx, ly, X, Y, Z, reshape(residuals,length(X),2)] ];
+    dataForTesting = [dataForTesting; [n.*ones(length(lx),1), lx, ly, X, Y, Z, reshape(residuals,length(X),2)], double(ID_img_original), ID_EOP_original ];
     
     
     w = x(1);
@@ -525,7 +526,7 @@ ylim([yp -yp])
 title('Distribution of inlier points')
 
 %% Big calibration
-load("C:\Users\jckch\OneDrive - University of Calgary\Google Drive\Omni-Directional Cameras\Data\GoPro\jacky_2020_03_31\gopro_stereographic.mat")
+% load("C:\Users\jckch\OneDrive - University of Calgary\Google Drive\Omni-Directional Cameras\Data\GoPro\jacky_2020_03_31\gopro_stereographic.mat")
 
 options = optimoptions(@lsqnonlin,'Display', 'iter', 'MaxIter', 500, 'MaxFunEvals', 1E10);
 if (mode == 2)
@@ -596,6 +597,13 @@ if (mode == 2)
     figure;
     pose = x(4:end);
     pose = reshape(pose, 6, length(pose)/6)';
+    
+    w_vector  = pose(:,1);
+    p_vector  = pose(:,2);
+    k_vector  = pose(:,3);
+    Xo_vector = pose(:,4);
+    Yo_vector = pose(:,5);
+    Zo_vector = pose(:,6);
     pcshow(XYZ,'VerticalAxis','Y','VerticalAxisDir','down', ...
         'MarkerSize',100);
     hold on;
@@ -702,78 +710,87 @@ if (mode == 2)
     xlabel('Incidence Angle')
     ylabel('v_y')
     
-    I = find(e<100);
+    I = find(e<100); % define the threshold for outliers manually
+    
+    figure;
+    plot(dataForTesting(:,2),-dataForTesting(:,3),'r.')
+    hold on;
+    plot(dataForTesting(I,2),-dataForTesting(I,3),'g.')
+    hold off;
+    legend('Outliers', 'Inliers')
+    
+    
     dataForTesting = dataForTesting(I,:);
     v = v(I,:);
     dist = dist(I,:);
     alpha = alpha(I,:);
     e = e(I,:);
-    
-    % All residuals before calibration
-    v = [dataForTesting(:,7), dataForTesting(:,8)];
-    e = sqrt( v(:,1).^2 + v(:,2).^2 );
-    dist = sqrt(dataForTesting(:,2).^2 + dataForTesting(:,3).^2);
-    
-    figure;
-    subplot(2,3,1)
-    plot(v(:,1), v(:,2), '.');
-    xlabel('v_x')
-    ylabel('v_y')
-    title('All points before calibration')
-    subplot(2,3,2)
-    plot(dataForTesting(:,2), v(:,1), '.');
-    xlabel('x')
-    ylabel('v_x')
-    subplot(2,3,3)
-    plot(dataForTesting(:,3), v(:,2), '.');
-    xlabel('y')
-    ylabel('v_y')
-    subplot(2,3,4)
-    plot(dist, e, '.');
-    xlabel('Radial Distance')
-    ylabel('Norm residual')
-    subplot(2,3,5)
-    plot(dist, v(:,1), '.');
-    xlabel('Radial Distance')
-    ylabel('v_x')
-    subplot(2,3,6)
-    plot(dist, v(:,2), '.');
-    xlabel('Radial Distance')
-    ylabel('v_y')
-    
-    
-    
-    % Inliers before calibration
-    v = [dataForCalibration(:,7), dataForCalibration(:,8)];
-    e = sqrt( v(:,1).^2 + v(:,2).^2 );
-    dist = sqrt(dataForCalibration(:,2).^2 + dataForCalibration(:,3).^2);
-    
-    figure;
-    subplot(2,3,1)
-    plot(v(:,1), v(:,2), '.');
-    xlabel('v_x')
-    ylabel('v_y')
-    title('Inliers before calibration')
-    subplot(2,3,2)
-    plot(dataForCalibration(:,2), v(:,1), '.');
-    xlabel('x')
-    ylabel('v_x')
-    subplot(2,3,3)
-    plot(dataForCalibration(:,3), v(:,2), '.');
-    xlabel('y')
-    ylabel('v_y')
-    subplot(2,3,4)
-    plot(dist, e, '.');
-    xlabel('Radial Distance')
-    ylabel('Norm residual')
-    subplot(2,3,5)
-    plot(dist, v(:,1), '.');
-    xlabel('Radial Distance')
-    ylabel('v_x')
-    subplot(2,3,6)
-    plot(dist, v(:,2), '.');
-    xlabel('Radial Distance')
-    ylabel('v_y')
+% % % % % % %     
+% % % % % % %     % All residuals before calibration
+% % % % % % %     v = [dataForTesting(:,7), dataForTesting(:,8)];
+% % % % % % %     e = sqrt( v(:,1).^2 + v(:,2).^2 );
+% % % % % % %     dist = sqrt(dataForTesting(:,2).^2 + dataForTesting(:,3).^2);
+% % % % % % %     
+% % % % % % %     figure;
+% % % % % % %     subplot(2,3,1)
+% % % % % % %     plot(v(:,1), v(:,2), '.');
+% % % % % % %     xlabel('v_x')
+% % % % % % %     ylabel('v_y')
+% % % % % % %     title('All points before calibration')
+% % % % % % %     subplot(2,3,2)
+% % % % % % %     plot(dataForTesting(:,2), v(:,1), '.');
+% % % % % % %     xlabel('x')
+% % % % % % %     ylabel('v_x')
+% % % % % % %     subplot(2,3,3)
+% % % % % % %     plot(dataForTesting(:,3), v(:,2), '.');
+% % % % % % %     xlabel('y')
+% % % % % % %     ylabel('v_y')
+% % % % % % %     subplot(2,3,4)
+% % % % % % %     plot(dist, e, '.');
+% % % % % % %     xlabel('Radial Distance')
+% % % % % % %     ylabel('Norm residual')
+% % % % % % %     subplot(2,3,5)
+% % % % % % %     plot(dist, v(:,1), '.');
+% % % % % % %     xlabel('Radial Distance')
+% % % % % % %     ylabel('v_x')
+% % % % % % %     subplot(2,3,6)
+% % % % % % %     plot(dist, v(:,2), '.');
+% % % % % % %     xlabel('Radial Distance')
+% % % % % % %     ylabel('v_y')
+% % % % % % %     
+% % % % % % %     
+% % % % % % %     
+% % % % % % %     % Inliers before calibration
+% % % % % % %     v = [dataForCalibration(:,7), dataForCalibration(:,8)];
+% % % % % % %     e = sqrt( v(:,1).^2 + v(:,2).^2 );
+% % % % % % %     dist = sqrt(dataForCalibration(:,2).^2 + dataForCalibration(:,3).^2);
+% % % % % % %     
+% % % % % % %     figure;
+% % % % % % %     subplot(2,3,1)
+% % % % % % %     plot(v(:,1), v(:,2), '.');
+% % % % % % %     xlabel('v_x')
+% % % % % % %     ylabel('v_y')
+% % % % % % %     title('Inliers before calibration')
+% % % % % % %     subplot(2,3,2)
+% % % % % % %     plot(dataForCalibration(:,2), v(:,1), '.');
+% % % % % % %     xlabel('x')
+% % % % % % %     ylabel('v_x')
+% % % % % % %     subplot(2,3,3)
+% % % % % % %     plot(dataForCalibration(:,3), v(:,2), '.');
+% % % % % % %     xlabel('y')
+% % % % % % %     ylabel('v_y')
+% % % % % % %     subplot(2,3,4)
+% % % % % % %     plot(dist, e, '.');
+% % % % % % %     xlabel('Radial Distance')
+% % % % % % %     ylabel('Norm residual')
+% % % % % % %     subplot(2,3,5)
+% % % % % % %     plot(dist, v(:,1), '.');
+% % % % % % %     xlabel('Radial Distance')
+% % % % % % %     ylabel('v_x')
+% % % % % % %     subplot(2,3,6)
+% % % % % % %     plot(dist, v(:,2), '.');
+% % % % % % %     xlabel('Radial Distance')
+% % % % % % %     ylabel('v_y')
 end
 
 
@@ -791,8 +808,13 @@ end
 % % % % % % % xlabel('Point ID')
 % % % % % % % ylabel('Errors [pix]')
 
+ID_EOP = dataForTesting(:,10);
+ID_img = dataForTesting(:,9);
+reprojectionError_original2 = v(:,1:2);
+
 rng(0);
 figure;
+subplot(1,2,1)
 for n = 1:1:length(ID_EOP_unique)
     I = find(ID_EOP == ID_EOP_unique(n)); % I, gives you all the image measurements from that station
     
@@ -805,20 +827,7 @@ xlabel('Point ID')
 ylabel('Errors [pix]')
 
 rng(0);
-figure;
-for n = 1:1:length(ID_EOP_unique)
-    I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
-    
-    plot (ID_img(I), reprojectionError_original2(I,2),'.','color',rand(1,3))
-    hold on;
-end
-hold off;
-title('Reprojection y Errors Before Outlier Removal')
-xlabel('Point ID')
-ylabel('Errors [pix]')
-
-rng(0);
-figure;
+subplot(1,2,2);
 for n = 1:1:length(ID_EOP_unique)
     I = find(ID_EOP == ID_EOP_unique(n)); % I, gives you all the image measurements from that station
     
@@ -832,6 +841,21 @@ ylabel('Errors [pix]')
 
 rng(0);
 figure;
+subplot(1,2,1);
+for n = 1:1:length(ID_EOP_unique)
+    I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
+    
+    plot (ID_img(I), reprojectionError_original2(I,2),'.','color',rand(1,3))
+    hold on;
+end
+hold off;
+title('Reprojection y Errors Before Outlier Removal')
+xlabel('Point ID')
+ylabel('Errors [pix]')
+
+
+rng(0);
+subplot(1,2,2);
 for n = 1:1:length(ID_EOP_unique)
     I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
     
@@ -902,103 +926,104 @@ legend('Spread of the residuals for each target point', '99.9% confidence level'
 xlabel('Target ID')
 ylabel('Spread of y residuals')
 
-% Remove outliers from each individual photo
-% do a global residual removal using residuals in x and y directly
-threshold_x = mean(reprojectionError_original2(:,1)) + 3.091*std(reprojectionError_original2(:,1));
-[sig,mu,mah,outliers,s]  = robustcov(reprojectionError_original2(:,1));
-robustThreshold_x = mu + 3.091*sqrt(sig);
-I = find(abs(reprojectionError_original2(:,1)) > robustThreshold_x);
-
-% I = find(reprojectionError_original2(:,1) > threshold_x);
-
-threshold_y = mean(reprojectionError_original2(:,2)) + 3.091*std(reprojectionError_original2(:,2));
-% J = find(reprojectionError_original2(:,2) > threshold_y);
-[sig,mu,mah,outliers,s]  = robustcov(reprojectionError_original2(:,2));
-robustThreshold_y = mu + 3.091*sqrt(sig);
-J = find(abs(reprojectionError_original2(:,2)) > robustThreshold_y);
-
-outlierIndex = unique([I;J]); % final, most important index for removing outliers
-
-
 % % % % % % Remove outliers from each individual photo
-ID_img(outlierIndex) = [];
-ID_EOP(outlierIndex) = [];
-img(outlierIndex,:) = [];
-img_stdDev(outlierIndex,:) = [];
-img_corr(outlierIndex,:) = [];
-reprojectionError_original(outlierIndex,:) = [];
-reprojectionError_original2(outlierIndex,:) = [];
-
-rng(0);
-figure;
-for n = 1:1:length(ID_EOP_unique)
-    I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
-    
-    plot (ID_img(I), reprojectionError_original2(I,1),'.','color',rand(1,3))
-    hold on;
-end
-hold off;
-title('Reprojection x Errors After Outlier Removal')
-xlabel('Point ID')
-ylabel('Errors [pix]')
-
-rng(0);
-figure;
-for n = 1:1:length(ID_EOP_unique)
-    I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
-    
-    plot (ID_img(I), reprojectionError_original2(I,2),'.','color',rand(1,3))
-    hold on;
-end
-hold off;
-title('Reprojection y Errors After Outlier Removal')
-xlabel('Point ID')
-ylabel('Errors [pix]')
+% % % % % % do a global residual removal using residuals in x and y directly
+% % % % % threshold_x = mean(reprojectionError_original2(:,1)) + 3.091*std(reprojectionError_original2(:,1));
+% % % % % [sig,mu,mah,outliers,s]  = robustcov(reprojectionError_original2(:,1));
+% % % % % robustThreshold_x = mu + 3.091*sqrt(sig);
+% % % % % I = find(abs(reprojectionError_original2(:,1)) > robustThreshold_x);
+% % % % % 
+% % % % % % I = find(reprojectionError_original2(:,1) > threshold_x);
+% % % % % 
+% % % % % threshold_y = mean(reprojectionError_original2(:,2)) + 3.091*std(reprojectionError_original2(:,2));
+% % % % % % J = find(reprojectionError_original2(:,2) > threshold_y);
+% % % % % [sig,mu,mah,outliers,s]  = robustcov(reprojectionError_original2(:,2));
+% % % % % robustThreshold_y = mu + 3.091*sqrt(sig);
+% % % % % J = find(abs(reprojectionError_original2(:,2)) > robustThreshold_y);
+% % % % % 
+% % % % % outlierIndex = unique([I;J]); % final, most important index for removing outliers
 
 
-% figure;
-% plot(1:length(error_vector_mean_before), error_vector_mean_before,'b')
-% hold on
-% plot(1:length(error_vector_max_before), error_vector_max_before,'r')
-% plot(1:length(error_vector_mean_after), error_vector_mean_after,'m')
-% plot(1:length(error_vector_max_after), error_vector_max_after,'k')
-% hold off
-% title('Reprojection error plot')
-% xlabel('Image #')
-% ylabel('e [pix]')
-% legend('mean e before', 'max e before', 'mean e after', 'max e after', 'Location', 'bestoutside')
-
-% disp('Recovered R')
-% R
-
-% disp('Difference in R')
-% R_diff = R_true' * R
-
-% w = atan2(-R_diff(3,2),R_diff(3,3));
-% p = asin(R_diff(3,1));
-% k = atan2(-R_diff(2,1),R_diff(1,1));
-
-% disp('Difference in OPK')
-% [w,p,k]
-
-% Xo_vector = round(Xo_vector,1);
-% Yo_vector = round(Yo_vector,1);
-% Zo_vector = round(Zo_vector,1);
-%
-% w_vector = round(w_vector,2);
-% p_vector = round(p_vector,2);
-% k_vector = round(k_vector,2);
-
-
-% OPK = [mode(w_vector),mode(p_vector),mode(k_vector)];
-% disp('Recovered T')
-% T = [mode(Xo_vector), mode(Yo_vector), mode(Zo_vector)]
+% % % % % % % % % % % % Remove outliers from each individual photo
+% % % % % % ID_img(outlierIndex) = [];
+% % % % % % ID_EOP(outlierIndex) = [];
+% % % % % % img(outlierIndex,:) = [];
+% % % % % % img_stdDev(outlierIndex,:) = [];
+% % % % % % img_corr(outlierIndex,:) = [];
+% % % % % % reprojectionError_original(outlierIndex,:) = [];
+% % % % % % reprojectionError_original2(outlierIndex,:) = [];
+% % % % % % 
+% % % % % % rng(0);
+% % % % % % figure;
+% % % % % % for n = 1:1:length(ID_EOP_unique)
+% % % % % %     I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
+% % % % % %     
+% % % % % %     plot (ID_img(I), reprojectionError_original2(I,1),'.','color',rand(1,3))
+% % % % % %     hold on;
+% % % % % % end
+% % % % % % hold off;
+% % % % % % title('Reprojection x Errors After Outlier Removal')
+% % % % % % xlabel('Point ID')
+% % % % % % ylabel('Errors [pix]')
+% % % % % % 
+% % % % % % rng(0);
+% % % % % % figure;
+% % % % % % for n = 1:1:length(ID_EOP_unique)
+% % % % % %     I = find(ID_EOP == ID_EOP_unique(n)); % I gives you all the image measurements from that station
+% % % % % %     
+% % % % % %     plot (ID_img(I), reprojectionError_original2(I,2),'.','color',rand(1,3))
+% % % % % %     hold on;
+% % % % % % end
+% % % % % % hold off;
+% % % % % % title('Reprojection y Errors After Outlier Removal')
+% % % % % % xlabel('Point ID')
+% % % % % % ylabel('Errors [pix]')
+% % % % % % 
+% % % % % % 
+% % % % % % % figure;
+% % % % % % % plot(1:length(error_vector_mean_before), error_vector_mean_before,'b')
+% % % % % % % hold on
+% % % % % % % plot(1:length(error_vector_max_before), error_vector_max_before,'r')
+% % % % % % % plot(1:length(error_vector_mean_after), error_vector_mean_after,'m')
+% % % % % % % plot(1:length(error_vector_max_after), error_vector_max_after,'k')
+% % % % % % % hold off
+% % % % % % % title('Reprojection error plot')
+% % % % % % % xlabel('Image #')
+% % % % % % % ylabel('e [pix]')
+% % % % % % % legend('mean e before', 'max e before', 'mean e after', 'max e after', 'Location', 'bestoutside')
+% % % % % % 
+% % % % % % % disp('Recovered R')
+% % % % % % % R
+% % % % % % 
+% % % % % % % disp('Difference in R')
+% % % % % % % R_diff = R_true' * R
+% % % % % % 
+% % % % % % % w = atan2(-R_diff(3,2),R_diff(3,3));
+% % % % % % % p = asin(R_diff(3,1));
+% % % % % % % k = atan2(-R_diff(2,1),R_diff(1,1));
+% % % % % % 
+% % % % % % % disp('Difference in OPK')
+% % % % % % % [w,p,k]
+% % % % % % 
+% % % % % % % Xo_vector = round(Xo_vector,1);
+% % % % % % % Yo_vector = round(Yo_vector,1);
+% % % % % % % Zo_vector = round(Zo_vector,1);
+% % % % % % %
+% % % % % % % w_vector = round(w_vector,2);
+% % % % % % % p_vector = round(p_vector,2);
+% % % % % % % k_vector = round(k_vector,2);
+% % % % % % 
+% % % % % % 
+% % % % % % % OPK = [mode(w_vector),mode(p_vector),mode(k_vector)];
+% % % % % % % disp('Recovered T')
+% % % % % % % T = [mode(Xo_vector), mode(Yo_vector), mode(Zo_vector)]
 
 
 % flip the output for y_img because that's the notation my C++ program needs
 % Note we are outputting -y instead of +y. The original of x and y is still
 % the left upper corner, but the  y is just flipped in the output
-photoFile = [double(ID_img), double(ID_EOP), img(:,1)+xp, -(img(:,2)-yp), img_stdDev, img_corr];
+% photoFile = [double(ID_img), double(ID_EOP), img(:,1)+xp, -(img(:,2)-yp), img_stdDev, img_corr];
+photoFile = [double(dataForTesting(:,9)), double(dataForTesting(:,10)), dataForTesting(:,2)+xp, -(dataForTesting(:,3)-yp), img_stdDev(1,1:2).*ones(length(dataForTesting(:,3)),2), img_corr(1,1:2).*ones(length(dataForTesting(:,3)),2)];
 
 disp('Writing screened *.pho file: pointID, frameID, x, y, xStdDev, yStdDev, xCorr, yCorr')
 out=fopen([pathname, outputPhoFilename],'w');
@@ -1016,7 +1041,7 @@ for n = 1:length(OPKXYZ(:,1))
 end
 fclose(out);
 
-XYZOut = [ID_XYZ, XYZ, XYZ_stdDev];
+XYZOut = [double(ID_XYZ), XYZ, XYZ_stdDev];
 disp('Writing to *.xyz file X, Y, Z reduced to its centroid')
 out=fopen([pathname, outputXYZFilename],'w');
 for n = 1:length(XYZOut(:,1))
@@ -1031,7 +1056,7 @@ disp("Success ^-^")
 
 
 
-
+end
 
 % unknowns params u x 1
 function [v] = collinearityResection(param, cx, cy, X, Y, Z, lx, ly)
@@ -1219,8 +1244,8 @@ for m=1:length(X)
     d = sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
     
     % stereographic projection of point on sphere onto image place
-    x_img = ( (C)/(d - XYZ_s(3)) )* XYZ_s(1);
-    y_img = ( (C)/(d - XYZ_s(3)) )* XYZ_s(2);
+    x_img = ( (2*C)/(d - XYZ_s(3)) )* XYZ_s(1);
+    y_img = ( (2*C)/(d - XYZ_s(3)) )* XYZ_s(2);
     
     fx(m) = x_img - lx(m);
     fy(m) = y_img + ly(m);
@@ -1287,8 +1312,8 @@ for n = 1:length(uniqueID)
         d = sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
         
         % stereographic projection of point on sphere onto image place
-        x_img = xp + ( C/(d - XYZ_s(3)) )* XYZ_s(1);
-        y_img = yp + ( C/(d - XYZ_s(3)) )* XYZ_s(2);
+        x_img = xp + ( 2*C/(d - XYZ_s(3)) )* XYZ_s(1);
+        y_img = yp + ( 2*C/(d - XYZ_s(3)) )* XYZ_s(2);
         
         fx(m) = x_img - lx(I(m));
         fy(m) = y_img + ly(I(m));
@@ -1319,7 +1344,7 @@ fyVec = zeros(length(ly),1);
 
 xp     = param(1);
 yp     = param(2);
-C      = param(3); % this is defined as C = radius + c
+C      = param(3); % this is defined as C = radius + c or approximately as 2*c
 k1     = param(4);
 k2     = param(5);
 k3     = param(6);
@@ -1385,8 +1410,8 @@ for n = 1:length(uniqueID)
         delta_y = y_bar*(k1*r*r+k2*r*r*r*r+k3*r*r*r*r*r*r) + p2*(r*r+2.0*y_bar*y_bar)+2.0*p1*x_bar*y_bar;
              
         % stereographic projection of point on sphere onto image place
-        x_img = xp + ( C/(d - XYZ_s(3)) )* XYZ_s(1) + delta_x;
-        y_img = yp + ( C/(d - XYZ_s(3)) )* XYZ_s(2) + delta_y;
+        x_img = xp + ( 2*C/(d - XYZ_s(3)) )* XYZ_s(1) + delta_x;
+        y_img = yp + ( 2*C/(d - XYZ_s(3)) )* XYZ_s(2) + delta_y;
         
         fx(m) = x_img - lx(I(m));
         fy(m) = y_img + ly(I(m));

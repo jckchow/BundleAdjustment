@@ -192,19 +192,21 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
     print("Statistics of Residuals")    
     print("   Average x Residuals: " + str(np.mean(xResidual)))
+    print("   StdDev x Residuals: " + str(np.std(xResidual)))
     print("   Min x Residuals: " + str(np.min(xResidual)))
     print("   Max x Residuals: " + str(np.max(xResidual)))
     print("   Average y Residuals: " + str(np.mean(yResidual)))
+    print("   StdDev y Residuals: " + str(np.std(yResidual)))
     print("   Min y Residuals: " + str(np.min(yResidual)))
     print("   Max y Residuals: " + str(np.max(yResidual)))
     
-    print("Statistics of Redundancy Numbers")    
-    print("   Average x Redundancy: " + str(np.mean(xRedundancy)))
-    print("   Min x Redundancy: " + str(np.min(xRedundancy)))
-    print("   Max x Redundancy: " + str(np.max(xRedundancy)))
-    print("   Average y Redundancy: " + str(np.mean(yRedundancy)))
-    print("   Min y Redundancy: " + str(np.min(yRedundancy)))
-    print("   Max y Redundancy: " + str(np.max(yRedundancy)))
+#    print("Statistics of Redundancy Numbers")    
+#    print("   Average x Redundancy: " + str(np.mean(xRedundancy)))
+#    print("   Min x Redundancy: " + str(np.min(xRedundancy)))
+#    print("   Max x Redundancy: " + str(np.max(xRedundancy)))
+#    print("   Average y Redundancy: " + str(np.mean(yRedundancy)))
+#    print("   Min y Redundancy: " + str(np.min(yRedundancy)))
+#    print("   Max y Redundancy: " + str(np.max(yRedundancy)))
 
     
     plt.show()

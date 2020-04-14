@@ -42,20 +42,24 @@
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
 #define PLOTRESULTS 0 // plots the outputs using python
 
+// #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmTruth.xyz"
+#define INPUTROPFILENAME ""
 
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho"
@@ -429,15 +433,15 @@
 /// Paper 2 Omnidirectional Camera Journal Paper
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//for all Nikon
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// //for all Nikon
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // // //for all goPro
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
@@ -1503,7 +1507,7 @@ int main(int argc, char** argv) {
     PyRun_SimpleString("import matplotlib.pyplot as plt");
     PyRun_SimpleString("import numpy as np");
     PyRun_SimpleString("import time as TIME");
-    PyRun_SimpleString("totalTime = TIME.clock()");        
+    PyRun_SimpleString("totalTime = TIME.process_time()");        
      
     std::ifstream inp;      
     std::vector<double> leastSquaresCost;
@@ -1518,10 +1522,10 @@ int main(int argc, char** argv) {
     {
 
         std::cout<<"---------------------------------------- Global Iteration: " << iterNum+1<<"/"<< NUMITERATION <<"----------------------------------------"<<std::endl;
-        PyRun_SimpleString("t0 = TIME.clock()");        
-        PyRun_SimpleString("print 'Start reading data' ");   
+        PyRun_SimpleString("t0 = TIME.process_time()");        
+        PyRun_SimpleString("print( 'Start reading data' )");   
         // Reading *.pho file
-        PyRun_SimpleString("print '  Start reading image observations' ");  
+        PyRun_SimpleString("print( '  Start reading image observations' )");  
         std::cout<<"  Input image filename: "<<INPUTIMAGEFILENAME<<std::endl;
         if (iterNum == 0)
             inp.open(INPUTIMAGEFILENAME);
@@ -1605,7 +1609,7 @@ int main(int argc, char** argv) {
         }
 
         // Reading *.eop file
-        PyRun_SimpleString("print '  Start reading EOPs' ");          
+        PyRun_SimpleString("print( '  Start reading EOPs' )");          
         std::cout<<"  Input EOP filename: "<<INPUTEOPFILENAME<<std::endl;
         inp.open(INPUTEOPFILENAME);
         std::vector<int> eopStation, eopCamera;
@@ -1681,7 +1685,7 @@ int main(int argc, char** argv) {
         if(ROPMODE || WEIGHTEDROPMODE)
         {
             // Checking for ROP constraints
-            PyRun_SimpleString("print '  Start reading ROPs' ");          
+            PyRun_SimpleString("print( '  Start reading ROPs' )");          
             std::cout<<"  Input ROP filename: "<<INPUTROPFILENAME<<std::endl;
             inp.open(INPUTROPFILENAME);
 
@@ -1951,7 +1955,7 @@ int main(int argc, char** argv) {
         }
 
         // Reading *.iop file
-        PyRun_SimpleString("print '  Start reading IOPs' ");
+        PyRun_SimpleString("print( '  Start reading IOPs' )");
         std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;
         inp.open(INPUTIOPFILENAME);
         std::vector<int> iopCamera, iopAxis;
@@ -2033,7 +2037,7 @@ int main(int argc, char** argv) {
         }
 
         // Reading *.xyz file
-        PyRun_SimpleString("print '  Start reading XYZ' ");  
+        PyRun_SimpleString("print( '  Start reading XYZ' )");  
         std::cout<<"  Input XYZ filename: "<<INPUTXYZFILENAME<<std::endl;
         inp.open(INPUTXYZFILENAME);
         std::vector<int> xyzTarget;
@@ -2099,7 +2103,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        PyRun_SimpleString("print 'Done reading data:', round(TIME.clock()-t0, 3), 's' ");
+        PyRun_SimpleString("print( 'Done reading data:', round(TIME.process_time()-t0, 3), 's' )");
 
 
         // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2155,8 +2159,8 @@ int main(int argc, char** argv) {
         // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // /// Set up cost functions
         // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        PyRun_SimpleString("t0 = TIME.clock()");        
-        PyRun_SimpleString("print 'Start building Ceres-Solver cost functions' ");
+        PyRun_SimpleString("t0 = TIME.process_time()");        
+        PyRun_SimpleString("print( 'Start building Ceres-Solver cost functions' )");
     
         std::vector<int> sensorReferenceID; // for use when outting the residuals
         std::vector<int> pointReferenceID; // for use when outting the residuals
@@ -2224,7 +2228,7 @@ int main(int argc, char** argv) {
                 pointReferenceID[n]  = xyzTarget[indexPoint];  // ID of the target point this observation corresponds to
                 frameReferenceID[n]  = eopStation[indexPose];
 
-                // imageXStdDev[n] *= 10000.0;
+                // imageXStdDev[n] *= 10000.0; // for debugging use only
                 // imageYStdDev[n] *= 10000.0;
 
                 ceres::CostFunction* cost_function =
@@ -2233,7 +2237,7 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
             
 
@@ -2737,7 +2741,7 @@ int main(int argc, char** argv) {
         //     {
         //         // Fix part of APs instead of all
         //         std::vector<int> fixAP;
-        //         // fixAP.push_back(0); //a1
+        //         fixAP.push_back(0); //a1
         //         fixAP.push_back(1); //a2
         //         // fixAP.push_back(2); //k1
         //         // fixAP.push_back(3); //k2
@@ -2823,24 +2827,24 @@ int main(int argc, char** argv) {
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
         // define the datum by pseduo observations of the positions for defining the datum
-        if(true)
-        {
-            for(int n = 0; n < xyzTarget.size(); n++)
-            {
-                xyzXStdDev[n] /= 1000.0; //only used for debugging
-                xyzYStdDev[n] /= 1000.0;
-                xyzZStdDev[n] /= 1000.0;
+        // if(true)
+        // {
+        //     for(int n = 0; n < xyzTarget.size(); n++)
+        //     {
+        //         // xyzXStdDev[n] /= 1000.0; //only used for debugging
+        //         // xyzYStdDev[n] /= 1000.0;
+        //         // xyzZStdDev[n] /= 1000.0;
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
-                        new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
-                problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+        //                 new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
+        //         problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
 
-                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
-                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
-                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
-            }
-        }
+        //         variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
+        //         variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
+        //         variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
+        //     }
+        // }
 
         // // prior on the IOP. Useful for X-ray data
         // if (true)
@@ -2905,7 +2909,7 @@ int main(int argc, char** argv) {
         // for(int n = 0; n < X.size(); n++)
         // std::cout<<"before X: "<<X[n]<<std::endl;
 
-        PyRun_SimpleString("print 'Done building Ceres-Solver cost functions:', round(TIME.clock()-t0, 3), 's' ");
+        PyRun_SimpleString("print( 'Done building Ceres-Solver cost functions:', round(TIME.process_time()-t0, 3), 's' )");
 
         ceres::Solver::Options options;
         options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY; // sparse solver
@@ -3079,6 +3083,11 @@ int main(int argc, char** argv) {
 
                 
                 aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size() - 7);
+
+
+                // The above calculation does not work, leave it as 1.0
+                aposterioriVarianceImageSpace = 1.0;
+                aposterioriVarianceObjectSpace = 1.0;
             }
         }
 
@@ -3160,8 +3169,8 @@ int main(int argc, char** argv) {
 
         if (COMPUTECX)
         {
-            PyRun_SimpleString("t0 = TIME.clock()");     
-            PyRun_SimpleString("print 'Start computing cofactor matrix' ");  
+            PyRun_SimpleString("t0 = TIME.process_time()");     
+            PyRun_SimpleString("print( 'Start computing cofactor matrix' )");  
             ceres::Covariance::Options covarianceOptions;
             covarianceOptions.apply_loss_function = true;
             // covarianceOptions.algorithm_type = ceres::DENSE_SVD;
@@ -3714,7 +3723,7 @@ int main(int argc, char** argv) {
                 fclose(fout);
             }
 
-            PyRun_SimpleString("print 'Done computing covariance matrix:', round(TIME.clock()-t0, 3), 's' ");
+            PyRun_SimpleString("print( 'Done computing covariance matrix:', round(TIME.process_time()-t0, 3), 's' )");
         
         }
         else // if we are not computing the Cx matrix
@@ -3803,8 +3812,8 @@ int main(int argc, char** argv) {
 
         if(COMPUTECV)
         {
-            PyRun_SimpleString("t0 = TIME.clock()");        
-            PyRun_SimpleString("print 'Start computing covariance matrix of the residuals' ");  
+            PyRun_SimpleString("t0 = TIME.process_time()");        
+            PyRun_SimpleString("print( 'Start computing covariance matrix of the residuals' )");  
 
             if (true)
             {
@@ -3915,17 +3924,17 @@ int main(int argc, char** argv) {
                 // computing the covariance matrix of the adjusted observations
                 std::cout<<"  Start computing Cv..."<<std::endl;
                 std::cout<<"    Cx dimensions: "<<Cx.rows()<<" by "<<Cx.cols()<<std::endl;
-                PyRun_SimpleString("t0 = TIME.clock()");        
+                PyRun_SimpleString("t0 = TIME.process_time()");        
                 Eigen::SparseMatrix<double> CxSparse = Cx.sparseView();
-                PyRun_SimpleString("print '    Converting matrices:', round(TIME.clock()-t0, 3), 's' ");      
-                PyRun_SimpleString("t0 = TIME.clock()");  
+                PyRun_SimpleString("print( '    Converting matrices:', round(TIME.process_time()-t0, 3), 's' )");      
+                PyRun_SimpleString("t0 = TIME.process_time()");  
 
                 // Eigen::SparseMatrix<double> Cl_hat = A * (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
 
                 // // Eigen::SparseMatrix<double> Cl_hat = A * CxSparse * A.transpose();
                 Eigen::SparseMatrix<double> CxAT = (CxSparse.selfadjointView<Eigen::Upper>() * A.transpose());
-                PyRun_SimpleString("print '    Multiplying first matrices Cx*AT:', round(TIME.clock()-t0, 3), 's' ");
-                PyRun_SimpleString("t0 = TIME.clock()");
+                PyRun_SimpleString("print( '    Multiplying first matrices Cx*AT:', round(TIME.process_time()-t0, 3), 's' )");
+                PyRun_SimpleString("t0 = TIME.process_time()");
 
                 for (int i = 0; i < variances.size(); i++)
                 {
@@ -3948,15 +3957,15 @@ int main(int argc, char** argv) {
 
                 //Eigen::SparseMatrix<double> D = ttt.sparseView();
                 // Eigen::SparseMatrix<double> Cl_hat = A * Cx.selfadjointView<Eigen::Upper>() * A.transpose();
-                PyRun_SimpleString("print '    Multiplying matrices A*Cx:', round(TIME.clock()-t0, 3), 's' ");
+                PyRun_SimpleString("print( '    Multiplying matrices A*Cx:', round(TIME.process_time()-t0, 3), 's' )");
 
                 // Eigen::MatrixXd Cl_hat = A * Cx * A.transpose();
                 // Eigen::SparseMatrix<double> Cl_hat = A * Cx * A.transpose();
 
-                //PyRun_SimpleString("t0 = TIME.clock()");        
+                //PyRun_SimpleString("t0 = TIME.process_time()");        
                 // Cv.noalias() = Eigen::MatrixXd(Cl) - Eigen::MatrixXd(Cl_hat);
                 // Cv.noalias() = Eigen::MatrixXd(Cl - Cl_hat);
-                //PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.clock()-t0, 3), 's' ");
+                //PyRun_SimpleString("print '    Subtracting matrices:', round(TIME.process_time()-t0, 3), 's' ");
 
                 // Cv = Cl - Cl_hat;
                 std::cout<<"  Done computing Cv = Cl(assumed not robust version) - Cl_hat"<<std::endl;
@@ -4056,7 +4065,7 @@ int main(int argc, char** argv) {
                 // }
             }
 
-            PyRun_SimpleString("print 'Done computing covariance matrix of the residuals:', round(TIME.clock()-t0, 3), 's' ");
+            PyRun_SimpleString("print( 'Done computing covariance matrix of the residuals:', round(TIME.process_time()-t0, 3), 's' )");
         }
         else // if not computing Cv
         {
@@ -4105,8 +4114,8 @@ int main(int argc, char** argv) {
         std::cout<<"  Reprojection errors (RMSE in x, y, and total): " << sqrt(reprojectionErrors(0,0) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,1) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,2) / (2*imageX.size())) << std::endl;
 
         // Output results to file
-        PyRun_SimpleString("t0 = TIME.clock()");        
-        PyRun_SimpleString("print 'Start outputting bundle adjustment results to file' ");     
+        PyRun_SimpleString("t0 = TIME.process_time()");        
+        PyRun_SimpleString("print( 'Start outputting bundle adjustment results to file' )");     
         //Output results back to Python for plotting
         if (true)
         {
@@ -4231,7 +4240,7 @@ int main(int argc, char** argv) {
             fclose(fout);
         }
 
-        PyRun_SimpleString("print 'Done outputting bundle adjustment results to file:', round(TIME.clock()-t0, 3), 's' ");
+        PyRun_SimpleString("print( 'Done outputting bundle adjustment results to file:', round(TIME.process_time()-t0, 3), 's' )");
         
         
 
@@ -4286,8 +4295,8 @@ int main(int argc, char** argv) {
         // // Do quality control
         // if(true)
         // {
-        //     PyRun_SimpleString("t0 = TIME.clock()");        
-        //     PyRun_SimpleString("print 'Start computing the object space reconstruction error relative to the ground truth (QC): Assumes everything is in the same order' ");  
+        //     PyRun_SimpleString("t0 = TIME.process_time()");        
+        //     PyRun_SimpleString("print( 'Start computing the object space reconstruction error relative to the ground truth (QC): Assumes everything is in the same order' )");  
         //     std::cout<<"  Ground truth filename: "<<INPUTXYZTRUTHFILENAME<<std::endl;
 
         //     inp.open(INPUTXYZTRUTHFILENAME);
@@ -4333,15 +4342,15 @@ int main(int argc, char** argv) {
         //     RMSE_Z = sqrt(RMSE_Z);
             
         //     std::cout<<"    RMSE X, Y, Z, Total: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<". "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
-        //     PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
+        //     PyRun_SimpleString("print( 'Done QC:', round(TIME.process_time()-t0, 3), 's' )");
         // }   
 
                 
         // Do quality control
         if(true)
         {
-            PyRun_SimpleString("t0 = TIME.clock()");        
-            PyRun_SimpleString("print 'Start computing the object space reconstruction error relative to the ground truth (QC): DOES NOT assume everything is in the same order' ");  
+            PyRun_SimpleString("t0 = TIME.process_time()");        
+            PyRun_SimpleString("print( 'Start computing the object space reconstruction error relative to the ground truth (QC): DOES NOT assume everything is in the same order' )");  
             std::cout<<"  Ground truth filename: "<<INPUTXYZTRUTHFILENAME<<std::endl;
 
             inp.open(INPUTXYZTRUTHFILENAME);
@@ -4398,7 +4407,7 @@ int main(int argc, char** argv) {
             RMSE_Z = sqrt(RMSE_Z);
             
             std::cout<<"    RMSE X, Y, Z, Total: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
-            PyRun_SimpleString("print 'Done QC:', round(TIME.clock()-t0, 3), 's' ");
+            PyRun_SimpleString("print( 'Done QC:', round(TIME.process_time()-t0, 3), 's' )");
         }   
 
         // for(int i = 0; i < leastSquaresCost.size(); ++i)
@@ -4409,13 +4418,13 @@ int main(int argc, char** argv) {
 
         if (doML) // if not running a conventional bundle adjustment
         {
-            PyRun_SimpleString("t0 = TIME.clock()");        
+            PyRun_SimpleString("t0 = TIME.process_time()");        
             PyRun_SimpleString("print 'Start doing machine learning in Python' ");    
 
             //system("python ~/BundleAdjustment/python/gaussianProcess.py");
             system("python ~/BundleAdjustment/python/nearestNeighbour.py");
 
-            PyRun_SimpleString("print 'Done doing machine learning regression:', round(TIME.clock()-t0, 3), 's' ");
+            PyRun_SimpleString("print 'Done doing machine learning regression:', round(TIME.process_time()-t0, 3), 's' ");
 
             // read in the machine learned cost
             inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
@@ -4457,13 +4466,13 @@ int main(int argc, char** argv) {
 
     if (PLOTRESULTS)
     {
-        PyRun_SimpleString("t0 = TIME.clock()");        
+        PyRun_SimpleString("t0 = TIME.process_time()");        
         PyRun_SimpleString("print 'Start plotting results in Python' ");    
         system("python ~/BundleAdjustment/python/plotBundleAdjustment.py");
-        PyRun_SimpleString("print 'Done plotting results:', round(TIME.clock()-t0, 3), 's' ");
+        PyRun_SimpleString("print 'Done plotting results:', round(TIME.process_time()-t0, 3), 's' ");
 
     }
 
-    PyRun_SimpleString("print '----------------------------Program Successful ^-^, Total Run Time:', round(TIME.clock()-totalTime, 3), 's', '----------------------------', ");
+    PyRun_SimpleString("print( '----------------------------Program Successful ^-^, Total Run Time:', round(TIME.process_time()-totalTime, 3), 's', '----------------------------', )");
     return 0;
 }

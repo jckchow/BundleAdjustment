@@ -446,8 +446,8 @@
 // //for all goPro
 #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
 #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
@@ -502,6 +502,47 @@ int rangeRandomNumber (int min, int max){
         x = rand();
     }while (x >= RAND_MAX - remainder);
     return min + x % n;
+}
+
+// Calculate incidence angle relative to optical axis
+double incidenceAngle (const double* EOP, const double* XYZ)
+{
+  // rotation from map to sensor
+  double r11 = cos(EOP[1]) * cos(EOP[2]);
+  double r12 = cos(EOP[0]) * sin(EOP[2]) + sin(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+  double r13 = sin(EOP[0]) * sin(EOP[2]) - cos(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+
+  double r21 = -cos(EOP[1]) * sin(EOP[2]);
+  double r22 = cos(EOP[0]) * cos(EOP[2]) - sin(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+  double r23 = sin(EOP[0]) * cos(EOP[2]) + cos(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+
+  double r31 = sin(EOP[1]);
+  double r32 = -sin(EOP[0]) * cos(EOP[1]);
+  double r33 = cos(EOP[0]) * cos(EOP[1]);
+
+  // rigid body transformation
+  // Object space coordinates oordinates in sensor frame
+  double Xs = r11 * ( XYZ[0] - EOP[3] ) + r12 * ( XYZ[1] - EOP[4] ) + r13 * ( XYZ[2] - EOP[5] );
+  double Ys = r21 * ( XYZ[0] - EOP[3] ) + r22 * ( XYZ[1] - EOP[4] ) + r23 * ( XYZ[2] - EOP[5] );
+  double Zs = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
+
+  return ( atan2(sqrt(Xs*Xs+Ys*Ys) , -Zs) );
+}
+
+double refractionAngle(const double x, const double y, const double* IOP, const double* AP)
+{
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  double x_bar = (x - IOP[0]) / APSCALE; // arbitrary scale for stability
+  double y_bar = (y - IOP[1]) / APSCALE; // arbitrary scale for stability
+  double r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+
+  double delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+(2.0)*x_bar*x_bar)+(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  double delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+(2.0)*y_bar*y_bar)+(2.0)*AP[5]*x_bar*y_bar;
+
+  double x_corr = x - IOP[0] - delta_x;
+  double y_corr = y - IOP[1] - delta_y;
+
+  return ( atan2(sqrt(x_corr*x_corr+y_corr*y_corr) , IOP[2]) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2210,7 +2251,7 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL; // default to normal Gaussian
-        // loss = new ceres::HuberLoss(1.0);
+        loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
         // loss = new ceres::CauchyLoss(0.5);
@@ -2959,6 +3000,38 @@ int main(int argc, char** argv) {
         leastSquaresCost.push_back(summary.final_cost);
         double aposterioriVarianceImageSpace = 1.0;
         double aposterioriVarianceObjectSpace = 1.0;
+
+        //////////////////////////////////////////
+        /// Computer the incidence angle
+        //////////////////////////////////////////
+                // Stereographic collinearity condition, no machine learning
+        if (true)
+        {
+            std::cout<<"  Computing final incidence angle..."<<std::endl;
+            std::cout<<"     Writing refraction vs incidence angles to file..."<<std::endl;
+            FILE *fout = fopen("angles.jck", "w");
+            for(int n = 0; n < imageX.size(); n++) // loop through all observations
+            {
+                std::vector<int>::iterator it;
+                it = std::find(xyzTarget.begin(), xyzTarget.end(), imageTarget[n]);
+                int indexPoint = std::distance(xyzTarget.begin(),it);
+                //  std::cout<<"indexPoint: "<<indexPoint<<", ID: "<< imageTarget[n]<<std::endl;
+
+                it = std::find(eopStation.begin(), eopStation.end(), imageStation[n]);
+                int indexPose = std::distance(eopStation.begin(),it);
+                //  std::cout<<"index: "<<indexPose<<", ID: "<< imageStation[n]<<std::endl;
+
+                it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
+                int indexSensor = std::distance(iopCamera.begin(),it);
+                // std::cout<<"index: "<<indexSensor<<", ID: "<< eopCamera[indexPose]<<std::endl;   
+
+                double alpha = incidenceAngle(&EOP[indexPose][0], &XYZ[indexPoint][0]);
+                double beta  = refractionAngle(imageX[n], imageY[n], &IOP[indexSensor][0], &AP[indexSensor][0]);
+
+                fprintf(fout, "%i %i %i %.6lf %.6lf\n", imageTarget[n], imageStation[n], eopCamera[indexPose], beta*180.0/PI, alpha*180.0/PI );
+            }
+            fclose(fout);
+        }
 
         /////////////
         // Ad-hoc fix
@@ -4481,9 +4554,9 @@ int main(int argc, char** argv) {
     if (PLOTRESULTS)
     {
         PyRun_SimpleString("t0 = TIME.process_time()");        
-        PyRun_SimpleString("print 'Start plotting results in Python' ");    
+        PyRun_SimpleString("print( 'Start plotting results in Python' )");    
         system("python ~/BundleAdjustment/python/plotBundleAdjustment.py");
-        PyRun_SimpleString("print 'Done plotting results:', round(TIME.process_time()-t0, 3), 's' ");
+        PyRun_SimpleString("print( 'Done plotting results:', round(TIME.process_time()-t0, 3), 's' )");
 
     }
 

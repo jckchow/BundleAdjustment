@@ -179,6 +179,7 @@ from scipy.interpolate import griddata as griddataScipy
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho'
 iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop'
 eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
 
 
@@ -189,7 +190,7 @@ maxK = 50
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = False
+doSmoothing = True
 smoothingMethod = 'linear' # 'linear' or 'nearest'
 
 ##########################################
@@ -209,8 +210,8 @@ pho = np.genfromtxt(phoFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,
 w = np.divide(image[:,(3,4)], image[:,(7,8)])
 
 # 95% is 1.96
-#outlierThreshold = 3000.0
-outlierThreshold = 1.96
+outlierThreshold = 3000.0
+#outlierThreshold = 1.96
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 print ("  Outlier removal threshold: ", outlierThreshold, " x sigma")
@@ -370,6 +371,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
         # train with the best K parameter
         t0 = time()   
+#        reg = neighbors.KNeighborsRegressor(n_neighbors=1, weights='uniform', n_jobs=1)
         reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
         reg.fit(features_train, labels_train)
         print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
@@ -426,7 +428,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print ("    Weighted y score: ", weightedScore)
     print ("    Average weighted y score: ", weightedScore/len(indexImage))
     print ("      Weighted total score: ", sensorCost)    
-    print ("      Average weighted total score: ", avgSensorCost)    
+    print ("      Average weighted total score: ", sensorCost/float(len(indexImage)))    
     print ("      Number of samples: ", len(indexImage), " inliers out of a total of ", len(indexImageAll), " (", round(100.0*(float(len(indexImage))/float(len(indexImageAll))),1), "%)")
     print ("    Done calculating error:", round(time()-t0, 3), "s")  
     

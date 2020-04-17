@@ -2991,7 +2991,7 @@ int main(int argc, char** argv) {
         //         std::vector<int> fixAP;
         //         fixAP.push_back(0); //a1
         //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
+        //         fixAP.push_back(2); //k1
         //         fixAP.push_back(3); //k2
         //         fixAP.push_back(4); //k3
         //         fixAP.push_back(5); //p1
@@ -3099,9 +3099,12 @@ int main(int argc, char** argv) {
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
-        //         double xpStdDev = 10.0;
-        //         double ypStdDev = 10.0;
-        //         double cStdDev  = 10.0;
+        //         // double xpStdDev = 10.0;
+        //         // double ypStdDev = 10.0;
+        //         // double cStdDev  = 10.0;
+        //         double xpStdDev = 1E-6;
+        //         double ypStdDev = 1E-6;
+        //         double cStdDev  = 1E-6;
         //         ceres::CostFunction* cost_function =
         //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
         //                 new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
@@ -3121,8 +3124,8 @@ int main(int argc, char** argv) {
         //     {
         //         double a1StdDev  = 1.0E-6;
         //         double a2StdDev  = 1.0E-6;
-        //         double k1StdDev  = 1.0E0;
-        //         double k2StdDev  = 1.0E0;
+        //         double k1StdDev  = 1.0E-6;
+        //         double k2StdDev  = 1.0E-6;
         //         double k3StdDev  = 1.0E-6;
         //         double p1StdDev  = 1.0E-6;
         //         double p2StdDev  = 1.0E-6;
@@ -3343,7 +3346,7 @@ int main(int argc, char** argv) {
                 //std::cout<<"size: "<<aposteriorVariance.size()<<std::endl;
                 std::cout<<"     MANUAL GLOBAL A Posteriori Variance (assumes normal weights): "<<std::endl;
                 std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
-                std::cout << "      Approximate dof (2*img - 6*EOP - 3*XYZ + 7datum): "<< 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7 << std::endl;
+                std::cout<<"        Approximate dof (2*img - 6*EOP - 3*XYZ + 7datum): "<< 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7 << std::endl;
                 std::cout<<"        vTPv/dof: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7)<<std::endl;
                 std::cout<<"        sqrt(vTPv/dof): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7))<<std::endl;
                 std::cout<<"        vTPv/ceresRedundancy: "<<vTPv(0,0)/redundancy<<std::endl;
@@ -3366,7 +3369,7 @@ int main(int argc, char** argv) {
                 std::cout<<"        Approx a posteriori std dev XYZ: "<<sqrt(vTPv(0,0)/(3*XYZ.size()))<<std::endl;
 
                 
-                aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size() - 7);
+                aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size());
 
 
                 // The above calculation does not work, leave it as 1.0
@@ -3457,7 +3460,9 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("print( 'Start computing cofactor matrix' )");  
             ceres::Covariance::Options covarianceOptions;
             covarianceOptions.apply_loss_function = true;
-            // covarianceOptions.algorithm_type = ceres::DENSE_SVD;
+            // covarianceOptions.sparse_linear_algebra_library_type = ceres::EIGEN_SPARSE;
+            covarianceOptions.algorithm_type = ceres::DENSE_SVD;
+            covarianceOptions.null_space_rank = -1;
             ceres::Covariance covariance(covarianceOptions);
 
             std::vector<std::pair<const double*, const double*> > covariance_blocks;
@@ -3623,6 +3628,10 @@ int main(int argc, char** argv) {
             // Eigen::MatrixXd xyzVariance(XYZ.size(),3);
             for(int i = 0; i < XYZ.size(); i++)
             {
+                // double covariance_xx[3 * 3];
+                // covariance.GetCovarianceBlockInTangentSpace(&XYZ[i][0], &XYZ[i][0], covariance_xx);
+                // std::cout<<sqrt(covariance_xx[0])<<", "<<sqrt(covariance_xx[4])<<", "<<sqrt(covariance_xx[8])<<std::endl;
+
                 Eigen::MatrixXd covariance_X(3, 3);
                 covariance.GetCovarianceBlock(&XYZ[i][0], &XYZ[i][0], covariance_X.data());
                 Eigen::VectorXd variance_X(3);
@@ -3630,6 +3639,9 @@ int main(int argc, char** argv) {
                 xyzVariance(i,0) = variance_X(0);
                 xyzVariance(i,1) = variance_X(1);
                 xyzVariance(i,2) = variance_X(2);
+
+                // std::cout<<covariance_X<<std::endl;
+                // sleep(100000);
 
                 xyzVariance(i,0) *= aposterioriVarianceObjectSpace;
                 xyzVariance(i,1) *= aposterioriVarianceObjectSpace;

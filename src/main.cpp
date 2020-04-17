@@ -42,7 +42,7 @@
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
@@ -434,24 +434,34 @@
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // // //for all Nikon
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
-// // Nikon Training Data
+// // // Nikon Training Data
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
 // // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
+
+// Nikon Testing Data
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 // // //for all goPro
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
@@ -553,6 +563,20 @@ double refractionAngle(const double x, const double y, const double* IOP, const 
   double y_corr = y - IOP[1] - delta_y;
 
   return ( atan2(sqrt(x_corr*x_corr+y_corr*y_corr) , IOP[2]) );
+}
+
+// Calculates the Akaike information criterion
+double calculateAIC(double numObs, double mse, double numUnk)
+{
+	double aic = numObs * log(mse) + 2.0 * numUnk;
+	return (aic);
+}
+
+// Calculates the Bayesian information criterion
+double calculateBIC(double numObs, double mse, double numUnk)
+{
+	double bic = numObs * log(mse) + numUnk * log(numObs);
+	return (bic);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2965,13 +2989,13 @@ int main(int argc, char** argv) {
         //     {
         //         // Fix part of APs instead of all
         //         std::vector<int> fixAP;
-        //         // fixAP.push_back(0); //a1
+        //         fixAP.push_back(0); //a1
         //         fixAP.push_back(1); //a2
         //         // fixAP.push_back(2); //k1
-        //         // fixAP.push_back(3); //k2
-        //         // fixAP.push_back(4); //k3
-        //         // fixAP.push_back(5); //p1
-        //         // fixAP.push_back(6); //p2
+        //         fixAP.push_back(3); //k2
+        //         fixAP.push_back(4); //k3
+        //         fixAP.push_back(5); //p1
+        //         fixAP.push_back(6); //p2
 
         //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
         //         problem.SetParameterization(&AP[n][0], subset_parameterization);
@@ -3055,9 +3079,9 @@ int main(int argc, char** argv) {
         {
             for(int n = 0; n < xyzTarget.size(); n++)
             {
-                // xyzXStdDev[n] /= 100.0; //only used for debugging
-                // xyzYStdDev[n] /= 100.0;
-                // xyzZStdDev[n] /= 100.0;
+                xyzXStdDev[n] /= 100.0; //only used for debugging
+                xyzYStdDev[n] /= 100.0;
+                xyzZStdDev[n] /= 100.0;
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
@@ -3307,6 +3331,9 @@ int main(int argc, char** argv) {
                 double aposterioriStdDev = sqrt(aposterioriVariance);
                 std::cout<<"        Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"        Ceres A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
+
+                std::cout<<"        AIC: "<<calculateAIC(summary.num_residuals_reduced, 2*summary.final_cost, summary.num_parameters_reduced)<<std::endl;
+                std::cout<<"        BIC: "<<calculateBIC(summary.num_residuals_reduced, 2*summary.final_cost, summary.num_parameters_reduced)<<std::endl;
 
                 Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
                 // std::cout<<"size: "<<v.size()<<std::endl;

@@ -49,8 +49,8 @@
 
 #define PLOTRESULTS 1 // plots the outputs using python
 
-// #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
-#define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
+#define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
+// #define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 
 #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
@@ -2475,9 +2475,10 @@ int main(int argc, char** argv) {
                         new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
+
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -2980,27 +2981,30 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        // if(true)
-        // {   
-        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"   Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         fixAP.push_back(2); //k1
-        //         fixAP.push_back(3); //k2
-        //         fixAP.push_back(4); //k3
-        //         fixAP.push_back(5); //p1
-        //         fixAP.push_back(6); //p2
+        int numAPCorrection = 0;
+        if(true)
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"   Fixing a subset of the AP"<<std::endl;
+            std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                fixAP.push_back(0); //a1
+                fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                // fixAP.push_back(3); //k2
+                // fixAP.push_back(4); //k3
+                // fixAP.push_back(5); //p1
+                // fixAP.push_back(6); //p2
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
-        //     }
-        // }
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
+
+                numAPCorrection = fixAP.size();
+            }
+        }
 
         // if (true)
         // {
@@ -3079,9 +3083,9 @@ int main(int argc, char** argv) {
         {
             for(int n = 0; n < xyzTarget.size(); n++)
             {
-                xyzXStdDev[n] /= 100.0; //only used for debugging
-                xyzYStdDev[n] /= 100.0;
-                xyzZStdDev[n] /= 100.0;
+                // xyzXStdDev[n] /= 100.0; //only used for debugging
+                // xyzYStdDev[n] /= 100.0;
+                // xyzZStdDev[n] /= 100.0;
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
@@ -3326,17 +3330,17 @@ int main(int argc, char** argv) {
                 // approximate the redundancy as 2*numImagePts - 6*EOP -3*XYZ - 7DatumPoints, this ignores #AP, IOP and pseudo obs
                 // double redundancy = 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() - 7;
                 // std::cout<<"     Estimated Redundancy: "<<redundancy<<std::endl;
-                std::cout<<"     CERES GLOBAL A Posteriori Variance (using the robust weights): "<<std::endl;
-                double redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced;
-                std::cout<<"        Ceres Error: "<<2*summary.final_cost<<std::endl;
-                std::cout<<"        Ceres Redundancy: "<<redundancy<<std::endl;
+                std::cout<<"     *CERES GLOBAL A Posteriori Variance (using the robust weights): "<<std::endl;
+                std::cout<<"        *Ceres Quadratic Error: "<<2*summary.final_cost<<std::endl;
+                double redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced - 3*XYZ.size() + 7 + numAPCorrection; //numAPCorrection is from the subsetparametrization which ceres does can keep track of nicely
+                std::cout<<"        *Ceres Redundancy: "<<redundancy<<std::endl;
                 double aposterioriVariance = 2*summary.final_cost / redundancy;
                 double aposterioriStdDev = sqrt(aposterioriVariance);
-                std::cout<<"        Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
-                std::cout<<"        Ceres A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
+                std::cout<<"        *Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
+                std::cout<<"        *Ceres A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
 
-                std::cout<<"        AIC: "<<calculateAIC(summary.num_residuals_reduced, 2*summary.final_cost, summary.num_parameters_reduced)<<std::endl;
-                std::cout<<"        BIC: "<<calculateBIC(summary.num_residuals_reduced, 2*summary.final_cost, summary.num_parameters_reduced)<<std::endl;
+                std::cout<<"        *AIC: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced<<std::endl;
+                std::cout<<"        *BIC: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced<<std::endl;
 
                 Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
                 // std::cout<<"size: "<<v.size()<<std::endl;
@@ -3351,6 +3355,8 @@ int main(int argc, char** argv) {
                 std::cout<<"        sqrt(vTPv/dof): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7))<<std::endl;
                 std::cout<<"        vTPv/ceresRedundancy: "<<vTPv(0,0)/redundancy<<std::endl;
                 std::cout<<"        sqrt(vTPv/ceresRedundancy): "<<sqrt(vTPv(0,0)/redundancy)<<std::endl;
+                std::cout<<"        AIC: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), vTPv(0,0), summary.num_parameters_reduced)<<std::endl;
+                std::cout<<"        BIC: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), vTPv(0,0), summary.num_parameters_reduced)<<std::endl;
 
                 std::cout<<"     Image A Posteriori Variance: "<<std::endl;
                 vTPv = v.topRows(2*imageX.size()).transpose() * v.topRows(2*imageX.size());
@@ -3361,15 +3367,14 @@ int main(int argc, char** argv) {
 
                 aposterioriVarianceImageSpace = vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size());
 
-                std::cout<<"     XYZ A Posteriori Variance: "<<std::endl;
-                vTPv = v.bottomRows(3*XYZ.size()).transpose() * v.bottomRows(3*XYZ.size());
-                std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
-                std::cout<<"        Approx dof: "<<(3*XYZ.size())<<std::endl;
-                std::cout<<"        Approx a posteriori variance XYZ (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(3*XYZ.size())<<std::endl;
-                std::cout<<"        Approx a posteriori std dev XYZ: "<<sqrt(vTPv(0,0)/(3*XYZ.size()))<<std::endl;
+                // std::cout<<"     XYZ A Posteriori Variance: "<<std::endl;
+                // vTPv = v.bottomRows(3*XYZ.size()).transpose() * v.bottomRows(3*XYZ.size());
+                // std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
+                // std::cout<<"        Approx dof: "<<(3*XYZ.size())<<std::endl;
+                // std::cout<<"        Approx a posteriori variance XYZ (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(3*XYZ.size())<<std::endl;
+                // std::cout<<"        Approx a posteriori std dev XYZ: "<<sqrt(vTPv(0,0)/(3*XYZ.size()))<<std::endl;
 
-                
-                aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size());
+                // aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size());
 
 
                 // The above calculation does not work, leave it as 1.0
@@ -3461,6 +3466,7 @@ int main(int argc, char** argv) {
             ceres::Covariance::Options covarianceOptions;
             covarianceOptions.apply_loss_function = true;
             // covarianceOptions.sparse_linear_algebra_library_type = ceres::EIGEN_SPARSE;
+            // The 2 follow lines define a pseudo innerconstraints
             covarianceOptions.algorithm_type = ceres::DENSE_SVD;
             covarianceOptions.null_space_rank = -1;
             ceres::Covariance covariance(covarianceOptions);

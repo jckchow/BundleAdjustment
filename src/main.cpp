@@ -49,17 +49,17 @@
 
 #define PLOTRESULTS 1 // plots the outputs using python
 
-#define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
-// #define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
+// #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
+#define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
-// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmTruth.xyz"
-// #define INPUTROPFILENAME ""
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmTruth.xyz"
+#define INPUTROPFILENAME ""
 
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho"
@@ -453,15 +453,15 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// Nikon Testing Data
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// // Nikon Testing Data
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // // //for all goPro
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
@@ -2434,7 +2434,7 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL; // default to normal Gaussian
-        loss = new ceres::HuberLoss(1.0);
+        // loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
         // loss = new ceres::CauchyLoss(0.5);
@@ -2475,7 +2475,7 @@ int main(int argc, char** argv) {
                         new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
@@ -3325,8 +3325,8 @@ int main(int argc, char** argv) {
                 // std::cout<<"     Estimated Redundancy: "<<redundancy<<std::endl;
                 std::cout<<"     CERES GLOBAL A Posteriori Variance (using the robust weights): "<<std::endl;
                 double redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced;
-                std::cout<<"        Ceres Redundancy: "<<redundancy<<std::endl;
                 std::cout<<"        Ceres Error: "<<2*summary.final_cost<<std::endl;
+                std::cout<<"        Ceres Redundancy: "<<redundancy<<std::endl;
                 double aposterioriVariance = 2*summary.final_cost / redundancy;
                 double aposterioriStdDev = sqrt(aposterioriVariance);
                 std::cout<<"        Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
@@ -3343,26 +3343,27 @@ int main(int argc, char** argv) {
                 //std::cout<<"size: "<<aposteriorVariance.size()<<std::endl;
                 std::cout<<"     MANUAL GLOBAL A Posteriori Variance (assumes normal weights): "<<std::endl;
                 std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
-                std::cout<<"        vTPv/dof: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
-                std::cout<<"        sqrt(vTPv/dof): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
+                std::cout << "      Approximate dof (2*img - 6*EOP - 3*XYZ + 7datum): "<< 2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7 << std::endl;
+                std::cout<<"        vTPv/dof: "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7)<<std::endl;
+                std::cout<<"        sqrt(vTPv/dof): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7))<<std::endl;
                 std::cout<<"        vTPv/ceresRedundancy: "<<vTPv(0,0)/redundancy<<std::endl;
                 std::cout<<"        sqrt(vTPv/ceresRedundancy): "<<sqrt(vTPv(0,0)/redundancy)<<std::endl;
 
                 std::cout<<"     Image A Posteriori Variance: "<<std::endl;
                 vTPv = v.topRows(2*imageX.size()).transpose() * v.topRows(2*imageX.size());
                 std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
-                std::cout<<"        Approx dof: "<<(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
-                std::cout<<"        Approx a posteriori variance image (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size())<<std::endl;
-                std::cout<<"        Approx a posteriori std dev image: "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size()))<<std::endl;
+                std::cout<<"        Approx dof: "<<(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7)<<std::endl;
+                std::cout<<"        Approx a posteriori variance image (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7)<<std::endl;
+                std::cout<<"        Approx a posteriori std dev image: "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7))<<std::endl;
 
                 aposterioriVarianceImageSpace = vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size());
 
                 std::cout<<"     XYZ A Posteriori Variance: "<<std::endl;
                 vTPv = v.bottomRows(3*XYZ.size()).transpose() * v.bottomRows(3*XYZ.size());
                 std::cout<<"        vTPv: "<<vTPv(0,0)<<std::endl;
-                std::cout<<"        Approx dof: "<<(3*XYZ.size() - 7)<<std::endl; // 7 is for the datm definition;
-                std::cout<<"        Approx a posteriori variance XYZ (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(3*XYZ.size() - 7)<<std::endl;
-                std::cout<<"        Approx a posteriori std dev XYZ: "<<sqrt(vTPv(0,0)/(3*XYZ.size() - 7))<<std::endl;
+                std::cout<<"        Approx dof: "<<(3*XYZ.size())<<std::endl;
+                std::cout<<"        Approx a posteriori variance XYZ (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(3*XYZ.size())<<std::endl;
+                std::cout<<"        Approx a posteriori std dev XYZ: "<<sqrt(vTPv(0,0)/(3*XYZ.size()))<<std::endl;
 
                 
                 aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size() - 7);

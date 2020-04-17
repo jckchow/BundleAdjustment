@@ -3339,8 +3339,8 @@ int main(int argc, char** argv) {
                 std::cout<<"        *Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"        *Ceres A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
 
-                std::cout<<"        *AIC: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced<<std::endl;
-                std::cout<<"        *BIC: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced<<std::endl;
+                std::cout<<"        *AIC: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
+                std::cout<<"        *BIC: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
 
                 Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
                 // std::cout<<"size: "<<v.size()<<std::endl;

@@ -27,6 +27,7 @@ import random
 ##################################   
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
 iopFilename = '/home/jckchow/BundleAdjustment/build/iop.jck'
+anglesFilename = '/home/jckchow/BundleAdjustment/build/angles.jck'
 outputDirectory = '/home/jckchow/BundleAdjustment/build/'
 
 
@@ -63,6 +64,15 @@ xpStdDev        = data[:,4];
 ypStdDev        = data[:,5];
 cStdDev         = data[:,6];
 
+# Read in the angles file
+data = np.genfromtxt(anglesFilename, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4))
+data = np.atleast_2d(data);
+
+anglesPointID   = data[:,0].astype(int);
+anglesFrameID   = data[:,1].astype(int);
+anglesSensorID  = data[:,2].astype(int);
+refractionAngle = data[:,3];
+incidenceAngle  = data[:,4];
 
 ##################################
 ### Plot Data
@@ -77,7 +87,6 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     indexSensor = np.argwhere(iopSensorID == cameraID);
     
     print ("  Processing sensor: ", cameraID)
-    
     
 #    # plot the residuals
 #    random.seed( 0 );
@@ -143,9 +152,27 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 #    plt.show()   
     fig = plt.savefig(outputDirectory + str('residualsVertical'), dpi=100, format="tif")
     
-        
+    # plot the measurements so we can see the coverage of the image format
+    fig = plt.figure()
+    fig = plt.subplot(121)
+    fig = plt.scatter(xImg, yImg, color = 'darkorange')
+    fig = plt.title('Image measurements for sensor ' + str(cameraID))
+    fig = plt.xlabel('x')
+    fig = plt.ylabel('y')        
     
-    
+    # plot the angles
+#    fig = plt.figure()
+    fig = plt.subplot(122)
+    random.seed(0);
+#    fig = plt.subplot(414)
+    for i in range(0,len(stationsUnique)):
+        I = np.argwhere(frameID == stationsUnique[i])
+        plt.scatter(refractionAngle[I], incidenceAngle[I], s=2, c=np.atleast_2d(np.array([random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)])))
+#    plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
+    fig = plt.xlabel('Refraction Angle (Image Space)')
+    fig = plt.ylabel('Incidence Angle (Object Space)')
+    fig = plt.tight_layout()
+#    plt.show()   
     
     
     
@@ -193,13 +220,16 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print("Statistics of Residuals")    
     print("   Average x Residuals: " + str(np.mean(xResidual)))
     print("   StdDev x Residuals: " + str(np.std(xResidual)))
-    print("   Min x Residuals: " + str(np.min(xResidual)))
-    print("   Max x Residuals: " + str(np.max(xResidual)))
+    print("     Min x Residuals: " + str(np.min(xResidual)))
+    print("     Max x Residuals: " + str(np.max(xResidual)))
     print("   Average y Residuals: " + str(np.mean(yResidual)))
     print("   StdDev y Residuals: " + str(np.std(yResidual)))
-    print("   Min y Residuals: " + str(np.min(yResidual)))
-    print("   Max y Residuals: " + str(np.max(yResidual)))
-    
+    print("     Min y Residuals: " + str(np.min(yResidual)))
+    print("     Max y Residuals: " + str(np.max(yResidual)))
+    print("   Min Refraction Angle: " + str(np.min(refractionAngle)))
+    print("   Max Refraction Angle: " + str(np.max(refractionAngle)))    
+    print("   Min Incidence Angle: " + str(np.min(incidenceAngle)))
+    print("   Max Incidence Angle: " + str(np.max(incidenceAngle)))   
 #    print("Statistics of Redundancy Numbers")    
 #    print("   Average x Redundancy: " + str(np.mean(xRedundancy)))
 #    print("   Min x Redundancy: " + str(np.min(xRedundancy)))

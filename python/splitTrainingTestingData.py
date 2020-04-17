@@ -58,17 +58,17 @@ from time import time
 #outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training.pho'
 #outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Testing.pho'
 
-inputPho = '/home/jckchow/BundleAdjustment/xrayData1/xray1.pho'
-inputEop = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
-
-outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingROP.eop'
-outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TestingROP.eop'
-
-outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingROP.pho'
-outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TestingROP.pho'
-
-
-chooseIncrement = 2
+#inputPho = '/home/jckchow/BundleAdjustment/xrayData1/xray1.pho'
+#inputEop = '/home/jckchow/BundleAdjustment/xrayData1/xray1TruthROP.eop'
+#
+#outputEopTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingROP.eop'
+#outputEopTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TestingROP.eop'
+#
+#outputPhoTraining = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingROP.pho'
+#outputPhoTesting = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TestingROP.pho'
+#
+#
+#chooseIncrement = 2
 
 #####
 ## Omni Paper 1 TC 1: Nikon
@@ -94,6 +94,36 @@ chooseIncrement = 2
 
 #chooseIncrement = 2
 
+
+#####
+## Omni Paper 2
+#####
+
+#### Nikon
+inputPho = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho'
+inputEop = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
+
+outputEopTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop'
+outputEopTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop'
+
+outputPhoTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho'
+outputPhoTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho'
+
+chooseIncrement = 4
+
+#### GoPro
+
+#inputPho = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho'
+#inputEop = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
+#
+#outputEopTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop'
+#outputEopTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop'
+#
+#outputPhoTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho'
+#outputPhoTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.pho'
+#
+#chooseIncrement = 8
+
 ##########################################
 ### read and split the data
 ##########################################
@@ -101,15 +131,15 @@ t0 = time()
 pho = np.genfromtxt(inputPho, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7))
 eop = np.genfromtxt(inputEop, delimiter=' ', skip_header=0, usecols = (0,1,2,3,4,5,6,7))
 
-print "Number of original stations: ", len(eop)
+print( "Number of original stations: ", len(eop) )
 
 # ID of images to be used for testing. The remaining will be used for training.
 testingIndex  = range(0, len(eop), chooseIncrement) # using 10% of the photos for testing
 trainingIndex = range(0, len(eop), 1)
 trainingIndex = np.setdiff1d(trainingIndex, testingIndex)
 
-print "  Number of testing stations: ", len(testingIndex)
-print "  Number of training stations: ", len(trainingIndex)
+print( "  Number of testing stations: ", len(testingIndex) )
+print( "  Number of training stations: ", len(trainingIndex) )
 
 
 eopTesting = eop[testingIndex,:]
@@ -125,7 +155,7 @@ for n in range(0,len(eopTestingID)):
 phoTesting = np.asarray(phoTesting)
 phoTesting = np.reshape(phoTesting, (-1,8))
 
-print "Number of testing samples: ", len(phoTesting)
+print( "Number of testing samples: ", len(phoTesting) )
 
 phoTraining = []
 for n in range(0,len(eopTrainingID)):
@@ -134,7 +164,7 @@ for n in range(0,len(eopTrainingID)):
 phoTraining = np.asarray(phoTraining)
 phoTraining = np.reshape(phoTraining, (-1,8))
 
-print "Number of training samples: ", len(phoTraining)
+print( "Number of training samples: ", len(phoTraining) )
 
 ############################
 ### Output training and testing data to file  corrections
@@ -145,4 +175,4 @@ np.savetxt(outputEopTraining, eopTraining, '%i %i %f %f %f %f %f %f', delimiter=
 np.savetxt(outputPhoTesting, phoTesting, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
 np.savetxt(outputPhoTraining, phoTraining, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
 
-print"Done outputting training and testing data:", round(time()-t0, 3), "s"
+print( "Done outputting training and testing data:", round(time()-t0, 3), "s" )

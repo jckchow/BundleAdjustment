@@ -47,19 +47,19 @@
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
-#define PLOTRESULTS 1 // plots the outputs using python
+#define PLOTRESULTS 0 // plots the outputs using python
 
 #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 // #define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmTruth.xyz"
-#define INPUTROPFILENAME ""
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mmTruth.xyz"
+// #define INPUTROPFILENAME ""
 
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1Training.pho"
 // // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/xrayData1/Training270Testing30/After/xray1TrainingCalibrated.pho"
@@ -443,7 +443,18 @@
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// // // Nikon Training Data
+
+// Nikon Training Data
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+#define INPUTROPFILENAME ""
+
+// // Nikon Testing Data
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
@@ -451,16 +462,6 @@
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
-
-// // Nikon Testing Data
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
 // // //for all goPro
@@ -2434,7 +2435,7 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL; // default to normal Gaussian
-        // loss = new ceres::HuberLoss(1.0);
+        loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
         // loss = new ceres::CauchyLoss(0.5);
@@ -2994,10 +2995,10 @@ int main(int argc, char** argv) {
                 fixAP.push_back(0); //a1
                 fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
-                // fixAP.push_back(3); //k2
-                // fixAP.push_back(4); //k3
-                // fixAP.push_back(5); //p1
-                // fixAP.push_back(6); //p2
+                fixAP.push_back(3); //k2
+                fixAP.push_back(4); //k3
+                fixAP.push_back(5); //p1
+                fixAP.push_back(6); //p2
 
                 ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
                 problem.SetParameterization(&AP[n][0], subset_parameterization);
@@ -3200,6 +3201,8 @@ int main(int argc, char** argv) {
         leastSquaresCost.push_back(summary.final_cost);
         double aposterioriVarianceImageSpace = 1.0;
         double aposterioriVarianceObjectSpace = 1.0;
+        double aposterioriStdDev = 1.0;
+
 
         //////////////////////////////////////////
         /// Computer the incidence angle
@@ -3304,7 +3307,6 @@ int main(int argc, char** argv) {
                 XYZResiduals(n,2) = residuals[startIndex + 3*n+2];
             }
 
-
             if (true) // compute the a posteriori variance factor for scaling the Cx later
             {
                 std::cout<<"  Estimating A Posterior Variance Factor..."<<std::endl;
@@ -3335,7 +3337,7 @@ int main(int argc, char** argv) {
                 double redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced - 3*XYZ.size() + 7 + numAPCorrection; //numAPCorrection is from the subsetparametrization which ceres does can keep track of nicely
                 std::cout<<"        *Ceres Redundancy: "<<redundancy<<std::endl;
                 double aposterioriVariance = 2*summary.final_cost / redundancy;
-                double aposterioriStdDev = sqrt(aposterioriVariance);
+                aposterioriStdDev = sqrt(aposterioriVariance);
                 std::cout<<"        *Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"        *Ceres A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
 
@@ -3466,9 +3468,16 @@ int main(int argc, char** argv) {
             ceres::Covariance::Options covarianceOptions;
             covarianceOptions.apply_loss_function = true;
             // covarianceOptions.sparse_linear_algebra_library_type = ceres::EIGEN_SPARSE;
-            // The 2 follow lines define a pseudo innerconstraints
-            covarianceOptions.algorithm_type = ceres::DENSE_SVD;
-            covarianceOptions.null_space_rank = -1;
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+            /// The 2 follow lines define a pseudo innerconstraints EOP and object space coordinates, but very slow
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+            // covarianceOptions.algorithm_type = ceres::DENSE_SVD;
+            // covarianceOptions.null_space_rank = -1;
+            ///////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////
+
             ceres::Covariance covariance(covarianceOptions);
 
             std::vector<std::pair<const double*, const double*> > covariance_blocks;
@@ -3703,6 +3712,12 @@ int main(int argc, char** argv) {
                 // for (int n = 0; n < covariance_X.rows(); n++)
                 //     for (int m = 0; m < covariance_X.cols(); m++)
                 //         Cx(i*3+n + 6*EOP.size()+3*XYZ.size(),i*3+m + 6*EOP.size()+3*XYZ.size()) = covariance_X(n,m);
+
+                std::cout<<"Testing individual IOP of sensor "<<i<<" for level of significance: "<<std::endl;
+                std::cout<<"   xp: "<<IOP[i][0]<<" +/- "<<sqrt(iopVariance(i,0))<<". 95% significance test: is "<<fabs(IOP[i][0])/(1E-16+sqrt(iopVariance(i,0))) <<" and scaled "<< fabs(IOP[i][0])/(1E-16+aposterioriStdDev*sqrt(iopVariance(i,0)))<<" > 1.96" <<std::endl;
+                std::cout<<"   yp: "<<IOP[i][1]<<" +/- "<<sqrt(iopVariance(i,1))<<". 95% significance test: is "<<fabs(IOP[i][1])/(1E-16+sqrt(iopVariance(i,1))) <<" and scaled "<< fabs(IOP[i][1])/(1E-16+aposterioriStdDev*sqrt(iopVariance(i,1)))<<" > 1.96" <<std::endl;
+                std::cout<<"    c: "<<IOP[i][2]<<" +/- "<<sqrt(iopVariance(i,2))<<". 95% significance test: is "<<fabs(IOP[i][2])/(1E-16+sqrt(iopVariance(i,2))) <<" and scaled "<< fabs(IOP[i][2])/(1E-16+aposterioriStdDev*sqrt(iopVariance(i,2)))<<" > 1.96" <<std::endl;
+
             }
 
             // Eigen::MatrixXd apVariance(AP.size(),7);
@@ -3728,7 +3743,16 @@ int main(int argc, char** argv) {
                 apVariance(i,5) *= aposterioriVarianceImageSpace;
                 apVariance(i,6) *= aposterioriVarianceImageSpace;
 
-                std::cout<<"AP Std Dev: "<<sqrt(apVariance(i,0))<<", "<<sqrt(apVariance(i,1))<<", "<<sqrt(apVariance(i,2))<<", "<<sqrt(apVariance(i,3))<<", "<<sqrt(apVariance(i,4))<<", "<<sqrt(apVariance(i,5))<<", "<<sqrt(apVariance(i,6))<<std::endl;
+                std::cout<<"Testing individual AP of sensor "<<i<<" for level of significance: "<<std::endl;
+                std::cout<<"   a1: "<<AP[i][0]<<" +/- "<<sqrt(apVariance(i,0))<<". 95% significance test: is "<<fabs(AP[i][0])/(1E-16+sqrt(apVariance(i,0))) <<" and scaled "<< fabs(AP[i][0])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,0)))<<" > 1.96" <<std::endl;
+                std::cout<<"   a2: "<<AP[i][1]<<" +/- "<<sqrt(apVariance(i,1))<<". 95% significance test: is "<<fabs(AP[i][1])/(1E-16+sqrt(apVariance(i,1))) <<" and scaled "<< fabs(AP[i][1])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,1)))<<" > 1.96" <<std::endl;
+                std::cout<<"   k1: "<<AP[i][2]<<" +/- "<<sqrt(apVariance(i,2))<<". 95% significance test: is "<<fabs(AP[i][2])/(1E-16+sqrt(apVariance(i,2))) <<" and scaled "<< fabs(AP[i][2])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,2)))<<" > 1.96" <<std::endl;
+                std::cout<<"   k2: "<<AP[i][3]<<" +/- "<<sqrt(apVariance(i,3))<<". 95% significance test: is "<<fabs(AP[i][3])/(1E-16+sqrt(apVariance(i,3))) <<" and scaled "<< fabs(AP[i][3])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,3)))<<" > 1.96" <<std::endl;
+                std::cout<<"   k3: "<<AP[i][4]<<" +/- "<<sqrt(apVariance(i,4))<<". 95% significance test: is "<<fabs(AP[i][4])/(1E-16+sqrt(apVariance(i,4))) <<" and scaled "<< fabs(AP[i][4])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,4)))<<" > 1.96" <<std::endl;
+                std::cout<<"   p1: "<<AP[i][5]<<" +/- "<<sqrt(apVariance(i,5))<<". 95% significance test: is "<<fabs(AP[i][5])/(1E-16+sqrt(apVariance(i,5))) <<" and scaled "<< fabs(AP[i][5])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,5)))<<" > 1.96" <<std::endl;
+                std::cout<<"   p2: "<<AP[i][6]<<" +/- "<<sqrt(apVariance(i,6))<<". 95% significance test: is "<<fabs(AP[i][6])/(1E-16+sqrt(apVariance(i,6))) <<" and scaled "<< fabs(AP[i][6])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,6)))<<" > 1.96" <<std::endl;
+
+                // <<", "<<sqrt(apVariance(i,1))<<", "<<sqrt(apVariance(i,2))<<", "<<sqrt(apVariance(i,3))<<", "<<sqrt(apVariance(i,4))<<", "<<sqrt(apVariance(i,5))<<", "<<sqrt(apVariance(i,6))<<std::endl;
                 // // store the full variance-covariance matrix
                 // for (int n = 0; n < covariance_X.rows(); n++)
                 //     for (int m = 0; m < covariance_X.cols(); m++)
@@ -4413,7 +4437,7 @@ int main(int argc, char** argv) {
             std::cout<<"Residuals:"<<std::endl;
             std::cout<<imageResiduals<<std::endl;
         }
-        std::cout<<"  Reprojection errors (RMSE in x, y, and total): " << sqrt(reprojectionErrors(0,0) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,1) / imageX.size()) << " --> " << sqrt(reprojectionErrors(0,2) / (2*imageX.size())) << std::endl;
+        std::cout<<"  Reprojection errors (RMSE in x, y, and average): " << sqrt(reprojectionErrors(0,0) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,1) / imageX.size()) << " --> " << sqrt(reprojectionErrors(0,2) / (2*imageX.size())) << std::endl;
 
         // Output results to file
         PyRun_SimpleString("t0 = TIME.process_time()");        
@@ -4708,7 +4732,7 @@ int main(int argc, char** argv) {
             RMSE_Y = sqrt(RMSE_Y);
             RMSE_Z = sqrt(RMSE_Z);
             
-            std::cout<<"    RMSE X, Y, Z, Total: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
+            std::cout<<"    RMSE X, Y, Z, Average: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
             PyRun_SimpleString("print( 'Done QC:', round(TIME.process_time()-t0, 3), 's' )");
         }   
 

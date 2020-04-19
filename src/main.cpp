@@ -42,7 +42,7 @@
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
@@ -444,25 +444,25 @@
 // #define INPUTROPFILENAME ""
 
 
-// Nikon Training Data
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
-#define INPUTROPFILENAME ""
-
-// // Nikon Testing Data
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
+// // Nikon Training Data
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
 // // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
+
+// Nikon Testing Data
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 // // //for all goPro
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
@@ -2622,7 +2622,7 @@ int main(int argc, char** argv) {
                         new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
@@ -3129,39 +3129,39 @@ int main(int argc, char** argv) {
         // }
 
         int numAPCorrection = 0; // don't comment this away
-        // if(true)
-        // {   
-        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"   Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         // fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
-        //         // fixAP.push_back(3); //k2
-        //         // fixAP.push_back(4); //k3
-        //         // fixAP.push_back(5); //p1
-        //         // fixAP.push_back(6); //p2
+        if(true)
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"   Fixing a subset of the AP"<<std::endl;
+            std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                // fixAP.push_back(0); //a1
+                // fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                // fixAP.push_back(3); //k2
+                // fixAP.push_back(4); //k3
+                // fixAP.push_back(5); //p1
+                // fixAP.push_back(6); //p2
 
-        //         fixAP.push_back(7); //ep1
-        //         fixAP.push_back(8); //ep2
-        //         fixAP.push_back(9); //ep3
-        //         fixAP.push_back(10); //ep4
-        //         fixAP.push_back(11); //ep5
-        //         fixAP.push_back(12); //ep6
-        //         fixAP.push_back(13); //ep7
-        //         fixAP.push_back(14); //ep8
-        //         fixAP.push_back(15); //ep9
+                fixAP.push_back(7); //ep1
+                fixAP.push_back(8); //ep2
+                fixAP.push_back(9); //ep3
+                fixAP.push_back(10); //ep4
+                fixAP.push_back(11); //ep5
+                fixAP.push_back(12); //ep6
+                fixAP.push_back(13); //ep7
+                fixAP.push_back(14); //ep8
+                fixAP.push_back(15); //ep9
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
 
-        //         numAPCorrection = fixAP.size();
-        //     }
-        // }
+                numAPCorrection = fixAP.size();
+            }
+        }
 
         // if (true)
         // {
@@ -3452,8 +3452,9 @@ int main(int argc, char** argv) {
             std::cout<<"       ep1, ep2, ep3, ep4, ep5, ep6, ep7, ep8, ep9 to screen..."<<std::endl;
             std::cout<<"       Sensor " << iopCamera[0]<<": "<< AP[0][7]<<", "<< AP[0][8]<<", "<< AP[0][9]<<", "<< AP[0][10]<<", "<< AP[0][11]<<", "<< AP[0][12]<<", "<< AP[0][13] <<", "<< AP[0][14]<<", "<< AP[0][15]<<std::endl;
 
-
-            std::cout<<"  CALIBRATION: "<<iopCamera[0]<<": "<< IOP[0][0]<<" "<< IOP[0][1]<<" "<< IOP[0][2]<<AP[0][0]<<" "<< AP[0][1]<<" "<< AP[0][2]<<" "<< AP[0][3]<<" "<< AP[0][4]<<" "<< AP[0][5]<<" "<< AP[0][6]<<" "<< AP[0][7]<<" "<< AP[0][8]<<" "<< AP[0][9]<<" "<< AP[0][10]<<" "<< AP[0][11]<<" "<< AP[0][12]<<" "<< AP[0][13] <<" "<< AP[0][14]<<" "<< AP[0][15]<<std::endl;
+            std::cout.precision(9); 
+            std::cout<<std::scientific<<"  --> CALIBRATION: "<<iopCamera[0]<<": "<< IOP[0][0]<<" "<< IOP[0][1]<<" "<< IOP[0][2]<<" "<<AP[0][0]<<" "<< AP[0][1]<<" "<< AP[0][2]<<" "<< AP[0][3]<<" "<< AP[0][4]<<" "<< AP[0][5]<<" "<< AP[0][6]<<" "<< AP[0][7]<<" "<< AP[0][8]<<" "<< AP[0][9]<<" "<< AP[0][10]<<" "<< AP[0][11]<<" "<< AP[0][12]<<" "<< AP[0][13] <<" "<< AP[0][14]<<" "<< AP[0][15]<<std::endl;
+            std::cout<<std::defaultfloat;
         }
 
 
@@ -4937,6 +4938,7 @@ int main(int argc, char** argv) {
             std::cout << "  Number of XYZ Ground Truth Read: "<< XYZTruth.size() << std::endl;
             std::cout << "  Number of XYZ estimated        : "<< XYZ.size() << std::endl;
 
+            int numMatches = 0;
             double RMSE_X = 0.0;
             double RMSE_Y = 0.0;
             double RMSE_Z = 0.0;
@@ -4949,10 +4951,13 @@ int main(int argc, char** argv) {
                         RMSE_X += pow(XYZ[j][0] - XYZTruth[i][0],2.0);
                         RMSE_Y += pow(XYZ[j][1] - XYZTruth[i][1],2.0);
                         RMSE_Z += pow(XYZ[j][2] - XYZTruth[i][2],2.0);
+
+                        numMatches++;
                         break;
                     }
                 }
             }
+            std::cout << "  Number of matching points used : "<< numMatches << std::endl;
             RMSE_X /= XYZTruth.size();
             RMSE_Y /= XYZTruth.size();
             RMSE_Z /= XYZTruth.size();

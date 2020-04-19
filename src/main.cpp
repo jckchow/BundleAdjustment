@@ -3141,7 +3141,7 @@ int main(int argc, char** argv) {
                 fixAP.push_back(0); //a1
                 fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
-                fixAP.push_back(3); //k2
+                // fixAP.push_back(3); //k2
                 fixAP.push_back(4); //k3
                 fixAP.push_back(5); //p1
                 fixAP.push_back(6); //p2
@@ -3156,7 +3156,7 @@ int main(int argc, char** argv) {
                 fixAP.push_back(14); //ep8
                 fixAP.push_back(15); //ep9
 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
                 problem.SetParameterization(&AP[n][0], subset_parameterization);
 
                 numAPCorrection = fixAP.size();
@@ -3279,54 +3279,54 @@ int main(int argc, char** argv) {
 
 
         // prior on the AP
-        if (true)
-        {
-            for(int n = 0; n < iopCamera.size(); n++)
-            {
-                double a1StdDev  = 1.0E-6;
-                double a2StdDev  = 1.0E-6;
-                double k1StdDev  = 1.0E-6;
-                double k2StdDev  = 1.0E-6;
-                double k3StdDev  = 1.0E-6;
-                double p1StdDev  = 1.0E-6;
-                double p2StdDev  = 1.0E-6;
+        // if (true)
+        // {
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         double a1StdDev  = 1.0E-6;
+        //         double a2StdDev  = 1.0E-6;
+        //         double k1StdDev  = 1.0E-6;
+        //         double k2StdDev  = 1.0E-6;
+        //         double k3StdDev  = 1.0E-6;
+        //         double p1StdDev  = 1.0E-6;
+        //         double p2StdDev  = 1.0E-6;
 
-                double ep1StdDev  = 1.0E-6;
-                double ep2StdDev  = 1.0E-6;
-                double ep3StdDev  = 1.0E-6;
-                double ep4StdDev  = 1.0E-6;
-                double ep5StdDev  = 1.0E-6;
-                double ep6StdDev  = 1.0E-6;
-                double ep7StdDev  = 1.0E-6;
-                double ep8StdDev  = 1.0E-6;
-                double ep9StdDev  = 1.0E-6;
+        //         double ep1StdDev  = 1.0E-6;
+        //         double ep2StdDev  = 1.0E-6;
+        //         double ep3StdDev  = 1.0E-6;
+        //         double ep4StdDev  = 1.0E-6;
+        //         double ep5StdDev  = 1.0E-6;
+        //         double ep6StdDev  = 1.0E-6;
+        //         double ep7StdDev  = 1.0E-6;
+        //         double ep8StdDev  = 1.0E-6;
+        //         double ep9StdDev  = 1.0E-6;
 
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<constrainAP, 16, 16>(
-                        new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], iopEp1[n], iopEp2[n], iopEp3[n], iopEp4[n], iopEp5[n], iopEp6[n], iopEp7[n], iopEp8[n], iopEp9[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev, ep1StdDev, ep2StdDev, ep3StdDev, ep4StdDev, ep5StdDev, ep6StdDev, ep7StdDev, ep8StdDev, ep9StdDev));
-                problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<constrainAP, 16, 16>(
+        //                 new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], iopEp1[n], iopEp2[n], iopEp3[n], iopEp4[n], iopEp5[n], iopEp6[n], iopEp7[n], iopEp8[n], iopEp9[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev, ep1StdDev, ep2StdDev, ep3StdDev, ep4StdDev, ep5StdDev, ep6StdDev, ep7StdDev, ep8StdDev, ep9StdDev));
+        //         problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
 
-                variances.push_back(a1StdDev*a1StdDev);
-                variances.push_back(a2StdDev*a2StdDev);
-                variances.push_back(k1StdDev*k1StdDev);
-                variances.push_back(k2StdDev*k2StdDev);
-                variances.push_back(k3StdDev*k3StdDev);
-                variances.push_back(p1StdDev*p1StdDev);
-                variances.push_back(p2StdDev*p2StdDev);
+        //         variances.push_back(a1StdDev*a1StdDev);
+        //         variances.push_back(a2StdDev*a2StdDev);
+        //         variances.push_back(k1StdDev*k1StdDev);
+        //         variances.push_back(k2StdDev*k2StdDev);
+        //         variances.push_back(k3StdDev*k3StdDev);
+        //         variances.push_back(p1StdDev*p1StdDev);
+        //         variances.push_back(p2StdDev*p2StdDev);
 
-                variances.push_back(ep1StdDev*ep1StdDev);
-                variances.push_back(ep2StdDev*ep2StdDev);
-                variances.push_back(ep3StdDev*ep3StdDev);
-                variances.push_back(ep4StdDev*ep4StdDev);
-                variances.push_back(ep5StdDev*ep5StdDev);
-                variances.push_back(ep6StdDev*ep6StdDev);
-                variances.push_back(ep7StdDev*ep7StdDev);
-                variances.push_back(ep8StdDev*ep8StdDev);
-                variances.push_back(ep9StdDev*ep9StdDev);
+        //         variances.push_back(ep1StdDev*ep1StdDev);
+        //         variances.push_back(ep2StdDev*ep2StdDev);
+        //         variances.push_back(ep3StdDev*ep3StdDev);
+        //         variances.push_back(ep4StdDev*ep4StdDev);
+        //         variances.push_back(ep5StdDev*ep5StdDev);
+        //         variances.push_back(ep6StdDev*ep6StdDev);
+        //         variances.push_back(ep7StdDev*ep7StdDev);
+        //         variances.push_back(ep8StdDev*ep8StdDev);
+        //         variances.push_back(ep9StdDev*ep9StdDev);
 
-            }
-        }
+        //     }
+        // }
 
         // if(DEBUGMODE)
         // {
@@ -3627,7 +3627,7 @@ int main(int argc, char** argv) {
         Eigen::MatrixXd xyzVariance(XYZ.size(),3);
         Eigen::MatrixXd eopVariance(EOP.size(),6);
         Eigen::MatrixXd iopVariance(IOP.size(),3);
-        Eigen::MatrixXd apVariance(AP.size(),7);
+        Eigen::MatrixXd apVariance(AP.size(),16);
         Eigen::MatrixXd mlpVariance(MLP.size(),2);
         Eigen::MatrixXd ropVariance(ROP.size(),6);
 
@@ -3904,17 +3904,30 @@ int main(int argc, char** argv) {
             // Eigen::MatrixXd apVariance(AP.size(),7);
             for(int i = 0; i < AP.size(); i++)
             {
-                Eigen::MatrixXd covariance_X(7, 7);
+                // std::cout<<"AP.size(): "<<AP.size()<<std::endl;
+                // std::cout<<"AP[i].size(): "<<AP[i].size()<<std::endl;
+
+                Eigen::MatrixXd covariance_X(16, 16);
                 covariance.GetCovarianceBlock(&AP[i][0], &AP[i][0], covariance_X.data());
-                Eigen::VectorXd variance_X(7);
+                Eigen::VectorXd variance_X(16);
                 variance_X = covariance_X.diagonal();
-                apVariance(i,0) = variance_X(0);
-                apVariance(i,1) = variance_X(1);
-                apVariance(i,2) = variance_X(2);
-                apVariance(i,3) = variance_X(3);
-                apVariance(i,4) = variance_X(4);
-                apVariance(i,5) = variance_X(5);
-                apVariance(i,6) = variance_X(6);
+                apVariance(i,0) = variance_X(0); //a1
+                apVariance(i,1) = variance_X(1); //a2
+                apVariance(i,2) = variance_X(2); //k1
+                apVariance(i,3) = variance_X(3); //k2
+                apVariance(i,4) = variance_X(4); //k3
+                apVariance(i,5) = variance_X(5); //p1
+                apVariance(i,6) = variance_X(6); //p2
+
+                apVariance(i,7) = variance_X(7); //ep1
+                apVariance(i,8) = variance_X(8); //ep2
+                apVariance(i,9) = variance_X(9); //ep3
+                apVariance(i,10) = variance_X(10); //ep4
+                apVariance(i,11) = variance_X(11); //ep5
+                apVariance(i,12) = variance_X(12); //ep6
+                apVariance(i,13) = variance_X(13); //ep7
+                apVariance(i,14) = variance_X(14); //ep8
+                apVariance(i,15) = variance_X(15); //ep9
 
                 apVariance(i,0) *= aposterioriVarianceImageSpace;
                 apVariance(i,1) *= aposterioriVarianceImageSpace;
@@ -3923,6 +3936,16 @@ int main(int argc, char** argv) {
                 apVariance(i,4) *= aposterioriVarianceImageSpace;
                 apVariance(i,5) *= aposterioriVarianceImageSpace;
                 apVariance(i,6) *= aposterioriVarianceImageSpace;
+
+                apVariance(i,7) *= aposterioriVarianceImageSpace;
+                apVariance(i,8) *= aposterioriVarianceImageSpace;
+                apVariance(i,9) *= aposterioriVarianceImageSpace;
+                apVariance(i,10) *= aposterioriVarianceImageSpace;
+                apVariance(i,11) *= aposterioriVarianceImageSpace;
+                apVariance(i,12) *= aposterioriVarianceImageSpace;
+                apVariance(i,13) *= aposterioriVarianceImageSpace;
+                apVariance(i,14) *= aposterioriVarianceImageSpace;
+                apVariance(i,15) *= aposterioriVarianceImageSpace;
 
                 std::cout<<"Testing individual AP of sensor "<<i<<" for level of significance: "<<std::endl;
                 std::cout<<"   a1: "<<AP[i][0]<<" +/- "<<sqrt(apVariance(i,0))<<". 95% significance test: is "<<fabs(AP[i][0])/(1E-16+sqrt(apVariance(i,0))) <<" and scaled "<< fabs(AP[i][0])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,0)))<<" > 1.96" <<std::endl;

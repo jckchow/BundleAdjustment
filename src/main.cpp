@@ -445,23 +445,23 @@
 
 
 // Nikon Training Data
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
 #define INPUTROPFILENAME ""
 
 // // Nikon Testing Data
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
 // // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
 // // //for all goPro
@@ -3128,7 +3128,7 @@ int main(int argc, char** argv) {
         //     }
         // }
 
-        int numAPCorrection = 0;
+        int numAPCorrection = 0; // don't comment this away
         if(true)
         {   
             // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
@@ -3141,8 +3141,8 @@ int main(int argc, char** argv) {
                 fixAP.push_back(0); //a1
                 fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
-                fixAP.push_back(3); //k2
-                fixAP.push_back(4); //k3
+                // fixAP.push_back(3); //k2
+                // fixAP.push_back(4); //k3
                 fixAP.push_back(5); //p1
                 fixAP.push_back(6); //p2
 
@@ -3520,8 +3520,10 @@ int main(int argc, char** argv) {
                 std::cout<<"        *Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"        *Ceres A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
 
-                std::cout<<"        *AIC: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
-                std::cout<<"        *BIC: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
+                std::cout<<"        *AIC n: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
+                std::cout<<"        *BIC n: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
+                std::cout<<"        *AIC n-u: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection)<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
+                std::cout<<"        *BIC n-u: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection)<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
 
                 Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
                 // std::cout<<"size: "<<v.size()<<std::endl;
@@ -3558,7 +3560,7 @@ int main(int argc, char** argv) {
                 // aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size());
 
                 // if we don't want to scale the cofactor matrix
-                aposterioriStdDev = 1.0;
+                //aposterioriStdDev = 1.0;
                 aposterioriVariance = 1.0;
 
             }

@@ -3141,7 +3141,7 @@ int main(int argc, char** argv) {
                 fixAP.push_back(0); //a1
                 fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
-                // fixAP.push_back(3); //k2
+                fixAP.push_back(3); //k2
                 fixAP.push_back(4); //k3
                 fixAP.push_back(5); //p1
                 fixAP.push_back(6); //p2
@@ -3557,8 +3557,9 @@ int main(int argc, char** argv) {
 
                 // aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size());
 
-                double aposterioriStdDev = 1.0;
-                double aposterioriVariance = 1.0;
+                // if we don't want to scale the cofactor matrix
+                aposterioriStdDev = 1.0;
+                aposterioriVariance = 1.0;
 
             }
         }
@@ -4763,6 +4764,17 @@ int main(int argc, char** argv) {
             for(int i = 0; i < IOP.size(); ++i)
             {
                 fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", iopCamera[i], IOP[i][0], IOP[i][1], IOP[i][2], sqrt(iopVariance(i,0)), sqrt(iopVariance(i,1)), sqrt(iopVariance(i,2)) );
+            }
+            fclose(fout);
+        }
+
+        if (true)
+        {
+            std::cout<<"  Writing APs to file..."<<std::endl;
+            FILE *fout = fopen("ap.jck", "w");
+            for(int i = 0; i < IOP.size(); ++i)
+            {
+                fprintf(fout, "%i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", iopCamera[i], AP[i][0], AP[i][1], AP[i][2], AP[i][3], AP[i][4], AP[i][5], AP[i][6], AP[i][7], AP[i][8], AP[i][9], AP[i][10], AP[i][11], AP[i][12], AP[i][13], AP[i][14], AP[i][15], sqrt(apVariance(i,0)), sqrt(apVariance(i,1)), sqrt(apVariance(i,2)), sqrt(apVariance(i,3)), sqrt(apVariance(i,4)), sqrt(apVariance(i,5)), sqrt(apVariance(i,6)), sqrt(apVariance(i,7)), sqrt(apVariance(i,8)), sqrt(apVariance(i,9)), sqrt(apVariance(i,10)), sqrt(apVariance(i,11)), sqrt(apVariance(i,12)), sqrt(apVariance(i,13)), sqrt(apVariance(i,14)), sqrt(apVariance(i,15)) );
             }
             fclose(fout);
         }

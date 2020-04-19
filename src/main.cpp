@@ -3376,9 +3376,8 @@ int main(int argc, char** argv) {
 
         // storing it for comparison in this EM like routine
         leastSquaresCost.push_back(summary.final_cost);
-        double aposterioriVarianceImageSpace = 1.0;
-        double aposterioriVarianceObjectSpace = 1.0;
         double aposterioriStdDev = 1.0;
+        double aposterioriVariance = 1.0;
 
 
         //////////////////////////////////////////
@@ -3516,7 +3515,7 @@ int main(int argc, char** argv) {
                 std::cout<<"        *Ceres Quadratic Error: "<<2*summary.final_cost<<std::endl;
                 double redundancy =  summary.num_residuals_reduced - summary.num_parameters_reduced - 3*XYZ.size() + 7 + numAPCorrection; //numAPCorrection is from the subsetparametrization which ceres does can keep track of nicely
                 std::cout<<"        *Ceres Redundancy: "<<redundancy<<std::endl;
-                double aposterioriVariance = 2*summary.final_cost / redundancy;
+                aposterioriVariance = 2*summary.final_cost / redundancy;
                 aposterioriStdDev = sqrt(aposterioriVariance);
                 std::cout<<"        *Ceres A Posteriori Variance: "<<aposterioriVariance<<std::endl;
                 std::cout<<"        *Ceres A Posteriori Std Dev: "<<aposterioriStdDev<<std::endl;
@@ -3547,7 +3546,7 @@ int main(int argc, char** argv) {
                 std::cout<<"        Approx a posteriori variance image (used for scaling Cx = apostVar*Qx): "<<vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7)<<std::endl;
                 std::cout<<"        Approx a posteriori std dev image: "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7))<<std::endl;
 
-                aposterioriVarianceImageSpace = vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size());
+                double aposterioriVarianceImageSpace = vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size());
 
                 // std::cout<<"     XYZ A Posteriori Variance: "<<std::endl;
                 // vTPv = v.bottomRows(3*XYZ.size()).transpose() * v.bottomRows(3*XYZ.size());
@@ -3558,10 +3557,9 @@ int main(int argc, char** argv) {
 
                 // aposterioriVarianceObjectSpace = vTPv(0,0)/(3*XYZ.size());
 
+                double aposterioriStdDev = 1.0;
+                double aposterioriVariance = 1.0;
 
-                // The above calculation does not work, leave it as 1.0
-                aposterioriVarianceImageSpace = 1.0;
-                aposterioriVarianceObjectSpace = 1.0;
             }
         }
 
@@ -3839,9 +3837,9 @@ int main(int argc, char** argv) {
                 // std::cout<<covariance_X<<std::endl;
                 // sleep(100000);
 
-                xyzVariance(i,0) *= aposterioriVarianceObjectSpace;
-                xyzVariance(i,1) *= aposterioriVarianceObjectSpace;
-                xyzVariance(i,2) *= aposterioriVarianceObjectSpace;
+                xyzVariance(i,0) *= aposterioriVariance;
+                xyzVariance(i,1) *= aposterioriVariance;
+                xyzVariance(i,2) *= aposterioriVariance;
             //  std::cout << "Variance: " << covariance_X.diagonal() << std::endl; 
             //  std::cout<<"covariance matrix: "<<std::endl;
             //  std::cout<<covariance_X<<std::endl;
@@ -3866,12 +3864,12 @@ int main(int argc, char** argv) {
                 eopVariance(i,4) = variance_X(4);
                 eopVariance(i,5) = variance_X(5);
 
-                eopVariance(i,0) *= aposterioriVarianceObjectSpace;
-                eopVariance(i,1) *= aposterioriVarianceObjectSpace;
-                eopVariance(i,2) *= aposterioriVarianceObjectSpace;
-                eopVariance(i,3) *= aposterioriVarianceObjectSpace;
-                eopVariance(i,4) *= aposterioriVarianceObjectSpace;
-                eopVariance(i,5) *= aposterioriVarianceObjectSpace;
+                eopVariance(i,0) *= aposterioriVariance;
+                eopVariance(i,1) *= aposterioriVariance;
+                eopVariance(i,2) *= aposterioriVariance;
+                eopVariance(i,3) *= aposterioriVariance;
+                eopVariance(i,4) *= aposterioriVariance;
+                eopVariance(i,5) *= aposterioriVariance;
             }
 
             // Eigen::MatrixXd iopVariance(IOP.size(),3);
@@ -3886,9 +3884,9 @@ int main(int argc, char** argv) {
                 iopVariance(i,2) = variance_X(2);
 
 
-                iopVariance(i,0) *= aposterioriVarianceImageSpace;
-                iopVariance(i,1) *= aposterioriVarianceImageSpace;
-                iopVariance(i,2) *= aposterioriVarianceImageSpace;
+                iopVariance(i,0) *= aposterioriVariance;
+                iopVariance(i,1) *= aposterioriVariance;
+                iopVariance(i,2) *= aposterioriVariance;
                 // // store the full variance-covariance matrix
                 // for (int n = 0; n < covariance_X.rows(); n++)
                 //     for (int m = 0; m < covariance_X.cols(); m++)
@@ -3929,23 +3927,23 @@ int main(int argc, char** argv) {
                 apVariance(i,14) = variance_X(14); //ep8
                 apVariance(i,15) = variance_X(15); //ep9
 
-                apVariance(i,0) *= aposterioriVarianceImageSpace;
-                apVariance(i,1) *= aposterioriVarianceImageSpace;
-                apVariance(i,2) *= aposterioriVarianceImageSpace;
-                apVariance(i,3) *= aposterioriVarianceImageSpace;
-                apVariance(i,4) *= aposterioriVarianceImageSpace;
-                apVariance(i,5) *= aposterioriVarianceImageSpace;
-                apVariance(i,6) *= aposterioriVarianceImageSpace;
+                apVariance(i,0) *= aposterioriVariance;
+                apVariance(i,1) *= aposterioriVariance;
+                apVariance(i,2) *= aposterioriVariance;
+                apVariance(i,3) *= aposterioriVariance;
+                apVariance(i,4) *= aposterioriVariance;
+                apVariance(i,5) *= aposterioriVariance;
+                apVariance(i,6) *= aposterioriVariance;
 
-                apVariance(i,7) *= aposterioriVarianceImageSpace;
-                apVariance(i,8) *= aposterioriVarianceImageSpace;
-                apVariance(i,9) *= aposterioriVarianceImageSpace;
-                apVariance(i,10) *= aposterioriVarianceImageSpace;
-                apVariance(i,11) *= aposterioriVarianceImageSpace;
-                apVariance(i,12) *= aposterioriVarianceImageSpace;
-                apVariance(i,13) *= aposterioriVarianceImageSpace;
-                apVariance(i,14) *= aposterioriVarianceImageSpace;
-                apVariance(i,15) *= aposterioriVarianceImageSpace;
+                apVariance(i,7) *= aposterioriVariance;
+                apVariance(i,8) *= aposterioriVariance;
+                apVariance(i,9) *= aposterioriVariance;
+                apVariance(i,10) *= aposterioriVariance;
+                apVariance(i,11) *= aposterioriVariance;
+                apVariance(i,12) *= aposterioriVariance;
+                apVariance(i,13) *= aposterioriVariance;
+                apVariance(i,14) *= aposterioriVariance;
+                apVariance(i,15) *= aposterioriVariance;
 
                 std::cout<<"Testing individual AP of sensor "<<i<<" for level of significance: "<<std::endl;
                 std::cout<<"   a1: "<<AP[i][0]<<" +/- "<<sqrt(apVariance(i,0))<<". 95% significance test: is "<<fabs(AP[i][0])/(1E-16+sqrt(apVariance(i,0))) <<" and scaled "<< fabs(AP[i][0])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,0)))<<" > 1.96" <<std::endl;
@@ -4006,12 +4004,12 @@ int main(int argc, char** argv) {
                     ropVariance(i,4) = variance_X(4);
                     ropVariance(i,5) = variance_X(5);
 
-                    ropVariance(i,0) *= aposterioriVarianceObjectSpace;
-                    ropVariance(i,1) *= aposterioriVarianceObjectSpace;
-                    ropVariance(i,2) *= aposterioriVarianceObjectSpace;
-                    ropVariance(i,3) *= aposterioriVarianceObjectSpace;
-                    ropVariance(i,4) *= aposterioriVarianceObjectSpace;
-                    ropVariance(i,5) *= aposterioriVarianceObjectSpace;
+                    ropVariance(i,0) *= aposterioriVariance;
+                    ropVariance(i,1) *= aposterioriVariance;
+                    ropVariance(i,2) *= aposterioriVariance;
+                    ropVariance(i,3) *= aposterioriVariance;
+                    ropVariance(i,4) *= aposterioriVariance;
+                    ropVariance(i,5) *= aposterioriVariance;
                 }
             }
 

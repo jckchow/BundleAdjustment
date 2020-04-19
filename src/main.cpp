@@ -666,8 +666,8 @@ struct constrainPoint {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct constrainAP {
   
-  constrainAP(double a1, double a2, double k1, double k2, double k3, double p1, double p2, double a1StdDev, double a2StdDev, double k1StdDev, double k2StdDev, double k3StdDev, double p1StdDev, double p2StdDev)
-        : a1_(a1), a2_(a2), k1_(k1), k2_(k2), k3_(k3), p1_(p1), p2_(p2), a1StdDev_(a1StdDev), a2StdDev_(a2StdDev), k1StdDev_(k1StdDev), k2StdDev_(k2StdDev), k3StdDev_(k3StdDev), p1StdDev_(p1StdDev), p2StdDev_(p2StdDev){}
+  constrainAP(double a1, double a2, double k1, double k2, double k3, double p1, double p2, double ep1, double ep2, double ep3, double ep4, double ep5, double ep6, double ep7, double ep8, double ep9, double a1StdDev, double a2StdDev, double k1StdDev, double k2StdDev, double k3StdDev, double p1StdDev, double p2StdDev, double ep1StdDev, double ep2StdDev, double ep3StdDev, double ep4StdDev, double ep5StdDev, double ep6StdDev, double ep7StdDev, double ep8StdDev, double ep9StdDev)
+        : a1_(a1), a2_(a2), k1_(k1), k2_(k2), k3_(k3), p1_(p1), p2_(p2), ep1_(ep1), ep2_(ep2), ep3_(ep3), ep4_(ep4), ep5_(ep5), ep6_(ep6), ep7_(ep7), ep8_(ep8), ep9_(ep9), a1StdDev_(a1StdDev), a2StdDev_(a2StdDev), k1StdDev_(k1StdDev), k2StdDev_(k2StdDev), k3StdDev_(k3StdDev), p1StdDev_(p1StdDev), p2StdDev_(p2StdDev), ep1StdDev_(ep1StdDev), ep2StdDev_(ep2StdDev), ep3StdDev_(ep3StdDev), ep4StdDev_(ep4StdDev), ep5StdDev_(ep5StdDev), ep6StdDev_(ep6StdDev), ep7StdDev_(ep7StdDev), ep8StdDev_(ep8StdDev), ep9StdDev_(ep9StdDev){}
 
   template <typename T>
   // unknown parameters followed by the output residual
@@ -680,6 +680,15 @@ struct constrainAP {
   residual[4] = AP[4] - T(k3_);
   residual[5] = AP[5] - T(p1_);
   residual[6] = AP[6] - T(p2_);
+  residual[7] = AP[7] - T(ep1_);
+  residual[8] = AP[8] - T(ep2_);
+  residual[9] = AP[9] - T(ep3_);
+  residual[10] = AP[10] - T(ep4_);
+  residual[11] = AP[11] - T(ep5_);
+  residual[12] = AP[12] - T(ep6_);
+  residual[13] = AP[13] - T(ep7_);
+  residual[14] = AP[14] - T(ep8_);
+  residual[15] = AP[15] - T(ep9_);
 
   residual[0] /= T(a1StdDev_);
   residual[1] /= T(a2StdDev_);
@@ -688,6 +697,15 @@ struct constrainAP {
   residual[4] /= T(k3StdDev_);
   residual[5] /= T(p1StdDev_);
   residual[6] /= T(p2StdDev_);
+  residual[7] /= T(ep1StdDev_);
+  residual[8] /= T(ep2StdDev_);
+  residual[9] /= T(ep3StdDev_);
+  residual[10] /= T(ep4StdDev_);
+  residual[11] /= T(ep5StdDev_);
+  residual[12] /= T(ep6StdDev_);
+  residual[13] /= T(ep7StdDev_);
+  residual[14] /= T(ep8StdDev_);
+  residual[15] /= T(ep9StdDev_);
 
   return true;
   }
@@ -701,6 +719,15 @@ struct constrainAP {
   const double k3_;
   const double p1_;
   const double p2_;
+  const double ep1_;
+  const double ep2_;
+  const double ep3_;
+  const double ep4_;
+  const double ep5_;
+  const double ep6_;
+  const double ep7_;
+  const double ep8_;
+  const double ep9_;
 
   const double a1StdDev_;
   const double a2StdDev_;
@@ -709,6 +736,15 @@ struct constrainAP {
   const double k3StdDev_;
   const double p1StdDev_;
   const double p2StdDev_;
+  const double ep1StdDev_;
+  const double ep2StdDev_;
+  const double ep3StdDev_;
+  const double ep4StdDev_;
+  const double ep5StdDev_;
+  const double ep6StdDev_;
+  const double ep7StdDev_;
+  const double ep8StdDev_;
+  const double ep9StdDev_;
 
 };
 
@@ -761,19 +797,27 @@ struct collinearity {
 //   std::cout<<"x_obs, y_obs: "<<T(x_)<<", "<<T(y_)<<std::endl;
 
 
-  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ... ep1, ep2, ep3, ...
   T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 //   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for stability
 //   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for stability
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
   T x_true = x + IOP[0] + delta_x;
   T y_true = y + IOP[1] + delta_y;
@@ -854,14 +898,22 @@ struct collinearityStereographic {
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 //   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
 //   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
   T x_true = x + IOP[0] + delta_x;
   T y_true = y + IOP[1] + delta_y;
@@ -933,11 +985,22 @@ struct fisheyeEquidistant {
   T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
 
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
   T x_true = x + IOP[0] + delta_x;
   T y_true = y + IOP[1] + delta_y;
@@ -1008,10 +1071,22 @@ struct fisheyeStereographic {
   T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
+
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
 
   T x_true = x + IOP[0] + delta_x;
@@ -1091,14 +1166,22 @@ struct collinearityMachineLearned {
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 //   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
 //   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
   T x_true = x + IOP[0] + delta_x - MLP[0]; // MLP is the machine learned parameters
   T y_true = y + IOP[1] + delta_y - MLP[1];
@@ -1179,14 +1262,22 @@ struct collinearityMachineLearnedSimple {
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 //   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
 //   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
   T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
   T y_true = y + IOP[1] + delta_y - T(yMLP_);
@@ -1265,14 +1356,22 @@ struct collinearityStereographicMachineLearnedSimple {
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 //   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
 //   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
   T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
   T y_true = y + IOP[1] + delta_y - T(yMLP_);
@@ -1384,14 +1483,22 @@ struct collinearityMachineLearnedROP {
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 //   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
 //   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
   T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
   T y_true = y + IOP[1] + delta_y - T(yMLP_);
@@ -1477,14 +1584,22 @@ struct omniCollinearityMachineLearnedSimple {
   T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
 //   T x_bar = (T(x_) - T(xp_)) / APSCALE; // arbitrary scale for numerical stability
 //   T y_bar = (T(y_) - T(yp_)) / APSCALE; // arbitrary scale for numerical stability
-  T r = sqrt(x_bar*x_bar + y_bar*y_bar);
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
 
 //   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
 //   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
 
-  T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
 
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
 
   T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
   T y_true = y + IOP[1] + delta_y - T(yMLP_);
@@ -2200,12 +2315,14 @@ int main(int argc, char** argv) {
         inp.open(INPUTIOPFILENAME);
         std::vector<int> iopCamera, iopAxis;
         std::vector<double> iopXMin, iopYMin, iopXMax, iopYMax, iopXp, iopYp, iopC, iopA1, iopA2, iopK1, iopK2, iopK3, iopP1, iopP2;
+        std::vector<double> iopEp1, iopEp2, iopEp3, iopEp4, iopEp5, iopEp6, iopEp7, iopEp8, iopEp9;
         std::vector<std::vector<double> > IOP, AP;
         while (true) 
         {
             int c1, c2;
             double c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16;
-            inp  >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >> c15 >> c16;
+            double c17, c18, c19, c20, c21, c22, c23, c24, c25;
+            inp  >> c1 >> c2 >> c3 >> c4 >> c5 >> c6 >> c7 >> c8 >> c9 >> c10 >> c11 >> c12 >> c13 >> c14 >> c15 >> c16 >> c17 >> c18 >> c19 >> c20 >> c21 >> c22 >> c23 >> c24 >> c25;
 
             iopCamera.push_back(c1);
             iopAxis.push_back(c2);
@@ -2224,6 +2341,16 @@ int main(int argc, char** argv) {
             iopP1.push_back(c15);
             iopP2.push_back(c16);
 
+            iopEp1.push_back(c17); // empirical modeling parameters
+            iopEp2.push_back(c18);
+            iopEp3.push_back(c19);
+            iopEp4.push_back(c20);
+            iopEp5.push_back(c21);
+            iopEp6.push_back(c22);
+            iopEp7.push_back(c23);
+            iopEp8.push_back(c24);
+            iopEp9.push_back(c25);
+
             std::vector<double> tempIOP;
             tempIOP.resize(3);
             tempIOP[0] = c7;
@@ -2232,14 +2359,25 @@ int main(int argc, char** argv) {
             IOP.push_back(tempIOP);
 
             std::vector<double> tempAP;
-            tempAP.resize(7);
+            tempAP.resize(16);
             tempAP[0] = c10; //a1
             tempAP[1] = c11; //a2
-            tempAP[2] = c12;
-            tempAP[3] = c13;
-            tempAP[4] = c14;
-            tempAP[5] = c15;
-            tempAP[6] = c16;
+            tempAP[2] = c12; //k1
+            tempAP[3] = c13; //k2
+            tempAP[4] = c14; //k3
+            tempAP[5] = c15; //p1
+            tempAP[6] = c16; //p2
+
+            tempAP[7] = c17; //ep1
+            tempAP[8] = c18; //ep2
+            tempAP[9] = c19; //ep3
+            tempAP[10] = c20; //ep4
+            tempAP[11] = c21; //ep5
+            tempAP[12] = c22; //ep6
+            tempAP[13] = c23; //ep7
+            tempAP[14] = c24; //ep8
+            tempAP[15] = c25; //ep9
+
             AP.push_back(tempAP);
 
             if( inp.eof() ) 
@@ -2262,6 +2400,15 @@ int main(int argc, char** argv) {
         iopK3.pop_back();
         iopP1.pop_back();
         iopP2.pop_back();
+        iopEp1.pop_back();
+        iopEp2.pop_back();
+        iopEp3.pop_back();
+        iopEp4.pop_back();
+        iopEp5.pop_back();
+        iopEp6.pop_back();
+        iopEp7.pop_back();
+        iopEp8.pop_back();
+        iopEp9.pop_back();
         IOP.pop_back();
         AP.pop_back();
 
@@ -2425,7 +2572,7 @@ int main(int argc, char** argv) {
         for(int n = 0; n < IOP.size(); n++) 
             problem.AddParameterBlock(&IOP[n][0], 3);
         for(int n = 0; n < AP.size(); n++) 
-            problem.AddParameterBlock(&AP[n][0], 7);   
+            problem.AddParameterBlock(&AP[n][0], 16);   
         // for(int n = 0; n < MLP.size(); n++) 
         //     problem.AddParameterBlock(&MLP[n][0], 2);  
         if(ROPMODE || WEIGHTEDROPMODE)
@@ -2439,7 +2586,6 @@ int main(int argc, char** argv) {
 
         // ceres::LossFunction* loss2 = NULL;
         // loss = new ceres::CauchyLoss(0.5);
-
 
         // Conventional collinearity condition, no machine learning
         if (true)
@@ -2472,7 +2618,7 @@ int main(int argc, char** argv) {
                 // imageYStdDev[n] *= 10000.0;
 
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 7>(
+                    new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 16>(
                         new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
@@ -2520,21 +2666,21 @@ int main(int argc, char** argv) {
                 // imageYStdDev[n] *= 10000.0;
 
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 7>(
+                    new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 16>(
                         new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 7>(
+                //     new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
                 //         new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 7>(
+                //     new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
                 //         new fisheyeStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
+                problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
@@ -2577,7 +2723,7 @@ int main(int argc, char** argv) {
                     // std::cout<<"indexROP: "<< indexROPSlave<<std::endl;        
 
                     ceres::CostFunction* cost_function =
-                        new ceres::AutoDiffCostFunction<collinearityMachineLearnedROP, 2, 6, 6, 3, 3, 7>(
+                        new ceres::AutoDiffCostFunction<collinearityMachineLearnedROP, 2, 6, 6, 3, 3, 16>(
                             new collinearityMachineLearnedROP(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                     problem.AddResidualBlock(cost_function, loss, &EOP[indexPoseMaster][0], &ROP[indexROPSlave][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
                 
@@ -2756,7 +2902,7 @@ int main(int argc, char** argv) {
                 // problem.SetParameterBlockConstant(&MLP[n][0]);
 
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                    new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 16>(
                         new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
@@ -2797,7 +2943,7 @@ int main(int argc, char** argv) {
                 //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityStereographicMachineLearnedSimple, 2, 6, 3, 3, 7>(
+                    new ceres::AutoDiffCostFunction<collinearityStereographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
                         new collinearityStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
@@ -3000,6 +3146,16 @@ int main(int argc, char** argv) {
                 fixAP.push_back(5); //p1
                 fixAP.push_back(6); //p2
 
+                fixAP.push_back(7); //ep1
+                fixAP.push_back(8); //ep2
+                fixAP.push_back(9); //ep3
+                fixAP.push_back(10); //ep4
+                fixAP.push_back(11); //ep5
+                fixAP.push_back(12); //ep6
+                fixAP.push_back(13); //ep7
+                fixAP.push_back(14); //ep8
+                fixAP.push_back(15); //ep9
+
                 ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixAP);
                 problem.SetParameterization(&AP[n][0], subset_parameterization);
 
@@ -3122,34 +3278,55 @@ int main(int argc, char** argv) {
         // }
 
 
-        // // prior on the AP
-        // if (true)
-        // {
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         double a1StdDev  = 1.0E-6;
-        //         double a2StdDev  = 1.0E-6;
-        //         double k1StdDev  = 1.0E-6;
-        //         double k2StdDev  = 1.0E-6;
-        //         double k3StdDev  = 1.0E-6;
-        //         double p1StdDev  = 1.0E-6;
-        //         double p2StdDev  = 1.0E-6;
+        // prior on the AP
+        if (true)
+        {
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                double a1StdDev  = 1.0E-6;
+                double a2StdDev  = 1.0E-6;
+                double k1StdDev  = 1.0E-6;
+                double k2StdDev  = 1.0E-6;
+                double k3StdDev  = 1.0E-6;
+                double p1StdDev  = 1.0E-6;
+                double p2StdDev  = 1.0E-6;
 
-        //         ceres::CostFunction* cost_function =
-        //             new ceres::AutoDiffCostFunction<constrainAP, 7, 7>(
-        //                 new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev));
-        //         problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
+                double ep1StdDev  = 1.0E-6;
+                double ep2StdDev  = 1.0E-6;
+                double ep3StdDev  = 1.0E-6;
+                double ep4StdDev  = 1.0E-6;
+                double ep5StdDev  = 1.0E-6;
+                double ep6StdDev  = 1.0E-6;
+                double ep7StdDev  = 1.0E-6;
+                double ep8StdDev  = 1.0E-6;
+                double ep9StdDev  = 1.0E-6;
 
-        //         variances.push_back(a1StdDev*a1StdDev);
-        //         variances.push_back(a2StdDev*a2StdDev);
-        //         variances.push_back(k1StdDev*k1StdDev);
-        //         variances.push_back(k2StdDev*k2StdDev);
-        //         variances.push_back(k3StdDev*k3StdDev);
-        //         variances.push_back(p1StdDev*p1StdDev);
-        //         variances.push_back(p2StdDev*p2StdDev);
 
-        //     }
-        // }
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<constrainAP, 16, 16>(
+                        new constrainAP(iopA1[n], iopA2[n], iopK1[n], iopK2[n], iopK3[n], iopP1[n], iopP2[n], iopEp1[n], iopEp2[n], iopEp3[n], iopEp4[n], iopEp5[n], iopEp6[n], iopEp7[n], iopEp8[n], iopEp9[n], a1StdDev, a2StdDev, k1StdDev, k2StdDev, k3StdDev, p1StdDev, p2StdDev, ep1StdDev, ep2StdDev, ep3StdDev, ep4StdDev, ep5StdDev, ep6StdDev, ep7StdDev, ep8StdDev, ep9StdDev));
+                problem.AddResidualBlock(cost_function, NULL, &AP[n][0]);
+
+                variances.push_back(a1StdDev*a1StdDev);
+                variances.push_back(a2StdDev*a2StdDev);
+                variances.push_back(k1StdDev*k1StdDev);
+                variances.push_back(k2StdDev*k2StdDev);
+                variances.push_back(k3StdDev*k3StdDev);
+                variances.push_back(p1StdDev*p1StdDev);
+                variances.push_back(p2StdDev*p2StdDev);
+
+                variances.push_back(ep1StdDev*ep1StdDev);
+                variances.push_back(ep2StdDev*ep2StdDev);
+                variances.push_back(ep3StdDev*ep3StdDev);
+                variances.push_back(ep4StdDev*ep4StdDev);
+                variances.push_back(ep5StdDev*ep5StdDev);
+                variances.push_back(ep6StdDev*ep6StdDev);
+                variances.push_back(ep7StdDev*ep7StdDev);
+                variances.push_back(ep8StdDev*ep8StdDev);
+                variances.push_back(ep9StdDev*ep9StdDev);
+
+            }
+        }
 
         // if(DEBUGMODE)
         // {
@@ -3273,6 +3450,9 @@ int main(int argc, char** argv) {
             
             std::cout<<"  Writing APs (a1, a2, k1, k2, k3, p1, p2) to screen..."<<std::endl;
             std::cout<<"       Sensor " << iopCamera[0]<<": "<< AP[0][0]<<", "<< AP[0][1]<<", "<< AP[0][2]<<", "<< AP[0][3]<<", "<< AP[0][4]<<", "<< AP[0][5]<<", "<< AP[0][6] <<std::endl;
+            std::cout<<"       ep1, ep2, ep3, ep4, ep5, ep6, ep7, ep8, ep9 to screen..."<<std::endl;
+            std::cout<<"       Sensor " << iopCamera[0]<<": "<< AP[0][7]<<", "<< AP[0][8]<<", "<< AP[0][9]<<", "<< AP[0][10]<<", "<< AP[0][11]<<", "<< AP[0][12]<<", "<< AP[0][13] <<", "<< AP[0][14]<<", "<< AP[0][15]<<std::endl;
+
         }
 
 
@@ -3486,16 +3666,17 @@ int main(int argc, char** argv) {
             if (false)
             {
                 for(int i = 0; i < EOP.size(); i++)
-                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[i][0])); // do 6x6 block diagonal of the XYZ object space target points
+                    covariance_blocks.push_back(std::make_pair(&EOP[i][0], &EOP[i][0])); // do 6x6 block diagonal of the extrinsic
 
                 for(int i = 0; i < XYZ.size(); i++)
                     covariance_blocks.push_back(std::make_pair(&XYZ[i][0], &XYZ[i][0])); // do 3x3 block diagonal of the XYZ object space target points
 
                 for(int i = 0; i < IOP.size(); i++)
-                    covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[i][0])); // do 3x3 block diagonal of the XYZ object space target points
+                    covariance_blocks.push_back(std::make_pair(&IOP[i][0], &IOP[i][0])); // do 3x3 block diagonal of the intrinsic
 
                 for(int i = 0; i < AP.size(); i++)
-                    covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
+                    // covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[i][0])); // do 7x7 block diagonal of the XYZ object space target points
+                    covariance_blocks.push_back(std::make_pair(&AP[i][0], &AP[i][0])); // do 16x16 block diagonal of the AP
 
                 // in the simple mode, MLP is just a constant not a parameter
                 // for(int i = 0; i < MLP.size(); i++)
@@ -3752,6 +3933,17 @@ int main(int argc, char** argv) {
                 std::cout<<"   p1: "<<AP[i][5]<<" +/- "<<sqrt(apVariance(i,5))<<". 95% significance test: is "<<fabs(AP[i][5])/(1E-16+sqrt(apVariance(i,5))) <<" and scaled "<< fabs(AP[i][5])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,5)))<<" > 1.96" <<std::endl;
                 std::cout<<"   p2: "<<AP[i][6]<<" +/- "<<sqrt(apVariance(i,6))<<". 95% significance test: is "<<fabs(AP[i][6])/(1E-16+sqrt(apVariance(i,6))) <<" and scaled "<< fabs(AP[i][6])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,6)))<<" > 1.96" <<std::endl;
 
+                std::cout<<"   ep1: "<<AP[i][7]<<" +/- "<<sqrt(apVariance(i,7))<<". 95% significance test: is "<<fabs(AP[i][7])/(1E-16+sqrt(apVariance(i,7))) <<" and scaled "<< fabs(AP[i][7])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,7)))<<" > 1.96" <<std::endl;
+                std::cout<<"   ep2: "<<AP[i][8]<<" +/- "<<sqrt(apVariance(i,8))<<". 95% significance test: is "<<fabs(AP[i][8])/(1E-16+sqrt(apVariance(i,8))) <<" and scaled "<< fabs(AP[i][8])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,8)))<<" > 1.96" <<std::endl;
+                std::cout<<"   ep3: "<<AP[i][9]<<" +/- "<<sqrt(apVariance(i,9))<<". 95% significance test: is "<<fabs(AP[i][9])/(1E-16+sqrt(apVariance(i,9))) <<" and scaled "<< fabs(AP[i][9])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,9)))<<" > 1.96" <<std::endl;
+                std::cout<<"   ep4: "<<AP[i][10]<<" +/- "<<sqrt(apVariance(i,10))<<". 95% significance test: is "<<fabs(AP[i][10])/(1E-16+sqrt(apVariance(i,10))) <<" and scaled "<< fabs(AP[i][10])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,10)))<<" > 1.96" <<std::endl;
+                std::cout<<"   ep5: "<<AP[i][11]<<" +/- "<<sqrt(apVariance(i,11))<<". 95% significance test: is "<<fabs(AP[i][11])/(1E-16+sqrt(apVariance(i,11))) <<" and scaled "<< fabs(AP[i][11])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,11)))<<" > 1.96" <<std::endl;
+                std::cout<<"   ep6: "<<AP[i][12]<<" +/- "<<sqrt(apVariance(i,12))<<". 95% significance test: is "<<fabs(AP[i][12])/(1E-16+sqrt(apVariance(i,12))) <<" and scaled "<< fabs(AP[i][12])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,12)))<<" > 1.96" <<std::endl;
+                std::cout<<"   ep7: "<<AP[i][13]<<" +/- "<<sqrt(apVariance(i,13))<<". 95% significance test: is "<<fabs(AP[i][13])/(1E-16+sqrt(apVariance(i,13))) <<" and scaled "<< fabs(AP[i][13])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,13)))<<" > 1.96" <<std::endl;
+                std::cout<<"   ep8: "<<AP[i][14]<<" +/- "<<sqrt(apVariance(i,14))<<". 95% significance test: is "<<fabs(AP[i][14])/(1E-16+sqrt(apVariance(i,14))) <<" and scaled "<< fabs(AP[i][14])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,14)))<<" > 1.96" <<std::endl;
+                std::cout<<"   ep9: "<<AP[i][15]<<" +/- "<<sqrt(apVariance(i,15))<<". 95% significance test: is "<<fabs(AP[i][15])/(1E-16+sqrt(apVariance(i,15))) <<" and scaled "<< fabs(AP[i][15])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,15)))<<" > 1.96" <<std::endl;
+               
+
                 // <<", "<<sqrt(apVariance(i,1))<<", "<<sqrt(apVariance(i,2))<<", "<<sqrt(apVariance(i,3))<<", "<<sqrt(apVariance(i,4))<<", "<<sqrt(apVariance(i,5))<<", "<<sqrt(apVariance(i,6))<<std::endl;
                 // // store the full variance-covariance matrix
                 // for (int n = 0; n < covariance_X.rows(); n++)
@@ -3846,10 +4038,10 @@ int main(int argc, char** argv) {
 
                     for(int j = 0; j < AP.size(); j++)
                     {
-                        Eigen::MatrixXd covariance_X(7, 6);
+                        Eigen::MatrixXd covariance_X(16, 6);
                         covariance.GetCovarianceBlock(&EOP[i][0], &AP[j][0], covariance_X.data());
 
-                        Cx.block<6,7>(i*6,j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+                        Cx.block<6,16>(i*6,j*16 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
                     }
 
                     // for(int j = 0; j < MLP.size(); j++)
@@ -3867,7 +4059,7 @@ int main(int argc, char** argv) {
                             Eigen::MatrixXd covariance_X(6, 6);
                             covariance.GetCovarianceBlock(&EOP[i][0], &ROP[j][0], covariance_X.data());
 
-                            Cx.block<6,6>(i*6,j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                            Cx.block<6,6>(i*6,j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+16*AP.size()) = covariance_X.transpose();
                         }
                             
                     }
@@ -3893,10 +4085,10 @@ int main(int argc, char** argv) {
 
                     for(int j = 0; j < AP.size(); j++)
                     {
-                        Eigen::MatrixXd covariance_X(7, 3);
+                        Eigen::MatrixXd covariance_X(16, 3);
                         covariance.GetCovarianceBlock(&XYZ[i][0], &AP[j][0], covariance_X.data());
 
-                        Cx.block<3,7>(i*3 + 6*EOP.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+                        Cx.block<3,16>(i*3 + 6*EOP.size(),j*16 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
                     }
 
                     // for(int j = 0; j < MLP.size(); j++)
@@ -3914,7 +4106,7 @@ int main(int argc, char** argv) {
                             Eigen::MatrixXd covariance_X(6, 3);
                             covariance.GetCovarianceBlock(&XYZ[i][0], &ROP[j][0], covariance_X.data());
 
-                            Cx.block<3,6>(i*3 + 6*EOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                            Cx.block<3,6>(i*3 + 6*EOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+16*AP.size()) = covariance_X.transpose();
                         }    
                     }
                 }
@@ -3931,10 +4123,10 @@ int main(int argc, char** argv) {
 
                     for(int j = 0; j < AP.size(); j++)
                     {
-                        Eigen::MatrixXd covariance_X(7, 3); 
+                        Eigen::MatrixXd covariance_X(16, 3); 
                         covariance.GetCovarianceBlock(&IOP[i][0], &AP[j][0], covariance_X.data());
 
-                        Cx.block<3,7>(i*3 + 6*EOP.size()+3*XYZ.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+                        Cx.block<3,16>(i*3 + 6*EOP.size()+3*XYZ.size(),j*16 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
                     }
 
                     // for(int j = 0; j < MLP.size(); j++)
@@ -3952,7 +4144,7 @@ int main(int argc, char** argv) {
                             Eigen::MatrixXd covariance_X(6, 3);
                             covariance.GetCovarianceBlock(&IOP[i][0], &ROP[j][0], covariance_X.data());
 
-                            Cx.block<3,6>(i*3 + 6*EOP.size()+3*XYZ.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                            Cx.block<3,6>(i*3 + 6*EOP.size()+3*XYZ.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+16*AP.size()) = covariance_X.transpose();
                         }
                             
                     }
@@ -3962,10 +4154,10 @@ int main(int argc, char** argv) {
                 {
                     for(int j = i; j < AP.size(); j++)
                     {
-                        Eigen::MatrixXd covariance_X(7, 7);
+                        Eigen::MatrixXd covariance_X(16, 16);
                         covariance.GetCovarianceBlock(&AP[i][0], &AP[j][0], covariance_X.data());
 
-                        Cx.block<7,7>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+                        Cx.block<16,16>(i*16 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*16 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
                     }
 
                     // for(int j = 0; j < MLP.size(); j++)
@@ -3980,10 +4172,10 @@ int main(int argc, char** argv) {
                     {
                         for(int j = 0; j < ROP.size(); j++)
                         {
-                            Eigen::MatrixXd covariance_X(6, 7);
+                            Eigen::MatrixXd covariance_X(6, 16);
                             covariance.GetCovarianceBlock(&AP[i][0], &ROP[j][0], covariance_X.data());
 
-                            Cx.block<7,6>(i*7 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                            Cx.block<16,6>(i*16 + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+16*AP.size()) = covariance_X.transpose();
                         }
                             
                     }
@@ -4009,7 +4201,7 @@ int main(int argc, char** argv) {
                             Eigen::MatrixXd covariance_X(6, 6);
                             covariance.GetCovarianceBlock(&ROP[i][0], &ROP[j][0], covariance_X.data());
 
-                            Cx.block<6,6>(i*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+7*AP.size()) = covariance_X.transpose();
+                            Cx.block<6,6>(i*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+16*AP.size(),j*6 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()+16*AP.size()) = covariance_X.transpose();
                         }
                     }
                 }

@@ -42,12 +42,12 @@
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 
-#define PLOTRESULTS 0 // plots the outputs using python
+#define PLOTRESULTS 1 // plots the outputs using python
 
 #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 // #define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
@@ -433,44 +433,67 @@
 /// Paper 2 Omnidirectional Camera Journal Paper
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// // //for all Nikon
+// //for all Nikon
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
 // // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonLowWeight_centred.xyz"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/LaserScannerAll.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
 
 // // Nikon Training Data
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
-
-// Nikon Testing Data
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
 #define INPUTROPFILENAME ""
+
+// // Nikon Testing Data
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // // //for all goPro
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
-// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
 // #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// // // // Training goPro Data
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
+// // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/goproTruth.xyz" // only use for QC
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// Testing goPro Data
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.xyz"
 // #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
@@ -748,6 +771,66 @@ struct constrainAP {
 
 };
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Similarity Transformation
+/// Input:    x       - x source
+///           y       - y source
+///           z       - z source
+///           X       - X target
+///           Y       - Y target
+///           Z       - Z target
+/// Unknowns: parmas  - 7 similarity transformation parameters
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct similarityTransformation {
+  
+  similarityTransformation(double x, double y, double z, double X, double Y, double Z)
+        : x_(x), y_(y), z_(z), X_(X), Y_(Y), Z_(Z)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const param, T* residual) const {
+
+  // rotation from source to target
+  T r11 = cos(param[1]) * cos(param[2]);
+  T r12 = cos(param[0]) * sin(param[2]) + sin(param[0]) * sin(param[1]) * cos(param[2]);
+  T r13 = sin(param[0]) * sin(param[2]) - cos(param[0]) * sin(param[1]) * cos(param[2]);
+
+  T r21 = -cos(param[1]) * sin(param[2]);
+  T r22 = cos(param[0]) * cos(param[2]) - sin(param[0]) * sin(param[1]) * sin(param[2]);
+  T r23 = sin(param[0]) * cos(param[2]) + cos(param[0]) * sin(param[1]) * sin(param[2]);
+
+  T r31 = sin(param[1]);
+  T r32 = -sin(param[0]) * cos(param[1]);
+  T r33 = cos(param[0]) * cos(param[1]);
+
+  // rigid body transformation from source to target
+  T XTemp = r11 * ( T(x_) - param[3] ) + r12 * ( T(y_) - param[4] ) + r13 * ( T(z_) - param[5] );
+  T YTemp = r21 * ( T(x_) - param[3] ) + r22 * ( T(y_) - param[4] ) + r23 * ( T(z_) - param[5] );
+  T ZTemp = r31 * ( T(x_) - param[3] ) + r32 * ( T(y_) - param[4] ) + r33 * ( T(z_) - param[5] );
+ 
+  // Scale
+  residual[0] = param[6]*XTemp - T(X_);
+  residual[1] = param[6]*YTemp - T(Y_);
+  residual[2] = param[6]*ZTemp - T(Z_);
+
+  residual[0] /= T(1.0);
+  residual[1] /= T(1.0);
+  residual[2] /= T(1.0);
+
+  return true;
+  }
+
+ private:
+  const double x_;
+  const double y_;
+  const double z_;
+  const double X_;
+  const double Y_;
+  const double Z_;
+
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Collinearity Equation
 /// Input:    x       - x observation
@@ -952,7 +1035,7 @@ struct collinearityStereographic {
 struct fisheyeEquidistant {
   
   fisheyeEquidistant(double x, double y, double xStdDev, double yStdDev, double xp, double yp)
-        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp)  {}
+        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp) {}
 
   template <typename T>
   // unknown parameters followed by the output residual
@@ -2614,16 +2697,16 @@ int main(int argc, char** argv) {
                 pointReferenceID[n]  = xyzTarget[indexPoint];  // ID of the target point this observation corresponds to
                 frameReferenceID[n]  = eopStation[indexPose];
 
-                // imageXStdDev[n] *= 10000.0; // for debugging use only
-                // imageYStdDev[n] *= 10000.0;
+                // imageXStdDev[n] *= 2.0/3.0; // for debugging use only
+                // imageYStdDev[n] *= 2.0/3.0;
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<collinearity, 2, 6, 3, 3, 16>(
                         new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
 
@@ -2683,7 +2766,7 @@ int main(int argc, char** argv) {
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -3138,13 +3221,13 @@ int main(int argc, char** argv) {
             {
                 // Fix part of APs instead of all
                 std::vector<int> fixAP;
-                // fixAP.push_back(0); //a1
-                // fixAP.push_back(1); //a2
+                fixAP.push_back(0); //a1
+                fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
                 // fixAP.push_back(3); //k2
                 // fixAP.push_back(4); //k3
-                // fixAP.push_back(5); //p1
-                // fixAP.push_back(6); //p2
+                fixAP.push_back(5); //p1
+                fixAP.push_back(6); //p2
 
                 fixAP.push_back(7); //ep1
                 fixAP.push_back(8); //ep2
@@ -3169,103 +3252,105 @@ int main(int argc, char** argv) {
         //     problem.SetParameterBlockConstant(&XYZ[10][0]);
         // }
 
-        // if(true)
-        // {
-        //         // Fix part of IOPs instead of all
-        //         std::vector<int> fixXYZ;
-        //         fixXYZ.push_back(0); 
-        //         // fixXYZ.push_back(1); 
-        //         // fixXYZ.push_back(2); 
+        if(true)
+        {
+                std::cout<<"   Datum: Fixed Gauge"<<std::endl;
+                // Fix part of IOPs instead of all
+                std::vector<int> fixXYZ;
+                fixXYZ.push_back(0); 
+                // fixXYZ.push_back(1); 
+                // fixXYZ.push_back(2); 
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-        //         problem.SetParameterization(&XYZ[0][0], subset_parameterization);
-        // }
-        // if(true)
-        // {
-        //         // Fix part of IOPs instead of all
-        //         std::vector<int> fixXYZ;
-        //         fixXYZ.push_back(1); 
-        //         // fixXYZ.push_back(2); 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-        //         problem.SetParameterization(&XYZ[2][0], subset_parameterization);
-        // }
-        // if(true)
-        // {
-        //         // Fix part of IOPs instead of all
-        //         std::vector<int> fixXYZ;
-        //         fixXYZ.push_back(2); 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-        //         problem.SetParameterization(&XYZ[10][0], subset_parameterization);
-        // }
-        // if(true)
-        // {
-        //         // Fix part of IOPs instead of all
-        //         std::vector<int> fixXYZ;
-        //         fixXYZ.push_back(0); 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-        //         problem.SetParameterization(&XYZ[12][0], subset_parameterization);
-        // }
-        // if(true)
-        // {
-        //         // Fix part of IOPs instead of all
-        //         std::vector<int> fixXYZ;
-        //         fixXYZ.push_back(1); 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-        //         problem.SetParameterization(&XYZ[14][0], subset_parameterization);
-        // }
-        // if(true)
-        // {
-        //         // Fix part of IOPs instead of all
-        //         std::vector<int> fixXYZ;
-        //         fixXYZ.push_back(2); 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-        //         problem.SetParameterization(&XYZ[16][0], subset_parameterization);
-        // }
-        // if(true)
-        // {
-        //         // Fix part of IOPs instead of all
-        //         std::vector<int> fixXYZ;
-        //         fixXYZ.push_back(0); 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-        //         problem.SetParameterization(&XYZ[8][0], subset_parameterization);
-        // }
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+                problem.SetParameterization(&XYZ[0][0], subset_parameterization);
+        }
+        if(true)
+        {
+                // Fix part of IOPs instead of all
+                std::vector<int> fixXYZ;
+                fixXYZ.push_back(1); 
+                // fixXYZ.push_back(2); 
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+                problem.SetParameterization(&XYZ[19][0], subset_parameterization);
+        }
+        if(true)
+        {
+                // Fix part of IOPs instead of all
+                std::vector<int> fixXYZ;
+                fixXYZ.push_back(2); 
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+                problem.SetParameterization(&XYZ[40][0], subset_parameterization);
+        }
+        if(true)
+        {
+                // Fix part of IOPs instead of all
+                std::vector<int> fixXYZ;
+                fixXYZ.push_back(0); 
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+                problem.SetParameterization(&XYZ[60][0], subset_parameterization);
+        }
+        if(true)
+        {
+                // Fix part of IOPs instead of all
+                std::vector<int> fixXYZ;
+                fixXYZ.push_back(1); 
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+                problem.SetParameterization(&XYZ[80][0], subset_parameterization);
+        }
+        if(true)
+        {
+                // Fix part of IOPs instead of all
+                std::vector<int> fixXYZ;
+                fixXYZ.push_back(2); 
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+                problem.SetParameterization(&XYZ[100][0], subset_parameterization);
+        }
+        if(true)
+        {
+                // Fix part of IOPs instead of all
+                std::vector<int> fixXYZ;
+                fixXYZ.push_back(0); 
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+                problem.SetParameterization(&XYZ[120][0], subset_parameterization);
+        }
 
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
         /// weighted constraints
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
-        // define the datum by pseduo observations of the positions for defining the datum
-        if(true)
-        {
-            for(int n = 0; n < xyzTarget.size(); n++)
-            {
-                // xyzXStdDev[n] /= 100.0; //only used for debugging
-                // xyzYStdDev[n] /= 100.0;
-                // xyzZStdDev[n] /= 100.0;
+        // // // define the datum by pseduo observations of the positions for defining the datum
+        // if(true)
+        // {
+        //     std::cout<<"   Datum: Prior Gauge"<<std::endl;
+        //     for(int n = 0; n < xyzTarget.size(); n++)
+        //     {
+        //         // xyzXStdDev[n] *= 100.0; //only used for debugging
+        //         // xyzYStdDev[n] *= 100.0;
+        //         // xyzZStdDev[n] *= 100.0;
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
-                        new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
-                problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+        //                 new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
+        //         problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
 
-                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
-                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
-                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
-            }
-        }
+        //         variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
+        //         variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
+        //         variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
+        //     }
+        // }
 
         // // prior on the IOP. Useful for X-ray data
         // if (true)
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
-        //         // double xpStdDev = 10.0;
-        //         // double ypStdDev = 10.0;
-        //         // double cStdDev  = 10.0;
-        //         double xpStdDev = 1E-6;
-        //         double ypStdDev = 1E-6;
-        //         double cStdDev  = 1E-6;
+        //         double xpStdDev = 10.0;
+        //         double ypStdDev = 10.0;
+        //         double cStdDev  = 10.0;
+        //         // double xpStdDev = 1E6;
+        //         // double ypStdDev = 1E6;
+        //         // double cStdDev  = 1E6;
         //         ceres::CostFunction* cost_function =
         //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
         //                 new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
@@ -3278,15 +3363,15 @@ int main(int argc, char** argv) {
         // }
 
 
-        // prior on the AP
+        // // prior on the AP
         // if (true)
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
         //         double a1StdDev  = 1.0E-6;
         //         double a2StdDev  = 1.0E-6;
-        //         double k1StdDev  = 1.0E-6;
-        //         double k2StdDev  = 1.0E-6;
+        //         double k1StdDev  = 1.0E3;
+        //         double k2StdDev  = 1.0E3;
         //         double k3StdDev  = 1.0E-6;
         //         double p1StdDev  = 1.0E-6;
         //         double p2StdDev  = 1.0E-6;
@@ -3525,8 +3610,8 @@ int main(int argc, char** argv) {
 
                 std::cout<<"        *AIC n: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
                 std::cout<<"        *BIC n: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
-                std::cout<<"        *AIC n-u: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection)<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
-                std::cout<<"        *BIC n-u: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection)<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
+                // std::cout<<"        *AIC n-u: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection)<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
+                // std::cout<<"        *BIC n-u: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection), 2*summary.final_cost, summary.num_parameters_reduced - numAPCorrection)<<". n = "<< summary.num_residuals_reduced-3*XYZ.size()-(summary.num_parameters_reduced - numAPCorrection)<<", k = "<<summary.num_parameters_reduced - numAPCorrection<<std::endl;
 
                 Eigen::VectorXd v = Eigen::VectorXd::Map(&residuals[0],residuals.size());
                 // std::cout<<"size: "<<v.size()<<std::endl;
@@ -3541,8 +3626,8 @@ int main(int argc, char** argv) {
                 std::cout<<"        sqrt(vTPv/dof): "<<sqrt(vTPv(0,0)/(2*imageX.size() - 6*imageFrameID.size() - 3*imageTargetID.size() + 7))<<std::endl;
                 std::cout<<"        vTPv/ceresRedundancy: "<<vTPv(0,0)/redundancy<<std::endl;
                 std::cout<<"        sqrt(vTPv/ceresRedundancy): "<<sqrt(vTPv(0,0)/redundancy)<<std::endl;
-                std::cout<<"        AIC: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), vTPv(0,0), summary.num_parameters_reduced)<<std::endl;
-                std::cout<<"        BIC: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), vTPv(0,0), summary.num_parameters_reduced)<<std::endl;
+                // std::cout<<"        AIC: "<<calculateAIC(summary.num_residuals_reduced-3*XYZ.size(), vTPv(0,0), summary.num_parameters_reduced)<<std::endl;
+                // std::cout<<"        BIC: "<<calculateBIC(summary.num_residuals_reduced-3*XYZ.size(), vTPv(0,0), summary.num_parameters_reduced)<<std::endl;
 
                 std::cout<<"     Image A Posteriori Variance: "<<std::endl;
                 vTPv = v.topRows(2*imageX.size()).transpose() * v.topRows(2*imageX.size());
@@ -3654,7 +3739,7 @@ int main(int argc, char** argv) {
             // covarianceOptions.sparse_linear_algebra_library_type = ceres::EIGEN_SPARSE;
 
             ////////////////////////////////////////////////////////////////////////////////////////////////
-            /// The 2 follow lines define a pseudo innerconstraints EOP and object space coordinates, but very slow
+            /// The 2 follow lines define a pseudo inner constraints EOP and object space coordinates, but very slow
             ////////////////////////////////////////////////////////////////////////////////////////////////
             // covarianceOptions.algorithm_type = ceres::DENSE_SVD;
             // covarianceOptions.null_space_rank = -1;
@@ -4937,6 +5022,96 @@ int main(int argc, char** argv) {
 
             std::cout << "  Number of XYZ Ground Truth Read: "<< XYZTruth.size() << std::endl;
             std::cout << "  Number of XYZ estimated        : "<< XYZ.size() << std::endl;
+
+            if (true)
+            {
+                std::cout<<"  Running similarity/rigid-body transformation estimations..."<<std::endl;
+
+                ceres::Problem problem2;
+                std::vector<double> param;
+                param.push_back(0.0); //omega
+                param.push_back(0.0); //phi
+                param.push_back(0.0); //kappa
+                param.push_back(0.0); //Tx
+                param.push_back(0.0); //Ty
+                param.push_back(0.0); //Tz
+                param.push_back(1.0); //scale
+
+                problem2.AddParameterBlock(&param[0], 7);  
+
+                ceres::LossFunction* loss = NULL; // default to normal Gaussian
+                // loss = new ceres::HuberLoss(1.0);
+
+                for (int i = 0; i < XYZTruthID.size(); i++)
+                {
+                    for (int j = 0; j < xyzTarget.size(); j++)
+                    {
+                        if (xyzTarget[j] == XYZTruthID[i])
+                        {
+                            
+                        ceres::CostFunction* cost_function =
+                            new ceres::AutoDiffCostFunction<similarityTransformation, 3, 7>(
+                                new similarityTransformation(XYZ[j][0],XYZ[j][1],XYZ[j][2], XYZTruth[i][0],XYZTruth[i][1],XYZTruth[i][2]));
+                        problem2.AddResidualBlock(cost_function, loss, &param[0]);  
+                        }
+                    }
+                }
+
+                if(true)
+                {
+                        // Fix part of the transformation parameters
+                        std::vector<int> fixParam;
+                        fixParam.push_back(6); //scale
+                        ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixParam);
+                        problem2.SetParameterization(&param[0], subset_parameterization);
+                }
+
+
+                ceres::Solver::Options options2;
+                options2.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY; // sparse solver
+                // options.linear_solver_type = ceres::DENSE_QR;
+                // options.linear_solver_type = ceres::SPARSE_SCHUR;
+                // options.linear_solver_type = ceres::CGNR;
+                // options.linear_solver_type = ceres::ITERATIVE_SCHUR;
+                options2.minimizer_progress_to_stdout = true;
+                options2.max_lm_diagonal = 1.0E-150; // force it behave like a Gauss-Newton update
+                options2.min_lm_diagonal = 1.0E-150;
+                // options.minimizer_type = ceres::LINE_SEARCH;
+                // options.line_search_direction_type = ceres::BFGS;
+                // options.trust_region_strategy_type = ceres::DOGLEG;
+                // options.max_num_iterations = 1000;
+                options2.max_num_iterations = 100;
+                // options.max_num_iterations = 10;
+                ceres::Solver::Summary summary2;
+                ceres::Solve(options2, &problem2, &summary2);
+                std::cout << summary2.BriefReport() << "\n";
+                std::cout << summary2.FullReport() << "\n";
+
+
+                // compute the covariances
+                ceres::Covariance::Options covarianceOptions2;
+                covarianceOptions2.apply_loss_function = true;
+                covarianceOptions2.algorithm_type = ceres::DENSE_SVD;
+                ceres::Covariance covariance2(covarianceOptions2);
+                std::vector<std::pair<const double*, const double*> > covariance_blocks2;
+                covariance_blocks2.push_back(std::make_pair(&param[0], &param[0])); // do 6x6 block diagonal of the extrinsic
+
+                Eigen::MatrixXd covariance_X(7, 7);
+                covariance2.GetCovarianceBlock(&param[0], &param[0], covariance_X.data());
+                Eigen::VectorXd variance_X(7);
+                variance_X = covariance_X.diagonal();
+
+                std::cout<<"    S : "<<param[6]<<" +/- "<<variance_X(6)<<std::endl;
+                std::cout<<"    O : "<<param[0]<<" +/- "<<variance_X(0)<<std::endl;
+                std::cout<<"    P : "<<param[1]<<" +/- "<<variance_X(1)<<std::endl;
+                std::cout<<"    K : "<<param[2]<<" +/- "<<variance_X(2)<<std::endl;
+                std::cout<<"    Tx: "<<param[3]<<" +/- "<<variance_X(3)<<std::endl;
+                std::cout<<"    Ty: "<<param[4]<<" +/- "<<variance_X(4)<<std::endl;
+                std::cout<<"    Tz: "<<param[5]<<" +/- "<<variance_X(5)<<std::endl;
+
+                double dof = summary.num_residuals_reduced;
+                std::cout<<"    Average RMSE: " <<sqrt(2*summary2.final_cost/dof)<<std::endl;     
+            }
 
             int numMatches = 0;
             double RMSE_X = 0.0;

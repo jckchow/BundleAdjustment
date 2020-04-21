@@ -5057,14 +5057,17 @@ int main(int argc, char** argv) {
                     }
                 }
 
-                if(true)
-                {
-                        // Fix part of the transformation parameters
-                        std::vector<int> fixParam;
-                        fixParam.push_back(6); //scale
-                        ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixParam);
-                        problem2.SetParameterization(&param[0], subset_parameterization);
-                }
+                int numParamFixed = 0;
+                // if(true)
+                // {
+                //         // Fix part of the transformation parameters
+                //         std::vector<int> fixParam;
+                //         fixParam.push_back(6); //scale
+                //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixParam);
+                //         problem2.SetParameterization(&param[0], subset_parameterization);
+
+                //         numParamFixed = fixParam.size();
+                // }
 
 
                 ceres::Solver::Options options2;
@@ -5096,21 +5099,44 @@ int main(int argc, char** argv) {
                 std::vector<std::pair<const double*, const double*> > covariance_blocks2;
                 covariance_blocks2.push_back(std::make_pair(&param[0], &param[0])); // do 6x6 block diagonal of the extrinsic
 
+                CHECK(covariance2.Compute(covariance_blocks2, &problem2));
+
                 Eigen::MatrixXd covariance_X(7, 7);
                 covariance2.GetCovarianceBlock(&param[0], &param[0], covariance_X.data());
                 Eigen::VectorXd variance_X(7);
                 variance_X = covariance_X.diagonal();
 
-                std::cout<<"    S : "<<param[6]<<" +/- "<<variance_X(6)<<std::endl;
-                std::cout<<"    O : "<<param[0]<<" +/- "<<variance_X(0)<<std::endl;
-                std::cout<<"    P : "<<param[1]<<" +/- "<<variance_X(1)<<std::endl;
-                std::cout<<"    K : "<<param[2]<<" +/- "<<variance_X(2)<<std::endl;
-                std::cout<<"    Tx: "<<param[3]<<" +/- "<<variance_X(3)<<std::endl;
-                std::cout<<"    Ty: "<<param[4]<<" +/- "<<variance_X(4)<<std::endl;
-                std::cout<<"    Tz: "<<param[5]<<" +/- "<<variance_X(5)<<std::endl;
+                double dof = summary2.num_residuals_reduced - summary2.num_parameters_reduced + numParamFixed;
+                double apostStdDevFactor = sqrt(2*summary2.final_cost/dof);
+                std::cout<<"    A posterior Std Dev: " <<apostStdDevFactor<<std::endl;     
 
-                double dof = summary.num_residuals_reduced;
-                std::cout<<"    Average RMSE: " <<sqrt(2*summary2.final_cost/dof)<<std::endl;     
+                std::cout<<"    S      : "<<param[6]<<" +/- "<<apostStdDevFactor*variance_X(6)<<std::endl;
+                std::cout<<"    O (deg): "<<param[0]*180/PI<<" +/- "<<apostStdDevFactor*variance_X(0)*180/PI<<std::endl;
+                std::cout<<"    P (deg): "<<param[1]*180/PI<<" +/- "<<apostStdDevFactor*variance_X(1)*180/PI<<std::endl;
+                std::cout<<"    K (deg): "<<param[2]*180/PI<<" +/- "<<apostStdDevFactor*variance_X(2)*180/PI<<std::endl;
+                std::cout<<"    Tx     : "<<param[3]<<" +/- "<<apostStdDevFactor*variance_X(3)<<std::endl;
+                std::cout<<"    Ty     : "<<param[4]<<" +/- "<<apostStdDevFactor*variance_X(4)<<std::endl;
+                std::cout<<"    Tz     : "<<param[5]<<" +/- "<<apostStdDevFactor*variance_X(5)<<std::endl;
+
+                std::vector<double> residuals;
+                problem2.Evaluate(ceres::Problem::EvaluateOptions(), NULL, &residuals, NULL, NULL);  
+
+                // assumes the pseudo-observations (normal prior) on the XYZ position is the last cost functions we add
+                Eigen::MatrixXd XYZResiduals(XYZ.size(), 3);
+                double SE_X = 0.0;
+                double SE_Y = 0.0;
+                double SE_Z = 0.0;
+                for (int n = 0; n<XYZ.size(); n++)
+                {
+                    XYZResiduals(n,0) = residuals[3*n  ];
+                    XYZResiduals(n,1) = residuals[3*n+1];
+                    XYZResiduals(n,2) = residuals[3*n+2];
+
+                    SE_X += pow(residuals[3*n  ], 2.0);
+                    SE_Y += pow(residuals[3*n+1], 2.0);
+                    SE_Z += pow(residuals[3*n+2], 2.0);
+                }
+                std::cout<<"    RMSE X, Y, Z --> Avg: " <<sqrt(SE_X/XYZ.size())<<", "<<sqrt(SE_Y/XYZ.size())<<", "<<sqrt(SE_Z/XYZ.size())<<" --> "<<sqrt((SE_X+SE_Y+SE_Z)/(3.0*XYZ.size()))<<std::endl;     
             }
 
             int numMatches = 0;

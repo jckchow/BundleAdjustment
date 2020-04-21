@@ -453,7 +453,7 @@
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
 #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
-#define INPUTXYZDATUMFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz"
+// #define INPUTXYZDATUMFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz"
 #define INPUTROPFILENAME ""
 
 // // Nikon Testing Data
@@ -831,6 +831,64 @@ struct similarityTransformation {
   const double Z_;
 
 };
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Inner constraint
+/// Input:    X       - X datum
+///           Y       - Y datum
+///           Z       - Z datum
+/// Unknowns: XYZ     - estimated object space coordinates
+///           param   - 7 similarity transformation parameters
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct innerconstraint {
+  
+  innerconstraint(double X, double Y, double Z, double XStdDev, double YStdDev, double ZStdDev)
+        : X_(X), Y_(Y), Z_(Z), XStdDev_(XStdDev), YStdDev_(YStdDev), ZStdDev_(ZStdDev)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const XYZ, const T* const param, T* residual) const {
+
+  // rotation from source to target
+  T r11 = cos(param[1]) * cos(param[2]);
+  T r12 = cos(param[0]) * sin(param[2]) + sin(param[0]) * sin(param[1]) * cos(param[2]);
+  T r13 = sin(param[0]) * sin(param[2]) - cos(param[0]) * sin(param[1]) * cos(param[2]);
+
+  T r21 = -cos(param[1]) * sin(param[2]);
+  T r22 = cos(param[0]) * cos(param[2]) - sin(param[0]) * sin(param[1]) * sin(param[2]);
+  T r23 = sin(param[0]) * cos(param[2]) + cos(param[0]) * sin(param[1]) * sin(param[2]);
+
+  T r31 = sin(param[1]);
+  T r32 = -sin(param[0]) * cos(param[1]);
+  T r33 = cos(param[0]) * cos(param[1]);
+
+  // rigid body transformation from source to target
+  T XTemp = r11 * ( XYZ[0] - param[3] ) + r12 * ( XYZ[1] - param[4] ) + r13 * ( XYZ[2] - param[5] );
+  T YTemp = r21 * ( XYZ[0] - param[3] ) + r22 * ( XYZ[1] - param[4] ) + r23 * ( XYZ[2] - param[5] );
+  T ZTemp = r31 * ( XYZ[0] - param[3] ) + r32 * ( XYZ[1] - param[4] ) + r33 * ( XYZ[2] - param[5] );
+ 
+  // Scale
+  residual[0] = param[6]*XTemp - T(X_);
+  residual[1] = param[6]*YTemp - T(Y_);
+  residual[2] = param[6]*ZTemp - T(Z_);
+
+  residual[0] /= T(XStdDev_);
+  residual[1] /= T(YStdDev_);
+  residual[2] /= T(ZStdDev_);
+
+  return true;
+  }
+
+ private:
+  const double X_;
+  const double Y_;
+  const double Z_;
+  const double XStdDev_;
+  const double YStdDev_;
+  const double ZStdDev_;
+};
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Collinearity Equation
@@ -2116,37 +2174,37 @@ int main(int argc, char** argv) {
             }
         }
 
-        // Reading in the datum file for inner constraints
-        PyRun_SimpleString("print( '  Start reading in *.datum file' )");  
-        std::cout<<"  Input Object Space XYZ Datum Filename: "<<INPUTXYZDATUMFILENAME<<std::endl;
+        // // Reading in the datum file for inner constraints
+        // PyRun_SimpleString("print( '  Start reading in *.datum file' )");  
+        // std::cout<<"  Input Object Space XYZ Datum Filename: "<<INPUTXYZDATUMFILENAME<<std::endl;
 
-        inp.open(INPUTXYZDATUMFILENAME);
-        std::vector<double> XYZDatumID;
-        std::vector<std::vector<double> >XYZDatum;
-        while (true) 
-        {
-            int c0;
-            double c1, c2, c3, c4, c5, c6; 
-            inp >> c0 >> c1 >> c2 >> c3 >> c4 >> c5 >> c6;
+        // inp.open(INPUTXYZDATUMFILENAME);
+        // std::vector<double> XYZDatumID;
+        // std::vector<std::vector<double> >XYZDatum;
+        // while (true) 
+        // {
+        //     int c0;
+        //     double c1, c2, c3, c4, c5, c6; 
+        //     inp >> c0 >> c1 >> c2 >> c3 >> c4 >> c5 >> c6;
 
-            XYZDatumID.push_back(c0);
+        //     XYZDatumID.push_back(c0);
 
-            std::vector<double>temp;
-            temp.resize(3);
-            temp[0] = c1;
-            temp[1] = c2;
-            temp[2] = c3;
-            XYZDatum.push_back(temp);
+        //     std::vector<double>temp;
+        //     temp.resize(3);
+        //     temp[0] = c1;
+        //     temp[1] = c2;
+        //     temp[2] = c3;
+        //     XYZDatum.push_back(temp);
 
-            if( inp.eof() ) 
-                break;
-        }
+        //     if( inp.eof() ) 
+        //         break;
+        // }
 
-        XYZDatumID.pop_back();
-        XYZDatum.pop_back();
-        inp.close();
+        // XYZDatumID.pop_back();
+        // XYZDatum.pop_back();
+        // inp.close();
 
-        std::cout << "    Number of XYZ Datum Points Read: "<< XYZDatum.size() << std::endl;
+        // std::cout << "    Number of XYZ Datum Points Read: "<< XYZDatum.size() << std::endl;
 
         std::vector<std::vector<double> > ROP;
         std::vector<std::vector<int> >ropID;
@@ -3225,11 +3283,45 @@ int main(int argc, char** argv) {
 
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
-        /// Inner constraints
+        /// Inner constraints 
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
 
+        // std::vector<double> datum;
+        // datum.push_back(0.0); //omega
+        // datum.push_back(0.0); //phi
+        // datum.push_back(0.0); //kappa
+        // datum.push_back(0.0); //Tx
+        // datum.push_back(0.0); //Ty
+        // datum.push_back(0.0); //Tz
+        // datum.push_back(1.0); //scale
 
+        // problem.AddParameterBlock(&DATUM[0], 7);  
+
+        // if (true)
+        // {
+        //     std::cout<<"   Datum: Free Gauge"<<std::endl;
+
+        //     ceres::LossFunction* loss = NULL; // default to normal Gaussian
+        //     // loss = new ceres::HuberLoss(1.0);
+
+        //     for (int i = 0; i < XYZDatumID.size(); i++)
+        //     {
+        //         for (int j = 0; j < xyzTarget.size(); j++)
+        //         {
+        //             if (xyzTarget[j] == XYZDatumID[i])
+        //             {                  
+        //             ceres::CostFunction* cost_function =
+        //                 new ceres::AutoDiffCostFunction<innerConstraint, 3, 3, 7>(
+        //                     new innerConstraint(XYZDatum[i][0],XYZDatum[i][1],XYZDatum[i][2]), 1E6, 1E6, 1E6);
+        //             problem.AddResidualBlock(cost_function, loss, &XYZ[j][0], &DATUM[0]);
+
+        //             problem.SetParameterBlockConstant(&DATUM[indexSensor][0]);
+
+        //             }
+        //         }
+        //     }
+        // }
 
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
@@ -3360,25 +3452,25 @@ int main(int argc, char** argv) {
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
         // // // define the datum by pseduo observations of the positions for defining the datum
-        if(true)
-        {
-            std::cout<<"   Datum: Prior Gauge"<<std::endl;
-            for(int n = 0; n < xyzTarget.size(); n++)
-            {
-                xyzXStdDev[n] *= 100.0; //only used for debugging
-                xyzYStdDev[n] *= 100.0;
-                xyzZStdDev[n] *= 100.0;
+        // if(true)
+        // {
+        //     std::cout<<"   Datum: Prior Gauge"<<std::endl;
+        //     for(int n = 0; n < xyzTarget.size(); n++)
+        //     {
+        //         xyzXStdDev[n] *= 100.0; //only used for debugging
+        //         xyzYStdDev[n] *= 100.0;
+        //         xyzZStdDev[n] *= 100.0;
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
-                        new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
-                problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
+        //         ceres::CostFunction* cost_function =
+        //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+        //                 new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
+        //         problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
 
-                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
-                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
-                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
-            }
-        }
+        //         variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
+        //         variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
+        //         variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
+        //     }
+        // }
 
         // // prior on the IOP. Useful for X-ray data
         // if (true)

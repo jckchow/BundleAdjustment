@@ -453,6 +453,7 @@
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
 #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
+#define INPUTXYZDATUMFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz"
 #define INPUTROPFILENAME ""
 
 // // Nikon Testing Data
@@ -2115,6 +2116,38 @@ int main(int argc, char** argv) {
             }
         }
 
+        // Reading in the datum file for inner constraints
+        PyRun_SimpleString("print( '  Start reading in *.datum file' )");  
+        std::cout<<"  Input Object Space XYZ Datum Filename: "<<INPUTXYZDATUMFILENAME<<std::endl;
+
+        inp.open(INPUTXYZDATUMFILENAME);
+        std::vector<double> XYZDatumID;
+        std::vector<std::vector<double> >XYZDatum;
+        while (true) 
+        {
+            int c0;
+            double c1, c2, c3, c4, c5, c6; 
+            inp >> c0 >> c1 >> c2 >> c3 >> c4 >> c5 >> c6;
+
+            XYZDatumID.push_back(c0);
+
+            std::vector<double>temp;
+            temp.resize(3);
+            temp[0] = c1;
+            temp[1] = c2;
+            temp[2] = c3;
+            XYZDatum.push_back(temp);
+
+            if( inp.eof() ) 
+                break;
+        }
+
+        XYZDatumID.pop_back();
+        XYZDatum.pop_back();
+        inp.close();
+
+        std::cout << "    Number of XYZ Datum Points Read: "<< XYZDatum.size() << std::endl;
+
         std::vector<std::vector<double> > ROP;
         std::vector<std::vector<int> >ropID;
         std::vector<int> ropMaster;
@@ -3190,6 +3223,13 @@ int main(int argc, char** argv) {
         }
 
 
+        /////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
+        /// Inner constraints
+        /////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////
+
+
 
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
@@ -3252,67 +3292,67 @@ int main(int argc, char** argv) {
         //     problem.SetParameterBlockConstant(&XYZ[10][0]);
         // }
 
-        if(true)
-        {
-                std::cout<<"   Datum: Fixed Gauge"<<std::endl;
-                // Fix part of IOPs instead of all
-                std::vector<int> fixXYZ;
-                fixXYZ.push_back(0); 
-                // fixXYZ.push_back(1); 
-                // fixXYZ.push_back(2); 
+        // if(true)
+        // {
+        //         std::cout<<"   Datum: Fixed Gauge"<<std::endl;
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(0); 
+        //         // fixXYZ.push_back(1); 
+        //         // fixXYZ.push_back(2); 
 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-                problem.SetParameterization(&XYZ[0][0], subset_parameterization);
-        }
-        if(true)
-        {
-                // Fix part of IOPs instead of all
-                std::vector<int> fixXYZ;
-                fixXYZ.push_back(1); 
-                // fixXYZ.push_back(2); 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-                problem.SetParameterization(&XYZ[19][0], subset_parameterization);
-        }
-        if(true)
-        {
-                // Fix part of IOPs instead of all
-                std::vector<int> fixXYZ;
-                fixXYZ.push_back(2); 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-                problem.SetParameterization(&XYZ[40][0], subset_parameterization);
-        }
-        if(true)
-        {
-                // Fix part of IOPs instead of all
-                std::vector<int> fixXYZ;
-                fixXYZ.push_back(0); 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-                problem.SetParameterization(&XYZ[60][0], subset_parameterization);
-        }
-        if(true)
-        {
-                // Fix part of IOPs instead of all
-                std::vector<int> fixXYZ;
-                fixXYZ.push_back(1); 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-                problem.SetParameterization(&XYZ[80][0], subset_parameterization);
-        }
-        if(true)
-        {
-                // Fix part of IOPs instead of all
-                std::vector<int> fixXYZ;
-                fixXYZ.push_back(2); 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-                problem.SetParameterization(&XYZ[100][0], subset_parameterization);
-        }
-        if(true)
-        {
-                // Fix part of IOPs instead of all
-                std::vector<int> fixXYZ;
-                fixXYZ.push_back(0); 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
-                problem.SetParameterization(&XYZ[120][0], subset_parameterization);
-        }
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[0][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(1); 
+        //         // fixXYZ.push_back(2); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[19][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(2); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[40][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(0); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[60][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(1); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[80][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(2); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[100][0], subset_parameterization);
+        // }
+        // if(true)
+        // {
+        //         // Fix part of IOPs instead of all
+        //         std::vector<int> fixXYZ;
+        //         fixXYZ.push_back(0); 
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(3, fixXYZ);
+        //         problem.SetParameterization(&XYZ[120][0], subset_parameterization);
+        // }
 
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
@@ -3320,25 +3360,25 @@ int main(int argc, char** argv) {
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
         // // // define the datum by pseduo observations of the positions for defining the datum
-        // if(true)
-        // {
-        //     std::cout<<"   Datum: Prior Gauge"<<std::endl;
-        //     for(int n = 0; n < xyzTarget.size(); n++)
-        //     {
-        //         // xyzXStdDev[n] *= 100.0; //only used for debugging
-        //         // xyzYStdDev[n] *= 100.0;
-        //         // xyzZStdDev[n] *= 100.0;
+        if(true)
+        {
+            std::cout<<"   Datum: Prior Gauge"<<std::endl;
+            for(int n = 0; n < xyzTarget.size(); n++)
+            {
+                xyzXStdDev[n] *= 100.0; //only used for debugging
+                xyzYStdDev[n] *= 100.0;
+                xyzZStdDev[n] *= 100.0;
 
-        //         ceres::CostFunction* cost_function =
-        //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
-        //                 new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
-        //         problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+                        new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
+                problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
 
-        //         variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
-        //         variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
-        //         variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
-        //     }
-        // }
+                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
+                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
+                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
+            }
+        }
 
         // // prior on the IOP. Useful for X-ray data
         // if (true)
@@ -5167,7 +5207,7 @@ int main(int argc, char** argv) {
             RMSE_Y = sqrt(RMSE_Y);
             RMSE_Z = sqrt(RMSE_Z);
             
-            std::cout<<"    RMSE X, Y, Z, Average: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
+            std::cout<<"    Direct method - RMSE X, Y, Z, Average: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
             PyRun_SimpleString("print( 'Done QC:', round(TIME.process_time()-t0, 3), 's' )");
         }   
 

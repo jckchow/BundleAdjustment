@@ -466,12 +466,12 @@
 // #define INPUTROPFILENAME ""
 
 // // //for all goPro
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened_manual.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_manual.xyz"
 #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
 #define INPUTROPFILENAME ""
 
@@ -2756,7 +2756,7 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL; // default to normal Gaussian
-        // loss = new ceres::HuberLoss(1.0);
+        loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
         // loss = new ceres::CauchyLoss(0.5);
@@ -2839,15 +2839,15 @@ int main(int argc, char** argv) {
                 // imageXStdDev[n] *= 10000.0;
                 // imageYStdDev[n] *= 10000.0;
 
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 16>(
-                //         new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
-
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
-                        new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                    new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 16>(
+                        new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
+                //         new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // ceres::CostFunction* cost_function =
                 //     new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
@@ -2858,7 +2858,7 @@ int main(int argc, char** argv) {
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
+                // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -3361,8 +3361,8 @@ int main(int argc, char** argv) {
                 fixAP.push_back(5); //p1
                 fixAP.push_back(6); //p2
 
-                // fixAP.push_back(7); //ep1
-                // fixAP.push_back(8); //ep2
+                fixAP.push_back(7); //ep1
+                fixAP.push_back(8); //ep2
                 fixAP.push_back(9); //ep3
                 fixAP.push_back(10); //ep4
                 fixAP.push_back(11); //ep5
@@ -3457,9 +3457,9 @@ int main(int argc, char** argv) {
             std::cout<<"   Datum: Prior Gauge"<<std::endl;
             for(int n = 0; n < xyzTarget.size(); n++)
             {
-                xyzXStdDev[n] *= 100.0; //only used for debugging
-                xyzYStdDev[n] *= 100.0;
-                xyzZStdDev[n] *= 100.0;
+                // xyzXStdDev[n] *= 100.0; //only used for debugging
+                // xyzYStdDev[n] *= 100.0;
+                // xyzZStdDev[n] *= 100.0;
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
@@ -4572,7 +4572,7 @@ int main(int argc, char** argv) {
         CvDiag.setConstant(1E6);
         for (int i = 0; i < variances.size(); i++)
         {
-            CvDiag[i] = (variances[i]*variances[i]);
+            CvDiag[i] = (variances[i]);
         }
 
         if(COMPUTECV)
@@ -5169,6 +5169,37 @@ int main(int argc, char** argv) {
             std::cout << "  Number of XYZ Ground Truth Read: "<< XYZTruth.size() << std::endl;
             std::cout << "  Number of XYZ estimated        : "<< XYZ.size() << std::endl;
 
+            int numMatches = 0;
+            double RMSE_X = 0.0;
+            double RMSE_Y = 0.0;
+            double RMSE_Z = 0.0;
+            for (int i = 0; i < XYZTruthID.size(); i++)
+            {
+                for (int j = 0; j < xyzTarget.size(); j++)
+                {
+                    if (xyzTarget[j] == XYZTruthID[i])
+                    {
+                        RMSE_X += pow(XYZ[j][0] - XYZTruth[i][0],2.0);
+                        RMSE_Y += pow(XYZ[j][1] - XYZTruth[i][1],2.0);
+                        RMSE_Z += pow(XYZ[j][2] - XYZTruth[i][2],2.0);
+
+                        numMatches++;
+                        break;
+                    }
+                }
+            }
+            std::cout << "  Number of matching points used : "<< numMatches << std::endl;
+            RMSE_X /= XYZTruth.size();
+            RMSE_Y /= XYZTruth.size();
+            RMSE_Z /= XYZTruth.size();
+
+            RMSE_X = sqrt(RMSE_X);
+            RMSE_Y = sqrt(RMSE_Y);
+            RMSE_Z = sqrt(RMSE_Z);
+            
+            std::cout<<"    Direct method - RMSE X, Y, Z, Average: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
+
+            // Do least squares adjustment to solve transformation if we used a fixed gauge to define the datum
             if (true)
             {
                 std::cout<<"  Running similarity/rigid-body transformation estimations..."<<std::endl;
@@ -5275,7 +5306,7 @@ int main(int argc, char** argv) {
                 double SE_X = 0.0;
                 double SE_Y = 0.0;
                 double SE_Z = 0.0;
-                for (int n = 0; n<XYZTruthID.size(); n++)
+                for (int n = 0; n<numMatches; n++)
                 {
                     // std::cout<<residuals[3*n  ]<<", "<<residuals[3*n+1]<<", "<<residuals[3*n+2]<<std::endl;
                     // XYZResiduals(n,0) = residuals[3*n  ];
@@ -5286,7 +5317,7 @@ int main(int argc, char** argv) {
                     SE_Y += pow(residuals[3*n+1], 2.0);
                     SE_Z += pow(residuals[3*n+2], 2.0);
                 }
-                std::cout<<"    Similarity RMSE X, Y, Z --> Avg: " <<sqrt(SE_X/XYZ.size())<<", "<<sqrt(SE_Y/XYZ.size())<<", "<<sqrt(SE_Z/XYZ.size())<<" --> "<<sqrt((SE_X+SE_Y+SE_Z)/(3.0*XYZ.size()))<<std::endl;     
+                std::cout<<"    Similarity RMSE X, Y, Z --> Avg: " <<sqrt(SE_X/numMatches)<<", "<<sqrt(SE_Y/numMatches)<<", "<<sqrt(SE_Z/numMatches)<<" --> "<<sqrt((SE_X+SE_Y+SE_Z)/(3.0*numMatches))<<std::endl;     
 
                 std::cout<<"  3D Rigid-Body Transformation: " <<std::endl;     
                 param[0] = 0.0; param[1] = 0.0; param[2] = 0.0; param[3] = 0.0; param[4] = 0.0; param[5] = 0.0; param[6] = 1.0;
@@ -5342,7 +5373,7 @@ int main(int argc, char** argv) {
                  SE_Y = 0.0;
                  SE_Z = 0.0;
                 //  std::cout<<"size: "<<XYZ.size()<<std::endl;
-                for (int n = 0; n<XYZTruthID.size(); n++)
+                for (int n = 0; n<numMatches; n++)
                 {
                     // std::cout<<residuals[3*n  ]<<", "<<residuals[3*n+1]<<", "<<residuals[3*n+2]<<std::endl;
                     SE_X += pow(residuals[3*n  ], 2.0);
@@ -5350,39 +5381,11 @@ int main(int argc, char** argv) {
                     SE_Z += pow(residuals[3*n+2], 2.0);
                 }
                 // SE_X = XYZResiduals(0,0); SE_Y = XYZResiduals(0,1); SE_Z = XYZResiduals(0,2);
-                std::cout<<"    Rigid-Body RMSE X, Y, Z --> Avg: " <<sqrt(SE_X/XYZ.size())<<", "<<sqrt(SE_Y/XYZ.size())<<", "<<sqrt(SE_Z/XYZ.size())<<" --> "<<sqrt((SE_X+SE_Y+SE_Z)/(3.0*XYZ.size()))<<std::endl;     
+                std::cout<<"    Rigid-Body RMSE X, Y, Z --> Avg: " <<sqrt(SE_X/numMatches)<<", "<<sqrt(SE_Y/numMatches)<<", "<<sqrt(SE_Z/numMatches)<<" --> "<<sqrt((SE_X+SE_Y+SE_Z)/(3.0*numMatches))<<std::endl;     
                 // }
             }
 
-            int numMatches = 0;
-            double RMSE_X = 0.0;
-            double RMSE_Y = 0.0;
-            double RMSE_Z = 0.0;
-            for (int i = 0; i < XYZTruthID.size(); i++)
-            {
-                for (int j = 0; j < xyzTarget.size(); j++)
-                {
-                    if (xyzTarget[j] == XYZTruthID[i])
-                    {
-                        RMSE_X += pow(XYZ[j][0] - XYZTruth[i][0],2.0);
-                        RMSE_Y += pow(XYZ[j][1] - XYZTruth[i][1],2.0);
-                        RMSE_Z += pow(XYZ[j][2] - XYZTruth[i][2],2.0);
 
-                        numMatches++;
-                        break;
-                    }
-                }
-            }
-            std::cout << "  Number of matching points used : "<< numMatches << std::endl;
-            RMSE_X /= XYZTruth.size();
-            RMSE_Y /= XYZTruth.size();
-            RMSE_Z /= XYZTruth.size();
-
-            RMSE_X = sqrt(RMSE_X);
-            RMSE_Y = sqrt(RMSE_Y);
-            RMSE_Z = sqrt(RMSE_Z);
-            
-            std::cout<<"    Direct method - RMSE X, Y, Z, Average: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
             PyRun_SimpleString("print( 'Done QC:', round(TIME.process_time()-t0, 3), 's' )");
         }   
 

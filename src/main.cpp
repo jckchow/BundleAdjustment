@@ -5173,15 +5173,46 @@ int main(int argc, char** argv) {
             double RMSE_X = 0.0;
             double RMSE_Y = 0.0;
             double RMSE_Z = 0.0;
+            double meanDiff_X = 0.0;
+            double meanDiff_Y = 0.0;
+            double meanDiff_Z = 0.0;
+            double minDiff_X = 1E10;
+            double minDiff_Y = 1E10;
+            double minDiff_Z = 1E10;
+            double maxDiff_X = -1E10;
+            double maxDiff_Y = -1E10;
+            double maxDiff_Z = -1E10;
             for (int i = 0; i < XYZTruthID.size(); i++)
             {
                 for (int j = 0; j < xyzTarget.size(); j++)
                 {
                     if (xyzTarget[j] == XYZTruthID[i])
                     {
-                        RMSE_X += pow(XYZ[j][0] - XYZTruth[i][0],2.0);
-                        RMSE_Y += pow(XYZ[j][1] - XYZTruth[i][1],2.0);
-                        RMSE_Z += pow(XYZ[j][2] - XYZTruth[i][2],2.0);
+                        double diffX = XYZ[j][0] - XYZTruth[i][0];
+                        double diffY = XYZ[j][1] - XYZTruth[i][1];
+                        double diffZ = XYZ[j][2] - XYZTruth[i][2];
+
+                        meanDiff_X += diffX;
+                        meanDiff_Y += diffY;
+                        meanDiff_Z += diffZ;
+
+                        RMSE_X += pow(diffX,2.0);
+                        RMSE_Y += pow(diffY,2.0);
+                        RMSE_Z += pow(diffZ,2.0);
+
+                        if (diffX < minDiff_X)
+                            minDiff_X = diffX;                        
+                        if (diffY < minDiff_Y)
+                            minDiff_Y = diffY;
+                        if (diffZ < minDiff_Z)
+                            minDiff_Z = diffZ;
+
+                        if (diffX > maxDiff_X)
+                            maxDiff_X = diffX;                        
+                        if (diffY > maxDiff_Y)
+                            maxDiff_Y = diffY;
+                        if (diffZ > maxDiff_Z)
+                            maxDiff_Z = diffZ;
 
                         numMatches++;
                         break;
@@ -5189,14 +5220,22 @@ int main(int argc, char** argv) {
                 }
             }
             std::cout << "  Number of matching points used : "<< numMatches << std::endl;
-            RMSE_X /= XYZTruth.size();
-            RMSE_Y /= XYZTruth.size();
-            RMSE_Z /= XYZTruth.size();
+
+            meanDiff_X /= numMatches;
+            meanDiff_Y /= numMatches;
+            meanDiff_Z /- numMatches;
+
+            RMSE_X /= numMatches;
+            RMSE_Y /= numMatches;
+            RMSE_Z /= numMatches;
 
             RMSE_X = sqrt(RMSE_X);
             RMSE_Y = sqrt(RMSE_Y);
             RMSE_Z = sqrt(RMSE_Z);
-            
+
+            std::cout<<"    Mean X (range): "<<meanDiff_X<<" ("<<minDiff_X<<" to "<<maxDiff_X<<")"<<std::endl;
+            std::cout<<"    Mean Y (range): "<<meanDiff_Y<<" ("<<minDiff_Y<<" to "<<maxDiff_Y<<")"<<std::endl;
+            std::cout<<"    Mean Z (range): "<<meanDiff_Z<<" ("<<minDiff_Z<<" to "<<maxDiff_Z<<")"<<std::endl;
             std::cout<<"    Direct method - RMSE X, Y, Z, Average: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
 
             // Do least squares adjustment to solve transformation if we used a fixed gauge to define the datum

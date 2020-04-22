@@ -445,7 +445,7 @@
 // #define INPUTROPFILENAME ""
 
 
-// // Nikon Training Data
+// // // Nikon Training Data
 #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
 #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
@@ -2756,7 +2756,7 @@ int main(int argc, char** argv) {
         }
 
         ceres::LossFunction* loss = NULL; // default to normal Gaussian
-        loss = new ceres::HuberLoss(1.0);
+        // loss = new ceres::HuberLoss(1.0);
 
         // ceres::LossFunction* loss2 = NULL;
         // loss = new ceres::CauchyLoss(0.5);
@@ -3452,25 +3452,25 @@ int main(int argc, char** argv) {
         /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////
         // // // define the datum by pseduo observations of the positions for defining the datum
-        // if(true)
-        // {
-        //     std::cout<<"   Datum: Prior Gauge"<<std::endl;
-        //     for(int n = 0; n < xyzTarget.size(); n++)
-        //     {
-        //         xyzXStdDev[n] *= 100.0; //only used for debugging
-        //         xyzYStdDev[n] *= 100.0;
-        //         xyzZStdDev[n] *= 100.0;
+        if(true)
+        {
+            std::cout<<"   Datum: Prior Gauge"<<std::endl;
+            for(int n = 0; n < xyzTarget.size(); n++)
+            {
+                // xyzXStdDev[n] *= 100.0; //only used for debugging
+                // xyzYStdDev[n] *= 100.0;
+                // xyzZStdDev[n] *= 100.0;
 
-        //         ceres::CostFunction* cost_function =
-        //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
-        //                 new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
-        //         problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+                        new constrainPoint(xyzX[n], xyzY[n], xyzZ[n], xyzXStdDev[n], xyzYStdDev[n], xyzZStdDev[n]));
+                problem.AddResidualBlock(cost_function, NULL, &XYZ[n][0]);
 
-        //         variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
-        //         variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
-        //         variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
-        //     }
-        // }
+                variances.push_back(xyzXStdDev[n]*xyzXStdDev[n]);
+                variances.push_back(xyzYStdDev[n]*xyzYStdDev[n]);
+                variances.push_back(xyzZStdDev[n]*xyzZStdDev[n]);
+            }
+        }
 
         // // prior on the IOP. Useful for X-ray data
         // if (true)
@@ -5220,8 +5220,9 @@ int main(int argc, char** argv) {
                 ceres::Solver::Summary summary2;
                 ceres::Solve(options2, &problem2, &summary2);
                 std::cout << summary2.BriefReport() << "\n";
-                std::cout << summary2.FullReport() << "\n";
+                // std::cout << summary2.FullReport() << "\n";
 
+                std::cout<<"  Similarity Transformation: " <<std::endl;     
 
                 // compute the covariances
                 ceres::Covariance::Options covarianceOptions2;
@@ -5252,23 +5253,91 @@ int main(int argc, char** argv) {
 
                 std::vector<double> residuals;
                 problem2.Evaluate(ceres::Problem::EvaluateOptions(), NULL, &residuals, NULL, NULL);  
+                // std::cout<<residuals[0]<<", "<<residuals[1]<<", "<<residuals[2]<<std::endl;
+                // std::cout<<residuals[3]<<", "<<residuals[4]<<", "<<residuals[5]<<std::endl;
 
                 // assumes the pseudo-observations (normal prior) on the XYZ position is the last cost functions we add
-                Eigen::MatrixXd XYZResiduals(XYZ.size(), 3);
+                // Eigen::MatrixXd XYZResiduals(XYZ.size(), 3);
                 double SE_X = 0.0;
                 double SE_Y = 0.0;
                 double SE_Z = 0.0;
-                for (int n = 0; n<XYZ.size(); n++)
+                for (int n = 0; n<XYZTruthID.size(); n++)
                 {
-                    XYZResiduals(n,0) = residuals[3*n  ];
-                    XYZResiduals(n,1) = residuals[3*n+1];
-                    XYZResiduals(n,2) = residuals[3*n+2];
+                    // std::cout<<residuals[3*n  ]<<", "<<residuals[3*n+1]<<", "<<residuals[3*n+2]<<std::endl;
+                    // XYZResiduals(n,0) = residuals[3*n  ];
+                    // XYZResiduals(n,1) = residuals[3*n+1];
+                    // XYZResiduals(n,2) = residuals[3*n+2];
 
                     SE_X += pow(residuals[3*n  ], 2.0);
                     SE_Y += pow(residuals[3*n+1], 2.0);
                     SE_Z += pow(residuals[3*n+2], 2.0);
                 }
-                std::cout<<"    RMSE X, Y, Z --> Avg: " <<sqrt(SE_X/XYZ.size())<<", "<<sqrt(SE_Y/XYZ.size())<<", "<<sqrt(SE_Z/XYZ.size())<<" --> "<<sqrt((SE_X+SE_Y+SE_Z)/(3.0*XYZ.size()))<<std::endl;     
+                std::cout<<"    Similarity RMSE X, Y, Z --> Avg: " <<sqrt(SE_X/XYZ.size())<<", "<<sqrt(SE_Y/XYZ.size())<<", "<<sqrt(SE_Z/XYZ.size())<<" --> "<<sqrt((SE_X+SE_Y+SE_Z)/(3.0*XYZ.size()))<<std::endl;     
+
+                std::cout<<"  3D Rigid-Body Transformation: " <<std::endl;     
+                param[0] = 0.0; param[1] = 0.0; param[2] = 0.0; param[3] = 0.0; param[4] = 0.0; param[5] = 0.0; param[6] = 1.0;
+
+                // if(true)
+                // {
+                // Fix part of the transformation parameters
+                std::vector<int> fixParam;
+                fixParam.push_back(6); //scale
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(7, fixParam);
+                problem2.SetParameterization(&param[0], subset_parameterization);
+
+                numParamFixed = fixParam.size();
+    
+                ceres::Solve(options2, &problem2, &summary2);
+                std::cout << summary2.BriefReport() << "\n";
+                // std::cout << summary2.FullReport() << "\n";
+
+               
+                // // compute the covariances
+                // ceres::Covariance::Options covarianceOptions2;
+                // covarianceOptions2.apply_loss_function = true;
+                // covarianceOptions2.algorithm_type = ceres::DENSE_SVD;
+                // ceres::Covariance covariance2(covarianceOptions2);
+                // std::vector<std::pair<const double*, const double*> > covariance_blocks2;
+                // covariance_blocks2.push_back(std::make_pair(&param[0], &param[0])); // do 6x6 block diagonal of the extrinsic
+
+                CHECK(covariance2.Compute(covariance_blocks2, &problem2));
+
+                // Eigen::MatrixXd covariance_X(7, 7);
+                covariance2.GetCovarianceBlock(&param[0], &param[0], covariance_X.data());
+                // Eigen::VectorXd variance_X(7);
+                variance_X = covariance_X.diagonal();
+
+                dof = summary2.num_residuals_reduced - summary2.num_parameters_reduced + numParamFixed;
+                apostStdDevFactor = sqrt(2*summary2.final_cost/dof);
+                std::cout<<"    A posterior Std Dev: " <<apostStdDevFactor<<std::endl;     
+
+                std::cout<<"    S      : "<<param[6]<<" +/- "<<apostStdDevFactor*variance_X(6)<<std::endl;
+                std::cout<<"    O (deg): "<<param[0]*180/PI<<" +/- "<<apostStdDevFactor*variance_X(0)*180/PI<<std::endl;
+                std::cout<<"    P (deg): "<<param[1]*180/PI<<" +/- "<<apostStdDevFactor*variance_X(1)*180/PI<<std::endl;
+                std::cout<<"    K (deg): "<<param[2]*180/PI<<" +/- "<<apostStdDevFactor*variance_X(2)*180/PI<<std::endl;
+                std::cout<<"    Tx     : "<<param[3]<<" +/- "<<apostStdDevFactor*variance_X(3)<<std::endl;
+                std::cout<<"    Ty     : "<<param[4]<<" +/- "<<apostStdDevFactor*variance_X(4)<<std::endl;
+                std::cout<<"    Tz     : "<<param[5]<<" +/- "<<apostStdDevFactor*variance_X(5)<<std::endl;
+
+                problem2.Evaluate(ceres::Problem::EvaluateOptions(), NULL, &residuals, NULL, NULL);  
+                // std::cout<<residuals[0]<<", "<<residuals[1]<<", "<<residuals[2]<<std::endl;
+                // std::cout<<residuals[3]<<", "<<residuals[4]<<", "<<residuals[5]<<std::endl;
+
+                // assumes the pseudo-observations (normal prior) on the XYZ position is the last cost functions we add
+                 SE_X = 0.0;
+                 SE_Y = 0.0;
+                 SE_Z = 0.0;
+                //  std::cout<<"size: "<<XYZ.size()<<std::endl;
+                for (int n = 0; n<XYZTruthID.size(); n++)
+                {
+                    // std::cout<<residuals[3*n  ]<<", "<<residuals[3*n+1]<<", "<<residuals[3*n+2]<<std::endl;
+                    SE_X += pow(residuals[3*n  ], 2.0);
+                    SE_Y += pow(residuals[3*n+1], 2.0);
+                    SE_Z += pow(residuals[3*n+2], 2.0);
+                }
+                // SE_X = XYZResiduals(0,0); SE_Y = XYZResiduals(0,1); SE_Z = XYZResiduals(0,2);
+                std::cout<<"    Rigid-Body RMSE X, Y, Z --> Avg: " <<sqrt(SE_X/XYZ.size())<<", "<<sqrt(SE_Y/XYZ.size())<<", "<<sqrt(SE_Z/XYZ.size())<<" --> "<<sqrt((SE_X+SE_Y+SE_Z)/(3.0*XYZ.size()))<<std::endl;     
+                // }
             }
 
             int numMatches = 0;

@@ -4876,6 +4876,9 @@ int main(int argc, char** argv) {
             std::cout<<"Residuals:"<<std::endl;
             std::cout<<imageResiduals<<std::endl;
         }
+
+        std::cout<<"  Residual x mean (range): "<< imageResiduals.col(0).mean() <<" (" << imageResiduals.col(0).minCoeff() <<" to " << imageResiduals.col(0).maxCoeff()<<")"<<std::endl;
+        std::cout<<"  Residual y mean (range): "<< imageResiduals.col(1).mean() <<" (" << imageResiduals.col(1).minCoeff() <<" to " << imageResiduals.col(1).maxCoeff()<<")"<<std::endl;
         std::cout<<"  Reprojection errors (RMSE in x, y, and average): " << sqrt(reprojectionErrors(0,0) / imageX.size()) << ", " << sqrt(reprojectionErrors(0,1) / imageX.size()) << " --> " << sqrt(reprojectionErrors(0,2) / (2*imageX.size())) << std::endl;
 
         // Output results to file
@@ -5223,7 +5226,7 @@ int main(int argc, char** argv) {
 
             meanDiff_X /= numMatches;
             meanDiff_Y /= numMatches;
-            meanDiff_Z /- numMatches;
+            meanDiff_Z /= numMatches;
 
             RMSE_X /= numMatches;
             RMSE_Y /= numMatches;

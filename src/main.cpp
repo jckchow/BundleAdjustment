@@ -445,16 +445,16 @@
 // #define INPUTROPFILENAME ""
 
 
-// // // Nikon Training Data
-#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
-#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
-#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
-#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
-// #define INPUTXYZDATUMFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz"
-#define INPUTROPFILENAME ""
+// // // // Nikon Training Data
+// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
+// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
+// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
+// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
+// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
+// // #define INPUTXYZDATUMFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz"
+// #define INPUTROPFILENAME ""
 
 // // Nikon Testing Data
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
@@ -466,16 +466,16 @@
 // #define INPUTROPFILENAME ""
 
 // // //for all goPro
-// #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
-// #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-// // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
-// #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
-// #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
-// #define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+#define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho"
+#define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+#define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop"
+#define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.xyz"
+#define INPUTXYZTRUTHFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
-// // // // Training goPro Data
+// // // Training goPro Data
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
 // // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
@@ -2762,7 +2762,7 @@ int main(int argc, char** argv) {
         // loss = new ceres::CauchyLoss(0.5);
 
         // Conventional collinearity condition, no machine learning
-        if (true)
+        if (false)
         {
             std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -2798,7 +2798,7 @@ int main(int argc, char** argv) {
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
+                problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); // spatial resection only
 
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -2809,7 +2809,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographic collinearity condition, no machine learning
-        if (false)
+        if (true)
         {
             std::cout<<"   RUNNING STEREOGRAPHIC PROJECTION COLLINEARITY EQUATIONS..."<<std::endl;
 
@@ -2839,15 +2839,15 @@ int main(int argc, char** argv) {
                 // imageXStdDev[n] *= 10000.0;
                 // imageYStdDev[n] *= 10000.0;
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 16>(
-                        new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
-
                 // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
-                //         new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                //     new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 16>(
+                //         new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
+                        new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // ceres::CostFunction* cost_function =
                 //     new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
@@ -2858,7 +2858,7 @@ int main(int argc, char** argv) {
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
+                problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -3361,8 +3361,8 @@ int main(int argc, char** argv) {
                 fixAP.push_back(5); //p1
                 fixAP.push_back(6); //p2
 
-                fixAP.push_back(7); //ep1
-                fixAP.push_back(8); //ep2
+                // fixAP.push_back(7); //ep1
+                // fixAP.push_back(8); //ep2
                 fixAP.push_back(9); //ep3
                 fixAP.push_back(10); //ep4
                 fixAP.push_back(11); //ep5
@@ -3457,9 +3457,9 @@ int main(int argc, char** argv) {
             std::cout<<"   Datum: Prior Gauge"<<std::endl;
             for(int n = 0; n < xyzTarget.size(); n++)
             {
-                // xyzXStdDev[n] *= 100.0; //only used for debugging
-                // xyzYStdDev[n] *= 100.0;
-                // xyzZStdDev[n] *= 100.0;
+                xyzXStdDev[n] *= 100.0; //only used for debugging
+                xyzYStdDev[n] *= 100.0;
+                xyzZStdDev[n] *= 100.0;
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
@@ -3495,7 +3495,7 @@ int main(int argc, char** argv) {
         // }
 
 
-        // // prior on the AP
+        // prior on the AP
         // if (true)
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
@@ -3504,12 +3504,12 @@ int main(int argc, char** argv) {
         //         double a2StdDev  = 1.0E-6;
         //         double k1StdDev  = 1.0E3;
         //         double k2StdDev  = 1.0E3;
-        //         double k3StdDev  = 1.0E-6;
+        //         double k3StdDev  = 1.0E3;
         //         double p1StdDev  = 1.0E-6;
         //         double p2StdDev  = 1.0E-6;
 
-        //         double ep1StdDev  = 1.0E-6;
-        //         double ep2StdDev  = 1.0E-6;
+        //         double ep1StdDev  = 1.0E3;
+        //         double ep2StdDev  = 1.0E3;
         //         double ep3StdDev  = 1.0E-6;
         //         double ep4StdDev  = 1.0E-6;
         //         double ep5StdDev  = 1.0E-6;
@@ -4569,8 +4569,11 @@ int main(int argc, char** argv) {
         // set some default values if we are not actually calculating Cv
         redundancyNumber.setConstant(1E6);
         CvDiag.resize(jacobian.num_rows);
-        // CvDiag.setConstant(1E6);
-        CvDiag.setConstant(imageXStdDev[0]*imageYStdDev[0]);
+        CvDiag.setConstant(1E6);
+        for (int i = 0; i < variances.size(); i++)
+        {
+            CvDiag[i] = (variances[i]*variances[i]);
+        }
 
         if(COMPUTECV)
         {
@@ -4888,6 +4891,17 @@ int main(int argc, char** argv) {
                 fprintf(fout, "%i %i %i %.6lf %.6lf %.6lf %.6lf %.2lf %.2lf %.6lf %.6lf\n", pointReferenceID[i], frameReferenceID[i], sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1), imageRedundancy(i,0), imageRedundancy(i,1), imageResidualsStdDev(i,0), imageResidualsStdDev(i,1));
             }
             fclose(fout);
+
+            if (true)
+            {
+            // write to share folder for reading it in to MATLAB
+            FILE *fout = fopen("/media/sf_UbuntuVirtualShared/image.jck", "w");
+            for(int i = 0; i < imageTarget.size(); ++i)
+            {
+                fprintf(fout, "%i %i %i %.6lf %.6lf %.6lf %.6lf %.2lf %.2lf %.6lf %.6lf\n", pointReferenceID[i], frameReferenceID[i], sensorReferenceID[i], imageX[i], imageY[i], imageResiduals(i,0), imageResiduals(i,1), imageRedundancy(i,0), imageRedundancy(i,1), imageResidualsStdDev(i,0), imageResidualsStdDev(i,1));
+            }
+            fclose(fout);
+            }
         }
         
         // if (true)

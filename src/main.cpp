@@ -478,8 +478,8 @@
 // // // Training goPro Data
 #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
 #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
-// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
-#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+#define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
+// #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
 #define INPUTEOPFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
 // #define INPUTXYZFILENAME "/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
@@ -3020,7 +3020,7 @@ int main(int argc, char** argv) {
         // loss = new ceres::CauchyLoss(0.5);
 
         // Conventional collinearity condition, no machine learning
-        if (false)
+        if (true)
         {
             std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -3115,7 +3115,7 @@ int main(int argc, char** argv) {
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -3299,7 +3299,7 @@ int main(int argc, char** argv) {
         // }
 
         // Collinearity condition with machine learned parameters
-        if (true)
+        if (false)
         {
             std::cout<<"   Running collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -3611,15 +3611,15 @@ int main(int argc, char** argv) {
         //     {
         //         // Fix part of APs instead of all
         //         std::vector<int> fixAP;
-        //         // fixAP.push_back(0); //a1
-        //         // fixAP.push_back(1); //a2
+        //         fixAP.push_back(0); //a1
+        //         fixAP.push_back(1); //a2
         //         // fixAP.push_back(2); //k1
         //         // fixAP.push_back(3); //k2
         //         // fixAP.push_back(4); //k3
-        //         // fixAP.push_back(5); //p1
-        //         // fixAP.push_back(6); //p2
+        //         fixAP.push_back(5); //p1
+        //         fixAP.push_back(6); //p2
 
-        //         // fixAP.push_back(7); //ep1
+        //         fixAP.push_back(7); //ep1
         //         fixAP.push_back(8); //ep2
         //         fixAP.push_back(9); //ep3
         //         fixAP.push_back(10); //ep4
@@ -5500,7 +5500,7 @@ int main(int argc, char** argv) {
             std::cout<<"    Direct method - RMSE X, Y, Z, Average: "<<RMSE_X<<", "<<RMSE_Y<<", "<<RMSE_Z<<" --> "<<sqrt((RMSE_X*RMSE_X+RMSE_Y*RMSE_Y+RMSE_Z*RMSE_Z)/3.0)<<std::endl;
 
             // Do least squares adjustment to solve transformation if we used a fixed gauge to define the datum
-            if (true)
+            if (false)
             {
                 std::cout<<"  Running similarity/rigid-body transformation estimations..."<<std::endl;
 
@@ -5701,12 +5701,15 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("print( 'Start doing machine learning in Python' )");    
 
             //system("python ~/BundleAdjustment/python/gaussianProcess.py");
-            system("python ~/BundleAdjustment/python/nearestNeighbour.py");
+            // system("python ~/BundleAdjustment/python/nearestNeighbour.py");
+            system("python ~/BundleAdjustment/python/decisionTree.py");
+
 
             PyRun_SimpleString("print( 'Done doing machine learning regression:', round(TIME.process_time()-t0, 3), 's' )");
 
             // read in the machine learned cost
-            inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
+            // inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
+            inp.open("/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck");
             std::vector<double> MLCost;
             std::vector<double> MLRedundancy;
             while (true) 

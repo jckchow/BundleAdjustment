@@ -193,7 +193,7 @@ eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_0
 
 # Minimum and maximum depth for decision tree (+1 of what we want)
 minDepth = 1
-maxDepth = 20
+maxDepth = 30
 
 # do we want to plot things (True or False)
 doPlot = False
@@ -202,6 +202,7 @@ doPlot = False
 doSmoothing = False
 smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
 
+print ("-----------Decision Tree Modelling-----------")
 ##########################################
 ### read in the residuals output from bundle adjustment
 # x, y, v_x, v_y, redu_x, redu_y, vStdDev_x, vStdDev_y
@@ -753,14 +754,14 @@ print (errors)
 ############################
 ### Output predicted corrections
 ############################
-#outputCost.append([cost, numSamples])
-#outputCost = np.asarray(outputCost)
-#
-#t0 = time()
-#np.savetxt(phoFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
-#
-#print ("TotalCost, Redundancy")
-#print (outputCost)
-#print ("outputting decisionTreeCost.jck")
-#np.savetxt('/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck', outputCost, '%f %f', delimiter=' ', newline='\n')
-#print ("Done outputting results:", round(time()-t0, 3), "s")
+outputCost.append([cost, numSamples])
+outputCost = np.asarray(outputCost)
+
+t0 = time()
+np.savetxt(phoFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
+
+print ("TotalCost, Redundancy")
+print (outputCost)
+print ("outputting decisionTreeCost.jck")
+np.savetxt('/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck', outputCost, '%f %f', delimiter=' ', newline='\n')
+print ("Done outputting results:", round(time()-t0, 3), "s")

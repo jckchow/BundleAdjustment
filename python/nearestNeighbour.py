@@ -37,6 +37,7 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.colors import ListedColormap
 from scipy.interpolate import griddata as griddataScipy
+from sklearn import metrics
 
 ##################################
 ### User defined parameters
@@ -201,6 +202,7 @@ doPlot = False
 doSmoothing = False
 smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
 
+print ("-----------k-Nearest Neighbour Modelling-----------")
 ##########################################
 ### read in the residuals output from bundle adjustment
 # x, y, v_x, v_y, redu_x, redu_y, vStdDev_x, vStdDev_y
@@ -372,6 +374,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         t0 = time()
 #        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
         param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
+#        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0, n_jobs=1, scoring='neg_mean_squared_error')
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
         regCV.fit(features_train, labels_train)
         print ("    Best in sample score: ", regCV.best_score_)
@@ -777,15 +780,15 @@ print (errors)
 ############################
 ### Output predicted corrections
 ############################
-#outputCost.append([cost, numSamples])
-#outputCost = np.asarray(outputCost)
-#
-#t0 = time()
-#np.savetxt(phoFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
-#
-#print ("TotalCost, Redundancy")
-#print (outputCost)
-#
-#print ("outputting KNNCost.jck")
-#np.savetxt('/home/jckchow/BundleAdjustment/build/kNNCost.jck', outputCost, '%f %f', delimiter=' ', newline='\n')
-#print ("Done outputting results:", round(time()-t0, 3), "s")
+outputCost.append([cost, numSamples])
+outputCost = np.asarray(outputCost)
+
+t0 = time()
+np.savetxt(phoFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
+
+print ("TotalCost, Redundancy")
+print (outputCost)
+
+print ("outputting KNNCost.jck")
+np.savetxt('/home/jckchow/BundleAdjustment/build/kNNCost.jck', outputCost, '%f %f', delimiter=' ', newline='\n')
+print ("Done outputting results:", round(time()-t0, 3), "s")

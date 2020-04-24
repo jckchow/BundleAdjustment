@@ -70,22 +70,28 @@ regr_2 = AdaBoostRegressor(DecisionTreeRegressor(max_depth=D),
 
 regr_3 = neighbors.KNeighborsRegressor(n_neighbors=K, weights='uniform', n_jobs=1)
 
+regr_4 =  AdaBoostRegressor(neighbors.KNeighborsRegressor(n_neighbors=K),
+                          n_estimators=N, random_state=rng)
+
 regr_1.fit(X, y)
 regr_2.fit(X, y)
 regr_3.fit(X, y)
+regr_4.fit(X, y)
 
 # Predict
 y_1 = regr_1.predict(X)
 y_2 = regr_2.predict(X)
 y_3 = regr_3.predict(X)
+y_4 = regr_4.predict(X)
 
-np.disp("Training Error: Depth=" + str(D))
+
+np.disp("  Decision Tree Error: Depth=" + str(D))
 np.disp("    L2-Norm Error: " + str(np.linalg.norm(y_1-y)) )
 np.disp("    Average Error: " + str(np.mean(y_1-y)))
 np.disp("    First Error: " + str(np.linalg.norm(y_1[0]-y[0])) )
 np.disp("    Last Error: " + str(np.linalg.norm(y_1[len(y)-1]-y[len(y)-1])) )
 
-np.disp("  Adaboost Tree: Depth=" + str(D) + ", nEstimator=" + str(N))
+np.disp("  Adaboost Decision Tree: Depth=" + str(D) + ", nEstimator=" + str(N))
 np.disp("    L2-Norm Error: " + str(np.linalg.norm(y_2-y)) )
 np.disp("    Average Error: " + str(np.mean(y_2-y)) )
 np.disp("    First Error: " + str(np.linalg.norm(y_2[0]-y[0])) )
@@ -97,12 +103,19 @@ np.disp("    Average Error: " + str(np.mean(y_3-y)) )
 np.disp("    First Error: " + str(np.linalg.norm(y_3[0]-y[0])) )
 np.disp("    Last Error: " + str(np.linalg.norm(y_3[len(y)-1]-y[len(y)-1])) )
 
+np.disp("  Adaboost KNN: K=" + str(K)  + ", nEstimator=" + str(N))
+np.disp("    L2-Norm Error: " + str(np.linalg.norm(y_4-y)) )
+np.disp("    Average Error: " + str(np.mean(y_4-y)) )
+np.disp("    First Error: " + str(np.linalg.norm(y_4[0]-y[0])) )
+np.disp("    Last Error: " + str(np.linalg.norm(y_4[len(y)-1]-y[len(y)-1])) )
+
 # Plot the results
 plt.figure()
 plt.scatter(X, y, c="k", label="training samples")
 plt.plot(X, y_1, c="g", label="Decision Tree="+ str(D), linewidth=2)
-plt.plot(X, y_2, c="r", label="Adaboost="+ str(N), linewidth=2)
+plt.plot(X, y_2, c="r", label="AdaboostTree="+ str(N), linewidth=2)
 plt.plot(X, y_3, c="b", label="kNN="+ str(K), linewidth=2)
+plt.plot(X, y_4, c="m", label="AdaboostKNN="+ str(N), linewidth=2)
 plt.xlabel("data")
 plt.ylabel("target")
 plt.title("Comparison of ML Methods")
@@ -153,6 +166,20 @@ plt.ylabel("difference")
 plt.title("y - yTrue")
 fig = plt.tight_layout()
 
+plt.figure()
+fig = plt.subplot(121)
+plt.scatter(X, y, c="k", label="training samples")
+plt.plot(X, y_4, c="m", label="Adaboost="+ str(N), linewidth=2)
+plt.xlabel("data")
+plt.ylabel("target")
+plt.title("Adaboost KNN Regression")
+plt.legend()
+fig = plt.subplot(122)
+plt.plot(X, y-y_4, c="m", label="Adaboost="+ str(N), linewidth=2)
+plt.xlabel("data")
+plt.ylabel("difference")
+plt.title("y - yTrue")
+fig = plt.tight_layout()
 
 plt.show()
 

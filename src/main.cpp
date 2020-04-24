@@ -3020,7 +3020,7 @@ int main(int argc, char** argv) {
         // loss = new ceres::CauchyLoss(0.5);
 
         // Conventional collinearity condition, no machine learning
-        if (true)
+        if (false)
         {
             std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -3299,7 +3299,7 @@ int main(int argc, char** argv) {
         // }
 
         // Collinearity condition with machine learned parameters
-        if (false)
+        if (true)
         {
             std::cout<<"   Running collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -5094,7 +5094,7 @@ int main(int argc, char** argv) {
         {
             std::cout<<"NOT computing Cv covariance matrix of the residuals"<<std::endl;
             // leastSquaresRedundancy.push_back(0.0);
-            leastSquaresRedundancy.push_back(summary.num_residuals_reduced - summary.num_parameters_reduced);
+            leastSquaresRedundancy.push_back(summary.num_residuals_reduced - summary.num_parameters_reduced - 3*XYZ.size() + 7 + numAPCorrection);
         }
 
         Eigen::MatrixXd imageResiduals(imageX.size(), 2);

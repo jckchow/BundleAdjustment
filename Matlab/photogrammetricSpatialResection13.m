@@ -1,4 +1,4 @@
-function photogrammetricSpaitalResection13
+function photogrammetricSpatialResection13
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Program: Single photo resection
@@ -526,7 +526,7 @@ ylim([yp -yp])
 title('Distribution of inlier points')
 
 %% Big calibration
-% load("C:\Users\jckch\OneDrive - University of Calgary\Google Drive\Omni-Directional Cameras\Data\GoPro\jacky_2020_03_31\gopro_stereographic.mat")
+load("C:\Users\jckch\OneDrive - University of Calgary\Google Drive\Omni-Directional Cameras\Data\GoPro\jacky_2020_03_31\gopro_stereographic.mat")
 
 options = optimoptions(@lsqnonlin,'Display', 'iter', 'MaxIter', 500, 'MaxFunEvals', 1E10);
 if (mode == 2)
@@ -535,16 +535,39 @@ if (mode == 2)
         lb = ones(length(allUnknowns),1) .* -1E10;
         lb(3) = 0.0; % C
         [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResectionCalibration(param, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1)), allUnknowns, lb, [], options);
-        disp(['Apost StdDev: ', num2str(resnorm/length(residuals))]);
+%         [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) fisheyeEquidistantResectionCalibrationAP(param, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1)), allUnknowns, lb, [], options); 
         
+        disp(['Apost Var: ', num2str(resnorm/length(residuals))]);
+        disp(['Apost StdDev: ', num2str(sqrt(resnorm/length(residuals)))]);
+        v = reshape(residuals,length(residuals)/2,2);
+        disp(['Mean   vx: ', num2str(mean(v(:,1)))]);
+        disp(['StdDev vx: ', num2str(std(v(:,1)))]);
+        disp(['RMSE   vx: ', num2str(sqrt(mean(v(:,1).^2)))]);
+        disp(['Mean   vy: ', num2str(mean(v(:,2)))]);
+        disp(['StdDev vy: ', num2str(std(v(:,2)))]);
+        disp(['RMSE   vy: ', num2str(sqrt(mean(v(:,2).^2)))]);
+        disp(['xp: ', num2str(x(1))]);
+        disp(['yp: ', num2str(x(2))]);
+        disp([' c: ', num2str(x(3))]);
         
-        numAP = 7;
+        numAP = 3;
         allUnknowns = x;
-        allUnknowns = [allUnknowns(1:3); zeros(numAP,1); allUnknowns(4:end)];
+        allUnknowns = [allUnknowns(1:3); zeros(numAP,1); allUnknowns(4:end)];% IOP, AP, EOP
         lb = ones(length(allUnknowns),1) .* -1E10;
-        lb(3) = 0.0; % C
+        lb(3) = 1000.0; % C
         [x,resnorm,residuals,exitflag,output] = lsqnonlin(@(param) stereographicResectionCalibrationAP(param, dataForCalibration(:,4), dataForCalibration(:,5), dataForCalibration(:,6), dataForCalibration(:,2), dataForCalibration(:,3), dataForCalibration(:,1)), allUnknowns, lb, [], options);
-         disp(['Apost StdDev: ', num2str(resnorm/length(residuals))]);
+        disp(['Apost Var: ', num2str(resnorm/length(residuals))]);
+        disp(['Apost StdDev: ', num2str(sqrt(resnorm/length(residuals)))]);
+        v = reshape(residuals,length(residuals)/2,2);
+        disp(['Mean   vx: ', num2str(mean(v(:,1)))]);
+        disp(['StdDev vx: ', num2str(std(v(:,1)))]);
+        disp(['RMSE   vx: ', num2str(sqrt(mean(v(:,1).^2)))]);
+        disp(['Mean   vy: ', num2str(mean(v(:,2)))]);
+        disp(['StdDev vy: ', num2str(std(v(:,2)))]);
+        disp(['RMSE   vy: ', num2str(sqrt(mean(v(:,2).^2)))]);
+        disp(['xp: ', num2str(x(1))]);
+        disp(['yp: ', num2str(x(2))]);
+        disp([' c: ', num2str(x(3))]);
 
     end
     v = reshape(residuals,length(residuals)/2,2);
@@ -596,6 +619,7 @@ if (mode == 2)
     
     figure;
     pose = x(4:end);
+%     pose = x(7:end);
     pose = reshape(pose, 6, length(pose)/6)';
     
     w_vector  = pose(:,1);
@@ -661,12 +685,22 @@ if (mode == 2)
     % now plot all the data for seeing the residuals, this includes
     % non-inliers used during calibration
     alpha = incidenceAngle(x, dataForTesting(:,4), dataForTesting(:,5), dataForTesting(:,6), dataForTesting(:,2), dataForTesting(:,3), dataForTesting(:,1));
-    residuals = stereographicResectionCalibration(x, dataForTesting(:,4), dataForTesting(:,5), dataForTesting(:,6), dataForTesting(:,2), dataForTesting(:,3), dataForTesting(:,1));
+%     residuals = stereographicResectionCalibrationAP(x, dataForTesting(:,4), dataForTesting(:,5), dataForTesting(:,6), dataForTesting(:,2), dataForTesting(:,3), dataForTesting(:,1));
+%     residuals = stereographicResectionCalibration(x, dataForTesting(:,4), dataForTesting(:,5), dataForTesting(:,6), dataForTesting(:,2), dataForTesting(:,3), dataForTesting(:,1));
+    residuals = fisheyeEquidistantResectionCalibrationAP(x, dataForTesting(:,4), dataForTesting(:,5), dataForTesting(:,6), dataForTesting(:,2), dataForTesting(:,3), dataForTesting(:,1));
+
     v = reshape(residuals,length(residuals)/2,2);
     e = sqrt( v(:,1).^2 + v(:,2).^2 );
     dist = sqrt(dataForTesting(:,2).^2 + dataForTesting(:,3).^2);
-    disp(['Apost StdDev: ', num2str(norm(residuals)/length(residuals))]);
-    
+    disp(['Apost Var: ', num2str(norm(residuals)/length(residuals))]);
+    disp(['Apost StdDev: ', num2str(sqrt(norm(residuals)/length(residuals)))]);
+    v = reshape(residuals,length(residuals)/2,2);
+    disp(['Mean   vx: ', num2str(mean(v(:,1)))]);
+    disp(['StdDev vx: ', num2str(std(v(:,1)))]);
+    disp(['RMSE   vx: ', num2str(sqrt(mean(v(:,1).^2)))]);
+    disp(['Mean   vy: ', num2str(mean(v(:,2)))]);
+    disp(['StdDev vy: ', num2str(std(v(:,2)))]);
+    disp(['RMSE   vy: ', num2str(sqrt(mean(v(:,2).^2)))]);   
     
     figure;
     subplot(2,3,1)
@@ -710,7 +744,20 @@ if (mode == 2)
     xlabel('Incidence Angle')
     ylabel('v_y')
     
-    I = find(e<100); % define the threshold for outliers manually
+%     I = find(e<20); % define the threshold for outliers manually
+    J = find(abs(v(:,1))<300); % define the threshold for outliers manually
+    K = find(abs(v(J,2))<300);
+    I = J(K);
+
+    disp(['Total number of points: ', num2str(length(v(:,1)))]);
+    disp(['   Number of inliers: ', num2str(length(I))]);
+    disp(['   Percent of inliers: ', num2str(100*length(I) / length(v(:,1)))]);
+    disp(['Mean   vx: ', num2str(mean(v(I,1)))]);
+    disp(['StdDev vx: ', num2str(std(v(I,1)))]);
+    disp(['RMSE   vx: ', num2str(sqrt(mean(v(I,1).^2)))]);
+    disp(['Mean   vy: ', num2str(mean(v(I,2)))]);
+    disp(['StdDev vy: ', num2str(std(v(I,2)))]);
+    disp(['RMSE   vy: ', num2str(sqrt(mean(v(I,2).^2)))]);       
     
     figure;
     plot(dataForTesting(:,2),-dataForTesting(:,3),'r.')
@@ -718,6 +765,75 @@ if (mode == 2)
     plot(dataForTesting(I,2),-dataForTesting(I,3),'g.')
     hold off;
     legend('Outliers', 'Inliers')
+    
+    figure;
+    subplot(2,3,1)
+    plot(v(:,1), v(:,2), 'r.');
+    hold on;
+    plot(v(I,1), v(I,2), '.');
+    hold off
+    xlabel('v_x')
+    ylabel('v_y')
+    title('All points after calibration')
+    subplot(2,3,2)
+    plot(dataForTesting(:,2), v(:,1), 'r.');
+    hold on;
+    plot(dataForTesting(I,2), v(I,1), '.');
+    hold off
+    xlabel('x')
+    ylabel('v_x')
+    subplot(2,3,3)
+    plot(dataForTesting(:,3), v(:,2), 'r.');
+    hold on;
+    plot(dataForTesting(I,3), v(I,2), '.');    
+    hold off;
+    xlabel('y')
+    ylabel('v_y')
+    subplot(2,3,4)
+    plot(dist, e, 'r.');
+    hold on;
+    plot(dist(I), e(I), '.');    
+    hold off;
+    xlabel('Radial Distance')
+    ylabel('Norm residual')
+    subplot(2,3,5)
+    plot(dist, v(:,1), 'r.');
+    hold on;
+    plot(dist(I), v(I,1), '.');
+    hold off;
+    xlabel('Radial Distance')
+    ylabel('v_x')
+    subplot(2,3,6)
+    plot(dist, v(:,2), 'r.');
+    hold on;
+    plot(dist(I), v(I,2), '.');     
+    hold off;
+    xlabel('Radial Distance')
+    ylabel('v_y')
+    
+    figure;
+    subplot(1,3,1)
+    plot(alpha*180/pi, e, 'r.');
+    hold on;
+    plot(alpha(I)*180/pi, e(I), '.');
+    hold off;
+    xlabel('Incidence Angle')
+    ylabel('Norm residual')
+    title('All points after calibration')
+    subplot(1,3,2)
+    plot(alpha*180/pi, v(:,1), 'r.');
+    hold on;
+    plot(alpha(I)*180/pi, v(I,1), '.');
+    hold off;
+    xlabel('Incidence Angle')
+    ylabel('v_x')
+    subplot(1,3,3)
+    plot(alpha*180/pi, v(:,2), 'r.');
+    hold on;
+    plot(alpha(I)*180/pi, v(I,2), '.');    
+    hold off;
+    xlabel('Incidence Angle')
+    ylabel('v_y')
     
     
     dataForTesting = dataForTesting(I,:);
@@ -1348,14 +1464,14 @@ C      = param(3); % this is defined as C = radius + c or approximately as 2*c
 k1     = param(4);
 k2     = param(5);
 k3     = param(6);
-p1     = param(7);
-p2     = param(8);
-a1     = param(9);
-a2     = param(10);
+% p1     = param(7);
+% p2     = param(8);
+% a1     = param(9);
+% a2     = param(10);
 
 
 
-numIOP = 10; % change this myself depending on the number of unknowns
+numIOP = 6; % change this myself depending on the number of unknowns
 
 uniqueID = unique(EOP_ID);
 for n = 1:length(uniqueID)
@@ -1425,6 +1541,92 @@ v = [fxVec; fyVec];
 end
 
 % unknowns params u x 1
+function [v] = fisheyeEquidistantResectionCalibrationAP(param, X, Y, Z, lx, ly, EOP_ID)
+
+k1     = 0;
+k2     = 0;
+k3     = 0;
+p1     = 0;
+p2     = 0;
+a1     = 0;
+a2     = 0;
+
+fxVec = zeros(length(lx),1);
+fyVec = zeros(length(ly),1);
+
+xp     = param(1);
+yp     = param(2);
+C      = param(3); % this is defined as C = radius + c or approximately as 2*c
+% k1     = param(4);
+% k2     = param(5);
+% k3     = param(6);
+% p1     = param(7);
+% p2     = param(8);
+% a1     = param(9);
+% a2     = param(10);
+
+
+
+numIOP = 3; % change this myself depending on the number of unknowns
+
+uniqueID = unique(EOP_ID);
+for n = 1:length(uniqueID)
+    
+    omega  = param(numIOP+6*n-5);
+    phi    = param(numIOP+6*n-4);
+    kappa  = param(numIOP+6*n-3);
+    Xo     = param(numIOP+6*n-2);
+    Yo     = param(numIOP+6*n-1);
+    Zo     = param(numIOP+6*n-0);
+    
+    m_11 = cos(phi) * cos(kappa) ;
+    m_12 = sin(omega) * sin(phi) * cos(kappa) + cos(omega) * sin(kappa) ;
+    m_13 = -cos(omega) * sin(phi) * cos(kappa) + sin(omega) * sin(kappa) ;
+    m_21 = -cos(phi) * sin(kappa) ;
+    m_22 = -sin(omega) * sin(phi) * sin(kappa) + cos(omega) * cos(kappa) ;
+    m_23 = cos(omega) * sin(phi) * sin(kappa) + sin(omega) * cos(kappa) ;
+    m_31 = sin(phi) ;
+    m_32 = -sin(omega) * cos(phi) ;
+    m_33 = cos(omega) * cos(phi) ;
+    
+    M=[m_11 m_12 m_13;
+        m_21 m_22 m_23;
+        m_31 m_32 m_33];
+    
+    T = [Xo; Yo; Zo];
+    
+    I = find(EOP_ID == n);
+    fx = zeros(length(I),1);
+    fy = zeros(length(I),1);
+    for m=1:length(I)
+        XYZ = [X(I(m)); Y(I(m)); Z(I(m))];
+        XYZ_s = M * (XYZ - T);    
+        
+        % camera correction model AP = k1, k2, k3, p1, p2, a1, a2 ...
+        APSCALE = 1000.0;
+        x_bar = lx(I(m)) / APSCALE; % arbitrary scale for numerical stability
+        y_bar = -ly(I(m)) / APSCALE; % arbitrary scale for numerical stability
+        r = sqrt(x_bar*x_bar + y_bar*y_bar);
+        
+        delta_x = x_bar*(k1*r*r+k2*r*r*r*r+k3*r*r*r*r*r*r) + p1*(r*r+2.0*x_bar*x_bar)+2.0*p2*x_bar*y_bar + a1*x_bar+a2*y_bar;
+        delta_y = y_bar*(k1*r*r+k2*r*r*r*r+k3*r*r*r*r*r*r) + p2*(r*r+2.0*y_bar*y_bar)+2.0*p1*x_bar*y_bar;
+
+        % ISPRS "Validation of geometric models for fisheye lenses" journal paper
+        x_img = xp + C*XYZ_s(1)*atan2(sqrt(XYZ_s(1)*XYZ_s(1)+XYZ_s(2)*XYZ_s(2)), -XYZ_s(3)) / sqrt(XYZ_s(1)*XYZ_s(1)+XYZ_s(2)*XYZ_s(2));
+        y_img = yp + C*XYZ_s(2)*atan2(sqrt(XYZ_s(1)*XYZ_s(1)+XYZ_s(2)*XYZ_s(2)), -XYZ_s(3)) / sqrt(XYZ_s(1)*XYZ_s(1)+XYZ_s(2)*XYZ_s(2));
+
+        fx(m) = x_img - lx(I(m));
+        fy(m) = y_img + ly(I(m));
+    end
+    
+    fxVec(I) = fx;
+    fyVec(I) = fy;
+    
+end
+v = [fxVec; fyVec];
+end
+
+% unknowns params u x 1
 function [v] = incidenceAngle(param, X, Y, Z, lx, ly, EOP_ID)
 
 angle = zeros(length(X),1);
@@ -1434,6 +1636,7 @@ yp     = param(2);
 C      = param(3); % this is defined as C = radius + c
 %     radius = param(4);
 numIOP = 3;
+% numIOP = 6;
 
 uniqueID = unique(EOP_ID);
 for n = 1:length(uniqueID)
@@ -1469,9 +1672,11 @@ for n = 1:length(uniqueID)
         XYZ = [X(I(m)); Y(I(m)); Z(I(m))];
         XYZ_s = M * (XYZ - T);
         
-        d = sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
+%         d = sqrt(XYZ_s(1)*XYZ_s(1) + XYZ_s(2)*XYZ_s(2) + XYZ_s(3)*XYZ_s(3));
+%         
+%         angle(I(m)) = acos(-XYZ_s(3) / d);
         
-        angle(I(m)) = acos(-XYZ_s(3) / d);
+        angle(I(m)) = atan2(sqrt(XYZ_s(1).^2+XYZ_s(2).^2),-XYZ_s(3));
     end
     
 end

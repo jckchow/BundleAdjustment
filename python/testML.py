@@ -24,7 +24,10 @@ import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn import neighbors
+from sklearn.model_selection import GridSearchCV
 from sklearn import metrics
+from time import time
+
 # For least squares fit
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
@@ -33,8 +36,12 @@ def func(x, K1, K2, K3):
     return x[1]*(K1 * np.power(x[0],2) + K2 * np.power(x[0],4) + K3 * np.power(x[0],6))
 
 D = 10;
+minDepth = 1;
+maxDepth = 50;
 N = 1000; 
 K = 3; # nearest neighbour in KNN
+minK = 2;
+maxK = 50;
 noise = 0.5;
 
 # Create the dataset
@@ -73,10 +80,36 @@ regr_3 = neighbors.KNeighborsRegressor(n_neighbors=K, weights='uniform', n_jobs=
 regr_4 =  AdaBoostRegressor(neighbors.KNeighborsRegressor(n_neighbors=K),
                           n_estimators=N, random_state=rng)
 
-regr_1.fit(X, y)
+#regr_1.fit(X, y)
 regr_2.fit(X, y)
-regr_3.fit(X, y)
+#regr_3.fit(X, y)
 regr_4.fit(X, y)
+
+# get the optimal depth for decision tree
+print ("  Decision Tree Cross-Validation")
+t0 = time()
+param_grid = [ {'max_depth' : range(minDepth,maxDepth,1)} ] 
+regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring='neg_mean_squared_error')
+#regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring=None)
+regCV.fit(X, y)
+print ("    Best in sample score: ", regCV.best_score_)
+print ("    CV value for maxDepth ( between ", minDepth, " and", maxDepth-1,"): ", regCV.best_estimator_.max_depth)
+print ("    Training Decision Tree Regressor + CV time:", round(time()-t0, 3), "s")
+D = regCV.best_estimator_.max_depth; 
+regr_1 = regCV.best_estimator_;
+
+# get the optimal k for KNN
+print ("  KNN Cross-Validation")
+t0 = time()
+param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
+regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0, n_jobs=1, scoring='neg_mean_squared_error')
+#regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
+regCV.fit(X, y)
+print ("    Best in sample score: ", regCV.best_score_)
+print ("    CV value for K ( between", minK, " and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
+print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
+K = regCV.best_estimator_.n_neighbors;
+regr_3 = regCV.best_estimator_;
 
 # Predict
 y_1 = regr_1.predict(X)

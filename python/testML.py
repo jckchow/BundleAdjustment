@@ -41,6 +41,7 @@ minDepth = 1;
 maxDepth = 50;
 minLeafSample = 2;
 maxLeafSample = 20; # max leaf size is recommended by Rafael Gomes Mantovani, Tomáš Horváth, Ricardo Cerri, Sylvio Barbon Junior, Joaquin Vanschoren, André Carlos Ponce de Leon Ferreira de Carvalho, “An empirical study on hyperparameter tuning of decision trees” arXiv:1812.02207
+minLeaf = 0; # the CV tuned best minLeafSize
 
 # Adaboost
 N = 1000; 
@@ -71,26 +72,14 @@ y = y + rng.normal(0, noise, X.shape[0]);
 yTest = yTest + rng.normal(0, noise, X.shape[0]);
 np.disp("Residual noise: " + str(noise))
 
+######################################################################
 # Least squares polynomial fit
 x_bar*(K1 * np.power(r,2) + K2 * np.power(r,4) + K3 * np.power(r,6))
-
 func(np.concatenate((r.transpose(),r.transpose()),axis=0), K1, K2, K3)
 
+
+######################################################################
 # Fit regression model
-regr_1 = DecisionTreeRegressor(max_depth=D)
-
-regr_2 = AdaBoostRegressor(DecisionTreeRegressor(max_depth=D),
-                          n_estimators=N, random_state=rng)
-
-regr_3 = neighbors.KNeighborsRegressor(n_neighbors=K, weights='uniform', n_jobs=1)
-
-regr_4 =  AdaBoostRegressor(neighbors.KNeighborsRegressor(n_neighbors=K),
-                          n_estimators=N, random_state=rng)
-
-#regr_1.fit(X, y)
-regr_2.fit(X, y)
-#regr_3.fit(X, y)
-regr_4.fit(X, y)
 
 # get the optimal depth for decision tree
 print ("  Decision Tree Cross-Validation")
@@ -105,7 +94,8 @@ print ("    Best in sample score: ", regCV.best_score_)
 #print ("    CV value for maxDepth ( between ", minDepth, " and", maxDepth-1,"): ", regCV.best_estimator_.max_depth)
 print ("    CV value for minLeafSize ( between ", minLeafSample, " and", maxLeafSample-1,"): ", regCV.best_estimator_.min_samples_leaf)
 print ("    Training Decision Tree Regressor + CV time:", round(time()-t0, 3), "s")
-D = regCV.best_estimator_.max_depth; 
+#D = regCV.best_estimator_.max_depth; 
+minLeaf = regCV.best_estimator_.min_samples_leaf;
 regr_1 = regCV.best_estimator_;
 
 # get the optimal k for KNN
@@ -121,6 +111,21 @@ print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
 K = regCV.best_estimator_.n_neighbors;
 regr_3 = regCV.best_estimator_;
 
+#regr_1 = DecisionTreeRegressor(max_depth=D)
+
+regr_2 = AdaBoostRegressor(DecisionTreeRegressor(min_samples_leaf=minLeaf),
+                          n_estimators=N, random_state=1)
+
+#regr_3 = neighbors.KNeighborsRegressor(n_neighbors=K, weights='uniform', n_jobs=1)
+
+regr_4 =  AdaBoostRegressor(neighbors.KNeighborsRegressor(n_neighbors=K),
+                          n_estimators=N, random_state=1)
+
+#regr_1.fit(X, y)
+regr_2.fit(X, y)
+#regr_3.fit(X, y)
+regr_4.fit(X, y)
+
 # Predict
 y_1 = regr_1.predict(X)
 y_2 = regr_2.predict(X)
@@ -128,13 +133,13 @@ y_3 = regr_3.predict(X)
 y_4 = regr_4.predict(X)
 
 
-np.disp("  Decision Tree Error: Depth=" + str(D))
+np.disp("  Decision Tree Error: minLeafSize=" + str(minLeaf))
 np.disp("    L2-Norm Error: " + str(np.linalg.norm(y_1-y)) )
 np.disp("    Average Error: " + str(np.mean(y_1-y)))
 np.disp("    First Error: " + str(np.linalg.norm(y_1[0]-y[0])) )
 np.disp("    Last Error: " + str(np.linalg.norm(y_1[len(y)-1]-y[len(y)-1])) )
 
-np.disp("  Adaboost Decision Tree: Depth=" + str(D) + ", nEstimator=" + str(N))
+np.disp("  Adaboost Decision Tree: minLeafSize=" + str(minLeaf) + ", nEstimator=" + str(N))
 np.disp("    L2-Norm Error: " + str(np.linalg.norm(y_2-y)) )
 np.disp("    Average Error: " + str(np.mean(y_2-y)) )
 np.disp("    First Error: " + str(np.linalg.norm(y_2[0]-y[0])) )

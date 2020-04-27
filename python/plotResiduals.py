@@ -92,7 +92,6 @@ from scipy.interpolate import griddata as griddataScipy
 #NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/NNModel'
 #preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP/preprocessing'
 
-
 ## for plotting residuals
 #inputFilename  = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150A_photoROP_linearSmoothing200/image.jck'
 #iopFilename = '/home/jckchow/BundleAdjustment/xrayData1/xray1A.iop'
@@ -154,7 +153,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     indexImage = np.argwhere(image[:,0] == sensorID) #image residuals that are inliers
     indexIOP = np.argwhere(iop[:,0] == sensorID) # iop of the current sensor
 
-    print "  Processing sensor: ", sensorID
+    print ("  Processing sensor: ", sensorID)
     
 #    ##########################################
 #    ### Plotting
@@ -174,8 +173,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     plt.colorbar();
     plt.title('x residuals')
     
-    print 'min x-res: ', min(image[:,3])
-    print 'max x-res: ', max(image[:,3])
+    print ('min x-res: ', min(image[:,3]) )
+    print ('max x-res: ', max(image[:,3]) )
     
     plt.figure()
     plt.imshow(grid_interpolatedResidualsX, vmin=-4, vmax=5)
@@ -187,8 +186,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     plt.colorbar();
     plt.title('y residuals')
     
-    print 'min y-res: ', min(image[:,4])
-    print 'max y-res: ', max(image[:,4])
+    print ('min y-res: ', min(image[:,4]) )
+    print ('max y-res: ', max(image[:,4]) )
     
     plt.figure()
     plt.imshow(grid_interpolatedResidualsY, vmin=-4, vmax=3.5)
@@ -226,16 +225,16 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     sensorID = sensorsUnique[iter] #currently sensor ID
     indexEOP = np.argwhere(eop[:,1] == sensorID) # eop of the current sensor
 
-    print "Processing sensor: ", sensorID
+    print ("Processing sensor: ", sensorID)
     
-    print "Loading processing info and trained ML model..."
+    print ("Loading processing info and trained ML model...")
     [min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label] = joblib.load(preprocessingFilename + str(sensorID.astype(int)) + ".pkl")
     
-    print "Loaded preprocessing: ", preprocessingFilename + str(sensorID.astype(int)) + ".pkl"
+    print ("Loaded preprocessing: ", preprocessingFilename + str(sensorID.astype(int)) + ".pkl" )
     
     reg = joblib.load(NNModelFilename + str(sensorID.astype(int)) + ".pkl")
     
-    print "Loaded model: ", NNModelFilename + str(sensorID.astype(int)) + ".pkl"
+    print ("Loaded model: ", NNModelFilename + str(sensorID.astype(int)) + ".pkl" )
     
     #########################################
     ### Predicting per eop
@@ -243,7 +242,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     for iteration in range(0,len(indexEOP)):        
         eopID = eop[indexEOP[iteration],0]
         
-        print "  Processing eop: ", eopID
+        print ("  Processing eop: ", eopID )
 
         indexPho = np.argwhere(pho[:,1] == eopID)
         
@@ -270,8 +269,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     plt.imshow(grid_interpolatedResidualsX)
     plt.colorbar();
     plt.title('x model')
-    print 'min x: ', min(pho[:,6])
-    print 'max x: ', max(pho[:,6])
+    print ('min x: ', min(pho[:,6]) )
+    print ('max x: ', max(pho[:,6]) )
 
     plt.figure()
     plt.imshow(grid_interpolatedResidualsX, vmin=-36.5, vmax=22)
@@ -282,8 +281,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     plt.imshow(grid_interpolatedResidualsY)
     plt.colorbar();
     plt.title('y model')
-    print 'min y: ', min(pho[:,7])
-    print 'max y: ', max(pho[:,7])
+    print ('min y: ', min(pho[:,7]) )
+    print ('max y: ', max(pho[:,7]) )
 
     plt.figure()
     plt.imshow(grid_interpolatedResidualsY, vmin=-35, vmax=22.5)

@@ -159,6 +159,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     fig = plt.title('Image measurements for sensor ' + str(cameraID))
     fig = plt.xlabel('x')
     fig = plt.ylabel('y')        
+    fig = plt.axis('equal')
     
     # plot the angles
 #    fig = plt.figure()
@@ -171,6 +172,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 #    plt.title('Image Measurement Errors for Sensor ' + str(cameraID))
     fig = plt.xlabel('Refraction Angle (Image Space)')
     fig = plt.ylabel('Incidence Angle (Object Space)')
+    fig = plt.axis('equal')
     fig = plt.tight_layout()
 #    plt.show()   
     
@@ -178,7 +180,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     
 
-#    # plot the redundancy numbers
+    # plot the redundancy numbers
 #    plt.figure()
 #    for i in range(0,len(stationsUnique)):
 #        I = np.argwhere(frameID == stationsUnique[i])
@@ -230,13 +232,13 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print("   Max Refraction Angle: " + str(np.max(refractionAngle)))    
     print("   Min Incidence Angle: " + str(np.min(incidenceAngle)))
     print("   Max Incidence Angle: " + str(np.max(incidenceAngle)))   
-#    print("Statistics of Redundancy Numbers")    
-#    print("   Average x Redundancy: " + str(np.mean(xRedundancy)))
-#    print("   Min x Redundancy: " + str(np.min(xRedundancy)))
-#    print("   Max x Redundancy: " + str(np.max(xRedundancy)))
-#    print("   Average y Redundancy: " + str(np.mean(yRedundancy)))
-#    print("   Min y Redundancy: " + str(np.min(yRedundancy)))
-#    print("   Max y Redundancy: " + str(np.max(yRedundancy)))
+    print("Statistics of Redundancy Numbers")    
+    print("   Average x Redundancy: " + str(np.mean(xRedundancy)))
+    print("   Min x Redundancy: " + str(np.min(xRedundancy)))
+    print("   Max x Redundancy: " + str(np.max(xRedundancy)))
+    print("   Average y Redundancy: " + str(np.mean(yRedundancy)))
+    print("   Min y Redundancy: " + str(np.min(yRedundancy)))
+    print("   Max y Redundancy: " + str(np.max(yRedundancy)))
 
     
     plt.show()

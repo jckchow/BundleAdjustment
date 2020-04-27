@@ -100,29 +100,29 @@ from time import time
 #####
 
 #### Nikon
-inputPho = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho'
-inputEop = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
-
-outputEopTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop'
-outputEopTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop'
-
-outputPhoTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho'
-outputPhoTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho'
-
-chooseIncrement = 4
+#inputPho = 'DONT RUN THIS /home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho'
+#inputEop = 'DONT RUN THIS /home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
+#
+#outputEopTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop'
+#outputEopTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop'
+#
+#outputPhoTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho'
+#outputPhoTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho'
+#
+#chooseIncrement = 2
 
 #### GoPro
 
-#inputPho = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho'
-#inputEop = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
-#
-#outputEopTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop'
-#outputEopTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop'
-#
-#outputPhoTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho'
-#outputPhoTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.pho'
-#
-#chooseIncrement = 8
+inputPho = 'DONT RUN THIS /home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened.pho'
+inputEop = 'DONT RUN THIS /home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
+
+outputEopTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop'
+outputEopTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop'
+
+outputPhoTraining = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho'
+outputPhoTesting  = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.pho'
+
+chooseIncrement = 4
 
 ##########################################
 ### read and split the data

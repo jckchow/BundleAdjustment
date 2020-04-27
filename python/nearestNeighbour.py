@@ -172,34 +172,35 @@ from sklearn import metrics
 ##########################
 ## nikon D600 DSLR
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
+#phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho'
+#iopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop'
+#eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
 
-# Go Pro 3 Silver Edition
-#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho'
-##iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
-#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop'
-#eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
+## Go Pro 3 Silver Edition
+#inputFilename   = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename     = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho'
+##iopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+#iopFilename     = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop'
+#eopFilename     = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
 
-# Go Pro Training
+## Go Pro Training
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho'
-#iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
-iopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop'
-eopFilename = '/home/jckchow/BundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop'
+phoFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho'
+iopFilename   = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+#iopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop'
+eopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop'
+
 
 
 # Maximum number of neighbours to test (+1 of what you actually want)
 minK = 2
-maxK = 30
+maxK = 50
 
 # do we want to plot things (True or False)
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = False
+doSmoothing = True
 smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
 
 print ("-----------k-Nearest Neighbour Modelling-----------")
@@ -222,6 +223,7 @@ w = np.divide(image[:,(3,4)], image[:,(7,8)]) #normalized residuals
 # 95% is 1.96
 outlierThreshold = np.inf; #outlierThreshold = 3000.0
 #outlierThreshold = 1.96
+#outlierThreshold = 3.291 #99.9%
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
 print ("  Outlier removal threshold: ", outlierThreshold, " x sigma")
@@ -373,7 +375,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         # Tune kNN using CV
         t0 = time()
 #        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
-        param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
+#        param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
+        param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
 #        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0, n_jobs=1, scoring='neg_mean_squared_error')
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
         regCV.fit(features_train, labels_train)
@@ -427,14 +430,14 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     t0 = time()
  
     ### x component
-    v = (np.reshape(labels_train[:,0],(-1,1))+mean_label[0] - np.reshape(correction[:,0],(-1,1))) / inliers[indexImage,7]
+    v = (np.reshape(labels_train[:,0],(-1,1)) - np.reshape(reg.predict(features_train)[:,0],(-1,1))) / inliers[indexImage,7]
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
     avgSensorCost += weightedScore/float(len(indexImage))
     print ("    Weighted x score: ", weightedScore)
     print ("    Average weighted x score: ", weightedScore/len(indexImage))
 
-    v = (np.reshape(labels_train[:,1],(-1,1))+mean_label[1] - np.reshape(correction[:,1],(-1,1))) / inliers[indexImage,8]
+    v = (np.reshape(labels_train[:,1],(-1,1)) - np.reshape(reg.predict(features_train)[:,1],(-1,1))) / inliers[indexImage,8]   
     weightedScore = np.matmul(v.transpose(), v)[0,0]
     sensorCost += weightedScore
     avgSensorCost += weightedScore/float(len(indexImage))
@@ -443,10 +446,10 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     print ("      Weighted total score: ", sensorCost)    
     print ("      Average weighted total score: ", sensorCost/float(len(indexImage)))    
     print ("      Number of samples: ", len(indexImage), " inliers out of a total of ", len(indexImageAll), " (", round(100.0*(float(len(indexImage))/float(len(indexImageAll))),1), "%)")
-    print ("    Avg RMSE in x: ", np.sqrt( metrics.mean_squared_error(labels_train[:,0]+mean_label[0], correction[:,0]) ))
-    print ("    Avg RMSE in y: ", np.sqrt( metrics.mean_squared_error(labels_train[:,1]+mean_label[1], correction[:,1]) ))
-    print ("    Avg Overall RMSE: ", np.sqrt( metrics.mean_squared_error(labels_train+mean_label, correction) ))
-    print ("    Done calculating error:", round(time()-t0, 3), "s")  
+    print ("    Avg RMSE in x: ", np.sqrt( metrics.mean_squared_error(labels_train[:,0], reg.predict(features_train)[:,0]) ))
+    print ("    Avg RMSE in y: ", np.sqrt( metrics.mean_squared_error(labels_train[:,1], reg.predict(features_train)[:,1]) ))
+    print ("    Avg Overall RMSE: ", np.sqrt( metrics.mean_squared_error(labels_train, reg.predict(features_train)) ))
+    print ("    Done calculating error:", round(time()-t0, 3), "s") 
     
     # log total cost and total number of samples for output
     cost += sensorCost

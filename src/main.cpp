@@ -36,7 +36,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 100 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false

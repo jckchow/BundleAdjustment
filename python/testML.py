@@ -35,10 +35,17 @@ from scipy.optimize import curve_fit
 def func(x, K1, K2, K3):
     return x[1]*(K1 * np.power(x[0],2) + K2 * np.power(x[0],4) + K3 * np.power(x[0],6))
 
+# Decision Tree
 D = 10;
 minDepth = 1;
 maxDepth = 50;
+minLeafSample = 2;
+maxLeafSample = 20; # max leaf size is recommended by Rafael Gomes Mantovani, Tomáš Horváth, Ricardo Cerri, Sylvio Barbon Junior, Joaquin Vanschoren, André Carlos Ponce de Leon Ferreira de Carvalho, “An empirical study on hyperparameter tuning of decision trees” arXiv:1812.02207
+
+# Adaboost
 N = 1000; 
+
+# K-Nearest Neighbour
 K = 3; # nearest neighbour in KNN
 minK = 2;
 maxK = 50;
@@ -88,12 +95,15 @@ regr_4.fit(X, y)
 # get the optimal depth for decision tree
 print ("  Decision Tree Cross-Validation")
 t0 = time()
-param_grid = [ {'max_depth' : range(minDepth,maxDepth,1)} ] 
-regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring='neg_mean_squared_error')
+param_grid = [ {'min_samples_leaf' : range(minLeafSample,maxLeafSample,1)} ] 
+regCV = GridSearchCV(DecisionTreeRegressor(random_state=1,), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring='neg_mean_squared_error')
+#param_grid = [ {'max_depth' : range(minDepth,maxDepth,1)} ] 
+#regCV = GridSearchCV(DecisionTreeRegressor(random_state=1,min_samples_leaf=2), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring='neg_mean_squared_error')
 #regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring=None)
 regCV.fit(X, y)
 print ("    Best in sample score: ", regCV.best_score_)
-print ("    CV value for maxDepth ( between ", minDepth, " and", maxDepth-1,"): ", regCV.best_estimator_.max_depth)
+#print ("    CV value for maxDepth ( between ", minDepth, " and", maxDepth-1,"): ", regCV.best_estimator_.max_depth)
+print ("    CV value for minLeafSize ( between ", minLeafSample, " and", maxLeafSample-1,"): ", regCV.best_estimator_.min_samples_leaf)
 print ("    Training Decision Tree Regressor + CV time:", round(time()-t0, 3), "s")
 D = regCV.best_estimator_.max_depth; 
 regr_1 = regCV.best_estimator_;

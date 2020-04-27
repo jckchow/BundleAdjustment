@@ -8,14 +8,27 @@
 clear all; close all; clc;
 
 %% Input parameters
-inputImageFilename   = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\gopro_screened_manual (copy).pho";
-inputOutlierFilename = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\outlierList.txt";
 
-outputImageFilename  = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\gopro_screened_manualOutlierRemoval.pho";
+%%%%%% Go Pro
+% inputImageFilename   = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\gopro_screened_manual (copy).pho";
+% inputOutlierFilename = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\outlierList.txt";
+% outputImageFilename  = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\gopro_screened_manualOutlierRemoval.pho";
+
+% % Training GoPro
+inputImageFilename   = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\TrainingTesting\goproTraining.pho";
+inputOutlierFilename = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\outlierList.txt";
+outputImageFilename  = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\TrainingTesting\goproTraining_manualOutlierRemoval1.pho";
+
+% Testing GoPro
+% inputImageFilename   = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\TrainingTesting\goproTesting.pho";
+% inputOutlierFilename = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\outlierList.txt";
+% outputImageFilename  = "C:\Users\jckch\OneDrive - University of Calgary\Google Drive\UbuntuVirtualShared\bundleAdjustment\omnidirectionalCamera\gopro_2020_04_01\TrainingTesting\goproTesting_manualOutlierRemoval.pho";
 
 image       = load(inputImageFilename);
 outlierList = load(inputOutlierFilename);
 
+disp('Outliers to be removed: ')
+disp(outlierList)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% read in image file
 % ptID, stnID, x, y, xStdDev, yStdDev, xCorr, yCorr
@@ -30,7 +43,9 @@ for iter = 1:length(blunder)
     
     matchStation  = find( image(:,2)==outlierList(iter,2) );
     matchPoint    = find( image(matchStation,1)==outlierList(iter,1) );
-    blunder(iter) = matchStation(matchPoint);
+    if (~isempty(matchStation(matchPoint)))
+        blunder(iter) = matchStation(matchPoint);
+    end
     
 end
 
@@ -44,5 +59,5 @@ blunder(I) = [];
 image(blunder,:) = [];
 
 % Output file
-dlmwrite(outputImageFilename,image,' ');
+dlmwrite(outputImageFilename,image,'delimiter',' ','precision',7);
 disp('Program Successful ^-^')

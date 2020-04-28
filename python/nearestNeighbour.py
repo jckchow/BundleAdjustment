@@ -194,7 +194,7 @@ eopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectional
 
 # Maximum number of neighbours to test (+1 of what you actually want)
 minK = 2
-maxK = 50
+maxK = 30
 
 # do we want to plot things (True or False)
 doPlot = False
@@ -333,8 +333,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
 #        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
         regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
-#        regCV.fit(interpolatedTraining, interpolatedResiduals)
-        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
+        regCV.fit(interpolatedTraining, interpolatedResiduals)
+#        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
         print ("    Best in sample score: ", regCV.best_score_)
         print ("    CV value for K ( between",minK," and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
         print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
@@ -783,15 +783,15 @@ print (errors)
 ############################
 ### Output predicted corrections
 ############################
-outputCost.append([cost, numSamples])
+outputCost.append([cost, numSamples, regCV.best_estimator_.n_neighbors, regCV.best_estimator_.n_neighbors, regCV.best_estimator_.n_neighbors])
 outputCost = np.asarray(outputCost)
 
 t0 = time()
 np.savetxt(phoFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
 
-print ("TotalCost, Redundancy")
+print ("TotalCost, Redundancy, hyperparmeters")
 print (outputCost)
 
 print ("outputting KNNCost.jck")
-np.savetxt('/home/jckchow/BundleAdjustment/build/kNNCost.jck', outputCost, '%f %f', delimiter=' ', newline='\n')
+np.savetxt('/home/jckchow/BundleAdjustment/build/kNNCost.jck', outputCost, '%f %f %f %f %f', delimiter=' ', newline='\n')
 print ("Done outputting results:", round(time()-t0, 3), "s")

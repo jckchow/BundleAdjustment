@@ -3848,7 +3848,7 @@ int main(int argc, char** argv) {
        
         // condition for terminating the global ML least squares bundle adjustment routine
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 50 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 100 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!Machine Learning Bundle Adjustment CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
@@ -5723,13 +5723,19 @@ int main(int argc, char** argv) {
 
             std::vector<double> MLCost;
             std::vector<double> MLRedundancy;
+            std::vector<double> hyperParam1;
+            std::vector<double> hyperParam2;
+            std::vector<double> hyperParam3;
             while (true) 
             {
-                double c1, c2;
-                inp >> c1 >> c2;
+                double c1, c2, c3, c4, c5;
+                inp >> c1 >> c2 >> c3 >> c4 >> c5;
 
                 MLCost.push_back(c1);
                 MLRedundancy.push_back(c2);
+                hyperParam1.push_back(c3);
+                hyperParam2.push_back(c4);
+                hyperParam3.push_back(c5);
 
                 if( inp.eof() )
                     break;
@@ -5737,11 +5743,27 @@ int main(int argc, char** argv) {
             
             MLCost.pop_back();
             MLRedundancy.pop_back();
+            hyperParam1.pop_back();
+            hyperParam2.pop_back();
+            hyperParam3.pop_back();
 
             inp.close();
 
             machineLearnedCost.push_back(MLCost[0]);
             machineLearnedRedundancy.push_back(MLRedundancy[0]);
+
+            // Writing hyperparameters to file
+            std::cout<<"  Writing hyperparameters to file..."<<std::endl;
+
+            FILE *fout;
+            if (iterNum == 0)
+                fout = fopen("hyperparameters.jck", "w");
+            else
+                fout = fopen("hyperparameters.jck", "a");
+
+            fprintf(fout, "%.6lf %.6lf %.6lf\n", hyperParam1[0], hyperParam2[1], hyperParam3[2]);
+
+            fclose(fout);
         }
 
 

@@ -36,7 +36,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 100 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 1000 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
@@ -3122,7 +3122,7 @@ int main(int argc, char** argv) {
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -3622,8 +3622,8 @@ int main(int argc, char** argv) {
         //         fixAP.push_back(1); //a2
         //         // fixAP.push_back(2); //k1
         //         // fixAP.push_back(3); //k2
-        //         // fixAP.push_back(4); //k3
-        //         // fixAP.push_back(5); //p1
+        //         fixAP.push_back(4); //k3
+        //         fixAP.push_back(5); //p1
         //         fixAP.push_back(6); //p2
 
         //         fixAP.push_back(7); //ep1
@@ -3852,7 +3852,7 @@ int main(int argc, char** argv) {
         {
             std::cout<<"-------------------------!!!!!!Machine Learning Bundle Adjustment CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
-            std::cout<<"  LSA Cost Increased: "<<(summary.final_cost)<< " > " << (leastSquaresCost[leastSquaresCost.size()-1]) <<std::endl;
+            std::cout<<"  LSA Cost Increased: "<<(2.0*summary.final_cost)<< " > " << (2.0*leastSquaresCost[leastSquaresCost.size()-1]) <<std::endl;
             break;
         }
 
@@ -5712,14 +5712,14 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("print( 'Start doing machine learning in Python' )");    
 
             //system("python ~/BundleAdjustment/python/gaussianProcess.py");
-            // system("python ~/BundleAdjustment/python/nearestNeighbour.py");
-            system("python ~/BundleAdjustment/python/decisionTree.py");
+            system("python ~/BundleAdjustment/python/nearestNeighbour.py");
+            // system("python ~/BundleAdjustment/python/decisionTree.py");
 
             PyRun_SimpleString("print( 'Done doing machine learning regression:', round(TIME.process_time()-t0, 3), 's' )");
 
             // read in the machine learned cost
-            // inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
-            inp.open("/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck");
+            inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
+            // inp.open("/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck");
 
             std::vector<double> MLCost;
             std::vector<double> MLRedundancy;
@@ -5743,18 +5743,25 @@ int main(int argc, char** argv) {
             machineLearnedCost.push_back(MLCost[0]);
             machineLearnedRedundancy.push_back(MLRedundancy[0]);
         }
-    }
- 
-    if (doML)
-    {
-        std::cout<<"  Writing least squares costs to file..."<<std::endl;
-        FILE *fout = fopen("costs.jck", "w");
-        for(int i = 0; i < leastSquaresCost.size(); ++i)
+
+
+        if (doML)
         {
-            fprintf(fout, "%.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", 2.0*leastSquaresCost[i], leastSquaresRedundancy[i], machineLearnedCost[i], machineLearnedRedundancy[i], reprojectionError2D[i], reconstructionError3D[i] );
+            std::cout<<"  Writing least squares costs to file..."<<std::endl;
+
+            FILE *fout;
+            if (iterNum == 0)
+                fout = fopen("costs.jck", "w");
+            else
+                fout = fopen("costs.jck", "a");
+
+            fprintf(fout, "%.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", 2.0*leastSquaresCost[leastSquaresCost.size()-1], leastSquaresRedundancy[leastSquaresRedundancy.size()-1], machineLearnedCost[machineLearnedCost.size()-1], machineLearnedRedundancy[machineLearnedRedundancy.size()-1], reprojectionError2D[reprojectionError2D.size()-1], reconstructionError3D[reconstructionError3D.size()-1] );
+
+            fclose(fout);
         }
-        fclose(fout);
-    }
+
+    } // This is the end of the global least squares bundle adjustment loop
+
 
 
     if (PLOTRESULTS)

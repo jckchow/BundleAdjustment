@@ -5761,7 +5761,7 @@ int main(int argc, char** argv) {
             else
                 fout = fopen("hyperparameters.jck", "a");
 
-            fprintf(fout, "%.6lf %.6lf %.6lf\n", hyperParam1[0], hyperParam2[1], hyperParam3[2]);
+            fprintf(fout, "%.6lf %.6lf %.6lf\n", hyperParam1[0], hyperParam2[0], hyperParam3[0]);
 
             fclose(fout);
         }

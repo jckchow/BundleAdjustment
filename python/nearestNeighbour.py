@@ -172,29 +172,30 @@ from sklearn import metrics
 ##########################
 ## nikon D600 DSLR
 #inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho'
+#phoFilename = '/home/jckchow/BundleAdjustment/build/temp.pho'
 #iopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop'
 #eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.eop'
 
 ## Go Pro 3 Silver Edition
 #inputFilename   = '/home/jckchow/BundleAdjustment/build/image.jck'
-#phoFilename     = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTemp.pho'
+#phoFilename     = '/home/jckchow/BundleAdjustment/build/temp.pho'
 ##iopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
 #iopFilename     = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop'
 #eopFilename     = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
 
 ## Go Pro Training
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho'
-iopFilename   = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+phoFilename    = '/home/jckchow/BundleAdjustment/build/temp.pho'
+#iopFilename   = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+iopFilename   = '/home/jckchow/BundleAdjustment/build/temp.iop'
 #iopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop'
-eopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop'
+eopFilename    = '/home/jckchow/BundleAdjustment/build/temp.eop'
 
 
 
 # Maximum number of neighbours to test (+1 of what you actually want)
 minK = 2
-maxK = 30
+maxK = 51
 
 # do we want to plot things (True or False)
 doPlot = False

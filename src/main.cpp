@@ -483,8 +483,8 @@
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
 #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
 // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
 #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
 // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
 #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_manual.xyz"
@@ -2288,11 +2288,16 @@ int main(int argc, char** argv) {
         PyRun_SimpleString("print( 'Start reading data' )");   
         // Reading *.pho file
         PyRun_SimpleString("print( '  Start reading image observations' )");  
-        std::cout<<"  Input image filename: "<<INPUTIMAGEFILENAME<<std::endl;
         if (iterNum == 0)
+        {
+            std::cout<<"  Input image filename: "<<INPUTIMAGEFILENAME<<std::endl;
             inp.open(INPUTIMAGEFILENAME);
+        }
         else
+        {
+            std::cout<<"  Input image filename: "<<INPUTIMAGEFILENAMETEMP<<std::endl;
             inp.open(INPUTIMAGEFILENAMETEMP);
+        }
         std::vector<int> imageTarget, imageStation;
         std::vector<double> imageX, imageY, imageXStdDev, imageYStdDev, imageXCorr, imageYCorr;
         std::vector<std::vector<double> > MLP;
@@ -2372,8 +2377,18 @@ int main(int argc, char** argv) {
 
         // Reading *.eop file
         PyRun_SimpleString("print( '  Start reading EOPs' )");          
-        std::cout<<"  Input EOP filename: "<<INPUTEOPFILENAME<<std::endl;
-        inp.open(INPUTEOPFILENAME);
+
+        if (iterNum == 0)
+        {
+            std::cout<<"  Input EOP filename: "<<INPUTEOPFILENAME<<std::endl;
+            inp.open(INPUTEOPFILENAME);
+        }
+        else
+        {
+            std::cout<<"  Input EOP filename: "<<"temp.eop"<<std::endl;
+            inp.open("temp.eop");
+        }
+
         std::vector<int> eopStation, eopCamera;
         std::vector<double> eopXo, eopYo, eopZo, eopOmega, eopPhi, eopKappa;
         std::vector<std::vector<double> > EOP;
@@ -2750,8 +2765,18 @@ int main(int argc, char** argv) {
 
         // Reading *.iop file
         PyRun_SimpleString("print( '  Start reading IOPs' )");
-        std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;
-        inp.open(INPUTIOPFILENAME);
+
+        if (iterNum == 0)
+        {
+            std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;
+            inp.open(INPUTIOPFILENAME);
+        }
+        else
+        {
+            std::cout<<"  Input IOP filename: "<<"temp.iop"<<std::endl;
+            inp.open("temp.iop");
+        }
+
         std::vector<int> iopCamera, iopAxis;
         std::vector<double> iopXMin, iopYMin, iopXMax, iopYMax, iopXp, iopYp, iopC, iopA1, iopA2, iopK1, iopK2, iopK3, iopP1, iopP2;
         std::vector<double> iopEp1, iopEp2, iopEp3, iopEp4, iopEp5, iopEp6, iopEp7, iopEp8, iopEp9;
@@ -3306,7 +3331,7 @@ int main(int argc, char** argv) {
         // }
 
         // Collinearity condition with machine learned parameters
-        if (false)
+        if (true)
         {
             std::cout<<"   Running collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -3347,6 +3372,7 @@ int main(int argc, char** argv) {
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -3356,7 +3382,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if (true)
+        if (false)
         {
             std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -3848,7 +3874,7 @@ int main(int argc, char** argv) {
        
         // condition for terminating the global ML least squares bundle adjustment routine
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 100 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 50 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!Machine Learning Bundle Adjustment CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
@@ -3910,6 +3936,17 @@ int main(int argc, char** argv) {
 
         if (true)
         {
+            std::cout<<"  Creating temporary *.eop file......"<<std::endl;
+            FILE *fout = fopen("temp.eop", "w");
+            for(int i = 0; i < EOP.size(); ++i)
+            {
+                fprintf(fout, "%i %i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", eopStation[i], eopCamera[i], EOP[i][3], EOP[i][4], EOP[i][5], EOP[i][0]*180.0/PI, EOP[i][1]*180.0/PI, EOP[i][2]*180.0/PI );
+            }
+            fclose(fout);
+        }
+
+        if (true)
+        {
             std::cout<<"  Writing IOPs to file..."<<std::endl;
             FILE *fout = fopen("iop.jck", "w");
             for(int i = 0; i < IOP.size(); ++i)
@@ -3937,6 +3974,14 @@ int main(int argc, char** argv) {
             std::cout.precision(9); 
             std::cout<<std::scientific<<"  --> CALIBRATION: "<<iopCamera[0]<<": "<< IOP[0][0]<<" "<< IOP[0][1]<<" "<< IOP[0][2]<<" "<<AP[0][0]<<" "<< AP[0][1]<<" "<< AP[0][2]<<" "<< AP[0][3]<<" "<< AP[0][4]<<" "<< AP[0][5]<<" "<< AP[0][6]<<" "<< AP[0][7]<<" "<< AP[0][8]<<" "<< AP[0][9]<<" "<< AP[0][10]<<" "<< AP[0][11]<<" "<< AP[0][12]<<" "<< AP[0][13] <<" "<< AP[0][14]<<" "<< AP[0][15]<<std::endl;
             std::cout<<std::defaultfloat;
+
+            std::cout<<"  Creating temporary *.iop file..."<<std::endl;
+            FILE *fout = fopen("temp.iop", "w");
+            for(int i = 0; i < IOP.size(); ++i)
+            {
+                fprintf(fout, "%i %i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", iopCamera[i], iopAxis[i], iopXMin[i], iopYMin[i], iopXMax[i], iopYMax[i], IOP[i][0], IOP[i][1], IOP[i][2], AP[i][0], AP[i][1], AP[i][2], AP[i][3], AP[i][4], AP[i][5], AP[i][6], AP[i][7], AP[i][8], AP[i][9], AP[i][10], AP[i][11], AP[i][12], AP[i][13], AP[i][14], AP[i][15]);
+            }
+            fclose(fout);
         }
 
 

@@ -2295,8 +2295,8 @@ int main(int argc, char** argv) {
         }
         else
         {
-            std::cout<<"  Input image filename: "<<INPUTIMAGEFILENAMETEMP<<std::endl;
-            inp.open(INPUTIMAGEFILENAMETEMP);
+            std::cout<<"  Input image filename: "<<"temp.pho"<<std::endl;
+            inp.open("temp.pho");
         }
         std::vector<int> imageTarget, imageStation;
         std::vector<double> imageX, imageY, imageXStdDev, imageYStdDev, imageXCorr, imageYCorr;
@@ -2367,7 +2367,7 @@ int main(int argc, char** argv) {
         if (iterNum == 0) // only do this for first iteration where we copy the file
         {
             std::cout<<"  Copying the *.pho file..."<<std::endl;
-            FILE *fout = fopen(INPUTIMAGEFILENAMETEMP, "w");
+            FILE *fout = fopen("temp.pho", "w");
             for(int i = 0; i < imageTarget.size(); ++i)
             {
                 fprintf(fout, "%i %i %.6lf %.6lf %.6lf %.6lf %.6lf %.6lf\n", imageTarget[i], imageStation[i], imageX[i], imageY[i], imageXStdDev[i], imageYStdDev[i], imageXCorr[i], imageYCorr[i]);

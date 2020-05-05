@@ -194,8 +194,8 @@ eopFilename    = '/home/jckchow/BundleAdjustment/build/temp.eop'
 
 
 # Maximum number of neighbours to test (+1 of what you actually want)
-minK = 2
-maxK = 51
+minK = 3
+maxK = 501
 
 # do we want to plot things (True or False)
 doPlot = False
@@ -205,6 +205,7 @@ doSmoothing = True
 smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
 
 print ("-----------k-Nearest Neighbour Modelling-----------")
+
 ##########################################
 ### read in the residuals output from bundle adjustment
 # x, y, v_x, v_y, redu_x, redu_y, vStdDev_x, vStdDev_y
@@ -227,7 +228,7 @@ outlierThreshold = np.inf; #outlierThreshold = 3000.0
 #outlierThreshold = 3.291 #99.9%
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
-print ("  Outlier removal threshold: ", outlierThreshold, " x sigma")
+print ("Outlier removal threshold: ", outlierThreshold, " x sigma")
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)
 prevCorr = np.delete(pho, outlierIndex[:,0], axis=0)
@@ -238,6 +239,25 @@ cost = 0.0
 numSamples = 0.0
 errors = []
 outputCost = []
+
+##########################################
+### Try to load preprocessing and ML model if it exists from previous iteration to make a copy for when the iterations end before the max iterations then we should use the previous model instead
+##########################################
+try:
+    for iter in range(0,len(sensorsUnique)):
+        sensorID = sensorsUnique[iter] #currently sensor ID
+        # load the preprocessing info
+        [min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label] = joblib.load('/home/jckchow/BundleAdjustment/build/NNPreprocessing'+str(sensorID.astype(int))+'.pkl')
+        # load the learned NN model
+        reg = joblib.load('/home/jckchow/BundleAdjustment/build/NNModel'+str(sensorID.astype(int))+'.pkl')
+        # save copy of previous preprocessing
+        joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], '/home/jckchow/BundleAdjustment/build/NNPreprocessing'+str(sensorID.astype(int))+'_previous.pkl')
+        # save the previously learned NN model
+        joblib.dump(reg, '/home/jckchow/BundleAdjustment/build/NNModel'+str(sensorID.astype(int))+'_previous.pkl')
+        print('Found previous ML preprocessing and model found')
+except:
+    print('No previous ML preprocessing and model found')
+    
 ##########################################
 ### Learn for each sensor separately
 ##########################################
@@ -395,7 +415,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
     print ("    Done Training")
     # save the preprocessing info
-    joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], 'preprocessing'+str(sensorID.astype(int))+'.pkl')     
+    joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], 'NNPreprocessing'+str(sensorID.astype(int))+'.pkl')     
     # save the learned NN model
     joblib.dump(reg, 'NNModel'+str(sensorID.astype(int))+'.pkl')     
     ##########################################

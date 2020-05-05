@@ -195,7 +195,7 @@ eopFilename    = '/home/jckchow/BundleAdjustment/build/temp.eop'
 
 # Maximum number of neighbours to test (+1 of what you actually want)
 minK = 3
-maxK = 101
+maxK = 5
 
 # do we want to plot things (True or False)
 doPlot = False
@@ -228,7 +228,7 @@ outlierThreshold = np.inf; #outlierThreshold = 3000.0
 #outlierThreshold = 3.291 #99.9%
 outlierIndex = np.argwhere(np.fabs(w) > outlierThreshold)
 
-print ("Outlier removal threshold: ", outlierThreshold, " x sigma")
+print ("  Outlier removal threshold: ", outlierThreshold, " x sigma")
 
 inliers = np.delete(image, outlierIndex[:,0], axis=0)
 prevCorr = np.delete(pho, outlierIndex[:,0], axis=0)
@@ -254,7 +254,7 @@ try:
         joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], '/home/jckchow/BundleAdjustment/build/NNPreprocessing'+str(sensorID.astype(int))+'Temp.pkl')
         # save the previously learned NN model
         joblib.dump(reg, '/home/jckchow/BundleAdjustment/build/NNModel'+str(sensorID.astype(int))+'Temp.pkl')
-        print('Found previous ML preprocessing and model found')
+        print('  Found previous ML preprocessing and model, making a copy and saving it as temp')
 except:
     print('No previous ML preprocessing and model found')
     

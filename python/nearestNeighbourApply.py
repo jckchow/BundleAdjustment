@@ -27,15 +27,7 @@ Created on Fri Jan 12 18:27:18 2018
 @author: jacky.chow
 """
 import numpy as np
-from time import time
-from sklearn import neighbors
 from sklearn.externals import joblib
-from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
-from matplotlib import cm
-from matplotlib.mlab import griddata
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from matplotlib.colors import ListedColormap
 
 ##################################
 ### User defined parameters
@@ -98,11 +90,21 @@ from matplotlib.colors import ListedColormap
 #preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training150_photoROP_old/preprocessing'
 #outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Training150AB_photoROP_old.pho'
 
-phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.pho'
-eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.eop'
-NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30_photoROP_linearSmoothing200/NNModel'
-preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30_photoROP_linearSmoothing200/preprocessing'
-outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1Testing_Training30_photoROP_linearSmoothing200.pho'
+#phoFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.pho'
+#eopFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.eop'
+#NNModelFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30_photoROP_linearSmoothing200/NNModel'
+#preprocessingFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingResults/Training30_photoROP_linearSmoothing200/preprocessing'
+#outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1Testing_Training30_photoROP_linearSmoothing200.pho'
+
+############################
+### Omnidirectional Camera Journal paper 1
+############################
+# Go Pro 3 Silver Edition
+phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.pho'
+eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop'
+NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/collinearityTrainingKNNSmoothed_K1/new/NNModel'
+preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/collinearityTrainingKNNSmoothed_K1/new/NNPreprocessing'
+outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_collinearityTrainingKNNSmoothed_K1_new.pho'
 
 ##########################################
 ### User parameters
@@ -136,16 +138,16 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     sensorID = sensorsUnique[iter] #currently sensor ID
     indexEOP = np.argwhere(eop[:,1] == sensorID) # eop of the current sensor
 
-    print "Processing sensor: ", sensorID
+    print( "Processing sensor: ", sensorID)
     
-    print "Loading processing info and trained ML model..."
+    print( "Loading processing info and trained ML model..." )
     [min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label] = joblib.load(preprocessingFilename + str(sensorID.astype(int)) + ".pkl")
     
-    print "Loaded preprocessing: ", preprocessingFilename + str(sensorID.astype(int)) + ".pkl"
+    print( "Loaded preprocessing: ", preprocessingFilename + str(sensorID.astype(int)) + ".pkl" )
     
     reg = joblib.load(NNModelFilename + str(sensorID.astype(int)) + ".pkl")
     
-    print "Loaded model: ", NNModelFilename + str(sensorID.astype(int)) + ".pkl"
+    print( "Loaded model: ", NNModelFilename + str(sensorID.astype(int)) + ".pkl" )
     
     #########################################
     ### Predicting per eop
@@ -153,7 +155,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     for iteration in range(0,len(indexEOP)):        
         eopID = eop[indexEOP[iteration],0]
         
-        print "  Processing eop: ", eopID
+        print( "  Processing eop: ", eopID )
 
         indexPho = np.argwhere(pho[:,1] == eopID)
         
@@ -175,4 +177,4 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 ### Output predicted corrections
 ############################
 np.savetxt(outputFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
-print "Program Succcessful ^-^"
+print( "Program Succcessful ^-^" )

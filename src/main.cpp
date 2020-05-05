@@ -3381,7 +3381,7 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -3645,39 +3645,39 @@ int main(int argc, char** argv) {
         // }
 
         int numAPCorrection = 0; // don't comment this away
-        // if(true)
-        // {   
-        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"     Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
-        //         fixAP.push_back(3); //k2
-        //         fixAP.push_back(4); //k3
-        //         fixAP.push_back(5); //p1
-        //         fixAP.push_back(6); //p2
+        if(true)
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"     Fixing a subset of the AP"<<std::endl;
+            std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                fixAP.push_back(0); //a1
+                fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                fixAP.push_back(3); //k2
+                fixAP.push_back(4); //k3
+                fixAP.push_back(5); //p1
+                fixAP.push_back(6); //p2
 
-        //         fixAP.push_back(7); //ep1
-        //         fixAP.push_back(8); //ep2
-        //         fixAP.push_back(9); //ep3
-        //         fixAP.push_back(10); //ep4
-        //         fixAP.push_back(11); //ep5
-        //         fixAP.push_back(12); //ep6
-        //         fixAP.push_back(13); //ep7
-        //         fixAP.push_back(14); //ep8
-        //         fixAP.push_back(15); //ep9
+                fixAP.push_back(7); //ep1
+                fixAP.push_back(8); //ep2
+                fixAP.push_back(9); //ep3
+                fixAP.push_back(10); //ep4
+                fixAP.push_back(11); //ep5
+                fixAP.push_back(12); //ep6
+                fixAP.push_back(13); //ep7
+                fixAP.push_back(14); //ep8
+                fixAP.push_back(15); //ep9
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
 
-        //         numAPCorrection = fixAP.size();
-        //     }
-        // }
+                numAPCorrection = fixAP.size();
+            }
+        }
 
         // if (true)
         // {
@@ -3891,6 +3891,15 @@ int main(int argc, char** argv) {
             std::cout<<"-------------------------!!!!!!Machine Learning Bundle Adjustment CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
             std::cout<<"  LSA Cost Increased: "<<(2.0*summary.final_cost)<< " > " << (2.0*leastSquaresCost[leastSquaresCost.size()-1]) <<std::endl;
+            if(MLMODE == 1)
+            {
+                std::cout<<"  Copying previous KNN model to current..."<<std::endl;
+                system("python ~/BundleAdjustment/python/nearestNeighbourRename.py");
+            }
+            if(MLMODE == 2)
+            {
+                std::cout<<"  Copying previous decision tree model to current"<<std::endl;
+            }
             break;
         }
 

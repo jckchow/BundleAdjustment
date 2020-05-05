@@ -195,7 +195,7 @@ eopFilename    = '/home/jckchow/BundleAdjustment/build/temp.eop'
 
 # Maximum number of neighbours to test (+1 of what you actually want)
 minK = 3
-maxK = 501
+maxK = 101
 
 # do we want to plot things (True or False)
 doPlot = False
@@ -204,7 +204,7 @@ doPlot = False
 doSmoothing = True
 smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
 
-print ("-----------k-Nearest Neighbour Modelling-----------")
+print ("-----------K-Nearest Neighbour Modelling-----------")
 
 ##########################################
 ### read in the residuals output from bundle adjustment
@@ -251,9 +251,9 @@ try:
         # load the learned NN model
         reg = joblib.load('/home/jckchow/BundleAdjustment/build/NNModel'+str(sensorID.astype(int))+'.pkl')
         # save copy of previous preprocessing
-        joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], '/home/jckchow/BundleAdjustment/build/NNPreprocessing'+str(sensorID.astype(int))+'_previous.pkl')
+        joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], '/home/jckchow/BundleAdjustment/build/NNPreprocessing'+str(sensorID.astype(int))+'Temp.pkl')
         # save the previously learned NN model
-        joblib.dump(reg, '/home/jckchow/BundleAdjustment/build/NNModel'+str(sensorID.astype(int))+'_previous.pkl')
+        joblib.dump(reg, '/home/jckchow/BundleAdjustment/build/NNModel'+str(sensorID.astype(int))+'Temp.pkl')
         print('Found previous ML preprocessing and model found')
 except:
     print('No previous ML preprocessing and model found')

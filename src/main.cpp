@@ -52,6 +52,11 @@
 #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 // #define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 
+// machine learning model to use
+// 1 == KNN
+// 2 == decision tree
+#define MLMODE 1
+
 // #define INPUTIMAGEFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.pho"
 // #define INPUTIMAGEFILENAMETEMP "/home/jckchow/BundleAdjustment/Data/Dcs28mmTemp.pho" 
 // #define INPUTIOPFILENAME "/home/jckchow/BundleAdjustment/Data/Dcs28mm.iop"
@@ -481,9 +486,9 @@
 // // // // Training goPro Data
 #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining_manualOutlierRemoval.pho"
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
-#define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
-#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
+#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
 // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
 #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
 // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
@@ -492,11 +497,12 @@
 #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
 #define INPUTROPFILENAME ""
 
-// // Testing goPro Data
+// Testing goPro Data
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho"
 // // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.pho"
 // #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.iop"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
 // // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
 // #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop"
 // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.xyz"
@@ -2378,16 +2384,18 @@ int main(int argc, char** argv) {
         // Reading *.eop file
         PyRun_SimpleString("print( '  Start reading EOPs' )");          
 
-        if (iterNum == 0)
-        {
-            std::cout<<"  Input EOP filename: "<<INPUTEOPFILENAME<<std::endl;
-            inp.open(INPUTEOPFILENAME);
-        }
-        else
-        {
-            std::cout<<"  Input EOP filename: "<<"temp.eop"<<std::endl;
-            inp.open("temp.eop");
-        }
+        std::cout<<"  Input EOP filename: "<<INPUTEOPFILENAME<<std::endl;
+        inp.open(INPUTEOPFILENAME);
+        // if (iterNum == 0)
+        // {
+        //     std::cout<<"  Input EOP filename: "<<INPUTEOPFILENAME<<std::endl;
+        //     inp.open(INPUTEOPFILENAME);
+        // }
+        // else
+        // {
+        //     std::cout<<"  Input EOP filename: "<<"temp.eop"<<std::endl;
+        //     inp.open("temp.eop");
+        // }
 
         std::vector<int> eopStation, eopCamera;
         std::vector<double> eopXo, eopYo, eopZo, eopOmega, eopPhi, eopKappa;
@@ -2766,16 +2774,18 @@ int main(int argc, char** argv) {
         // Reading *.iop file
         PyRun_SimpleString("print( '  Start reading IOPs' )");
 
-        if (iterNum == 0)
-        {
-            std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;
-            inp.open(INPUTIOPFILENAME);
-        }
-        else
-        {
-            std::cout<<"  Input IOP filename: "<<"temp.iop"<<std::endl;
-            inp.open("temp.iop");
-        }
+        std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;
+        inp.open(INPUTIOPFILENAME);
+        // if (iterNum == 0)
+        // {
+        //     std::cout<<"  Input IOP filename: "<<INPUTIOPFILENAME<<std::endl;
+        //     inp.open(INPUTIOPFILENAME);
+        // }
+        // else
+        // {
+        //     std::cout<<"  Input IOP filename: "<<"temp.iop"<<std::endl;
+        //     inp.open("temp.iop");
+        // }
 
         std::vector<int> iopCamera, iopAxis;
         std::vector<double> iopXMin, iopYMin, iopXMax, iopYMax, iopXp, iopYp, iopC, iopA1, iopA2, iopK1, iopK2, iopK3, iopP1, iopP2;
@@ -3087,7 +3097,7 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); // spatial resection only
 
 
@@ -3353,17 +3363,17 @@ int main(int argc, char** argv) {
                 // for book keeping
                 sensorReferenceID[n] = iopCamera[indexSensor];
 
-                //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
-                //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
+                // //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
+                // //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
-                //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
+                // // ceres::CostFunction* cost_function =
+                // //     new ceres::AutoDiffCostFunction<collinearityMachineLearned, 2, 6, 3, 3, 7, 2>(
+                // //         new collinearityMachineLearned(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                // // problem.AddResidualBlock(cost_function, NULL, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0], &MLP[n][0]);  
 
-                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&MLP[n][0]);
+                // // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // // problem.SetParameterBlockConstant(&MLP[n][0]);
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<collinearityMachineLearnedSimple, 2, 6, 3, 3, 16>(
@@ -3638,8 +3648,8 @@ int main(int argc, char** argv) {
         // if(true)
         // {   
         //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"   Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"      When using this mode cannot esimate Cv, so please disable"<<std::endl;
+        //     std::cout<<"     Fixing a subset of the AP"<<std::endl;
+        //     std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
         //     for(int n = 0; n < iopCamera.size(); n++)
         //     {
         //         // Fix part of APs instead of all
@@ -3647,7 +3657,7 @@ int main(int argc, char** argv) {
         //         fixAP.push_back(0); //a1
         //         fixAP.push_back(1); //a2
         //         // fixAP.push_back(2); //k1
-        //         // fixAP.push_back(3); //k2
+        //         fixAP.push_back(3); //k2
         //         fixAP.push_back(4); //k3
         //         fixAP.push_back(5); //p1
         //         fixAP.push_back(6); //p2
@@ -3677,7 +3687,7 @@ int main(int argc, char** argv) {
 
         // if(true)
         // {
-        //         std::cout<<"   Datum: Fixed Gauge"<<std::endl;
+        //         std::cout<<"     Datum: Fixed Gauge"<<std::endl;
         //         // Fix part of IOPs instead of all
         //         std::vector<int> fixXYZ;
         //         fixXYZ.push_back(0); 
@@ -3745,7 +3755,7 @@ int main(int argc, char** argv) {
         // // // define the datum by pseduo observations of the positions for defining the datum
         if(true)
         {
-            std::cout<<"   Datum: Prior Gauge"<<std::endl;
+            std::cout<<"     Datum: Prior Gauge"<<std::endl;
             for(int n = 0; n < xyzTarget.size(); n++)
             {
                 // xyzXStdDev[n] *= 100.0; //only used for debugging
@@ -3763,7 +3773,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        // // prior on the IOP. Useful for X-ray data
+        // // // prior on the IOP. 
         // if (true)
         // {
         //     for(int n = 0; n < iopCamera.size(); n++)
@@ -3774,6 +3784,8 @@ int main(int argc, char** argv) {
         //         // double xpStdDev = 1E6;
         //         // double ypStdDev = 1E6;
         //         // double cStdDev  = 1E6;
+        //         std::cout<<"     "<<n+1<<". Prior on xp, yp, c: "<<xpStdDev<<", "<<ypStdDev<<", "<<cStdDev<<std::endl;
+
         //         ceres::CostFunction* cost_function =
         //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
         //                 new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
@@ -5757,14 +5769,19 @@ int main(int argc, char** argv) {
             PyRun_SimpleString("print( 'Start doing machine learning in Python' )");    
 
             //system("python ~/BundleAdjustment/python/gaussianProcess.py");
-            system("python ~/BundleAdjustment/python/nearestNeighbour.py");
-            // system("python ~/BundleAdjustment/python/decisionTree.py");
+            if (MLMODE == 1)
+            {
+                system("python ~/BundleAdjustment/python/nearestNeighbour.py");
+                inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck"); // read in the machine learned cost
+            }
+            if (MLMODE == 2)
+            {
+                // read in the machine learned cost
+                system("python ~/BundleAdjustment/python/decisionTree.py");
+                inp.open("/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck"); // read in the machine learned cost
+            }
 
             PyRun_SimpleString("print( 'Done doing machine learning regression:', round(TIME.process_time()-t0, 3), 's' )");
-
-            // read in the machine learned cost
-            inp.open("/home/jckchow/BundleAdjustment/build/kNNCost.jck");
-            // inp.open("/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck");
 
             std::vector<double> MLCost;
             std::vector<double> MLRedundancy;

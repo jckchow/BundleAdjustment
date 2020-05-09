@@ -183,16 +183,27 @@ from sklearn import metrics
 #iopFilename     = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop'
 #eopFilename     = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.eop'
 
+### Go Pro Training
+#inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
+#phoFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho'
+#iopFilename   = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+##iopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop'
+#eopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop'
+
 ## Go Pro Training
 inputFilename  = '/home/jckchow/BundleAdjustment/build/image.jck'
-phoFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho'
-iopFilename   = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+phoFilename    = '/home/jckchow/BundleAdjustment/build/temp.pho'
+#iopFilename   = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop'
+iopFilename   = '/home/jckchow/BundleAdjustment/build/temp.iop'
 #iopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop'
-eopFilename    = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop'
+eopFilename    = '/home/jckchow/BundleAdjustment/build/temp.eop'
+
 
 # Minimum and maximum depth for decision tree (+1 of what we want)
 minDepth = 1
-maxDepth = 20
+maxDepth = 50
+minLeafSample = 1
+maxLeafSample = 4
 
 # do we want to plot things (True or False)
 doPlot = False
@@ -235,6 +246,25 @@ cost = 0.0
 numSamples = 0.0
 errors = []
 outputCost = []
+
+##########################################
+### Try to load preprocessing and ML model if it exists from previous iteration to make a copy for when the iterations end before the max iterations then we should use the previous model instead
+##########################################
+try:
+    for iter in range(0,len(sensorsUnique)):
+        sensorID = sensorsUnique[iter] #currently sensor ID
+        # load the preprocessing info
+        [min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label] = joblib.load('/home/jckchow/BundleAdjustment/build/decisionTreePreprocessing'+str(sensorID.astype(int))+'.pkl')
+        # load the learned NN model
+        reg = joblib.load('/home/jckchow/BundleAdjustment/build/decisionTreeModel'+str(sensorID.astype(int))+'.pkl')
+        # save copy of previous preprocessing
+        joblib.dump([min_x, min_y, max_x, max_y, desire_min, desire_max, mean_label], '/home/jckchow/BundleAdjustment/build/decisionTreePreprocessing'+str(sensorID.astype(int))+'Temp.pkl')
+        # save the previously learned NN model
+        joblib.dump(reg, '/home/jckchow/BundleAdjustment/build/decisionTreeModel'+str(sensorID.astype(int))+'Temp.pkl')
+        print('  Found previous ML preprocessing and model, making a copy and saving it as temp')
+except:
+    print('No previous ML preprocessing and model found')
+    
 ##########################################
 ### Learn for each sensor separately
 ##########################################
@@ -328,12 +358,13 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
         # Tune decision tree using CV
         t0 = time()
-        param_grid = [ {'max_depth' : range(minDepth,maxDepth,1)} ] 
+        param_grid = [ {'max_depth' : range(minDepth,maxDepth,1)}, {'min_samples_leaf' : range(minLeafSample,maxLeafSample,1)}] 
         regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,refit=True)
-#        regCV.fit(interpolatedTraining, interpolatedResiduals)
-        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
+        regCV.fit(interpolatedTraining, interpolatedResiduals)
+#        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
         print ("    Best in sample score: ", regCV.best_score_)
         print ("    CV value for maxDepth ( between ", minDepth, " and", maxDepth-1,"): ", regCV.best_estimator_.max_depth)
+        print ("    CV value for minLeafSamples ( between ", minLeafSample, " and", maxLeafSample-1,"): ", regCV.best_estimator_.min_samples_leaf)
         print ("    Training Decision Tree Regressor + CV time:", round(time()-t0, 3), "s")
         
         # train with the best max_depth parameter
@@ -348,12 +379,17 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         print('  Not doing Smoothing')
         # Tune kNN using CV
         t0 = time()
-        param_grid = [ {'max_depth' : range(minDepth,maxDepth,1)} ] 
+#        param_grid = [ {'max_depth' : range(minDepth,maxDepth,1)} ] 
+        param_grid = [ {'max_depth' : range(minDepth,maxDepth,1)}, {'min_samples_leaf' : range(minLeafSample,maxLeafSample,1)}] 
 #        regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring='neg_mean_squared_error')
-        regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring=None)
+#        regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring=None)
+#        regCV = GridSearchCV(DecisionTreeRegressor(random_state=1, min_samples_leaf=2), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring=None)        
+        regCV = GridSearchCV(DecisionTreeRegressor(random_state=1), param_grid, cv=10, verbose = 0,n_jobs=1,refit=True, scoring=None)        
+        
         regCV.fit(features_train, labels_train)
         print ("    Best in sample score: ", regCV.best_score_)
         print ("    CV value for maxDepth ( between ", minDepth, " and", maxDepth-1,"): ", regCV.best_estimator_.max_depth)
+        print ("    CV value for minLeafSize ( between ", minLeafSample, " and", maxLeafSample-1,"): ", regCV.best_estimator_.min_samples_leaf)
         print ("    Training Decision Tree Regressor + CV time:", round(time()-t0, 3), "s")
 
         # train with the best K parameter
@@ -426,7 +462,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     cost += sensorCost
     numSamples += 2.0*len(indexImage)
     
-    errors.append([sensorID, sensorCost, 2.0*len(indexImage), regCV.best_estimator_.max_depth])
+    errors.append([sensorID, sensorCost, 2.0*len(indexImage), regCV.best_estimator_.max_depth, regCV.best_estimator_.min_samples_leaf])
 #    ##########################################
 #    ### Plotting
 #    ##########################################
@@ -748,20 +784,21 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 
 
 errors = np.asarray(errors)
-print ("SensorID, Cost, NumSamples, max_depth")
+print ("SensorID, Cost, NumSamples, max_depth, minLeafSampleSize")
 print (errors)
  
 ############################
 ### Output predicted corrections
 ############################
-outputCost.append([cost, numSamples])
+outputCost.append([cost, numSamples, regCV.best_estimator_.max_depth, regCV.best_estimator_.min_samples_leaf, regCV.best_estimator_.min_samples_leaf])
 outputCost = np.asarray(outputCost)
 
 t0 = time()
 np.savetxt(phoFilename, pho, '%i %i %f %f %f %f %f %f', delimiter=' ', newline='\n')
 
-print ("TotalCost, Redundancy")
+print ("TotalCost, Redundancy, hyperparmeters")
 print (outputCost)
+
 print ("outputting decisionTreeCost.jck")
-np.savetxt('/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck', outputCost, '%f %f', delimiter=' ', newline='\n')
+np.savetxt('/home/jckchow/BundleAdjustment/build/decisionTreeCost.jck', outputCost, '%f %f %f %f %f', delimiter=' ', newline='\n')
 print ("Done outputting results:", round(time()-t0, 3), "s")

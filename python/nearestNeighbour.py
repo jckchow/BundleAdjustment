@@ -212,6 +212,9 @@ smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
 
 # do ensemble bagging
 doBagging = True
+numEstimators = 25
+minNumSamples = 0.1
+maxNumSamples = 1.0
 
 print ("-----------K-Nearest Neighbour Modelling-----------")
 
@@ -418,14 +421,15 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 #            print ("        Best in sample score: ", regCV.best_score_)
 #            print ("        CV value for K ( between", minK, " and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
                         
-            param_grid = [ {'max_samples' : np.arange(0.1,1.1,0.1)} ] # test only up to 50 neighbours
+            param_grid = [ {'max_samples' : np.arange(minNumSamples,maxNumSamples,0.1)} ] # test only up to 50 neighbours
 #            reg = BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=1), n_estimators=10, max_samples=1.0, oob_score=False, random_state=0)
 #            reg.fit(features_train, labels_train)
-            regCV = GridSearchCV(BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=1), n_estimators=25, oob_score=False, random_state=0), param_grid, cv=10, verbose = 0, n_jobs=1)
+            regCV = GridSearchCV(BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=1), n_estimators=numEstimators, oob_score=False, random_state=0), param_grid, cv=10, verbose = 0, n_jobs=1)
             regCV.fit(features_train, labels_train)
             print ("        Best in sample score: ", regCV.best_score_)
-            print ("        CV value for max_samples: ( between", "0.1", " and", "1.0","): ", regCV.best_estimator_.max_samples)
-                        
+            print ("        CV value for max_samples: ( between", minNumSamples, " and", maxNumSamples-0.1,"): ", regCV.best_estimator_.max_samples)
+            print ("        # Estimators: ", numEstimators)
+            
             reg = regCV.best_estimator_;
             bestK = 1
             bestMaxSamples = regCV.best_estimator_.max_samples;

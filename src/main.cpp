@@ -36,7 +36,7 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 1000 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
@@ -52,7 +52,7 @@
 #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 // #define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 
-// machine learning model to use
+// machine learning technique to use
 // 1 == KNN
 // 2 == decision tree
 #define MLMODE 1
@@ -438,7 +438,7 @@
 /// Paper 2 Omnidirectional Camera Journal Paper
 /// 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// //for all Nikon
+// // //for all Nikon
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_screened.pho"
 // #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTemp.pho"
 // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
@@ -448,7 +448,6 @@
 // // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/LaserScannerAll.xyz"
 // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
-
 
 // // // // Nikon Training Data
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
@@ -483,31 +482,33 @@
 // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// // // // Training goPro Data
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining_manualOutlierRemoval.pho"
-// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
-// // #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
+// // // Training goPro Data
+#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining_manualOutlierRemoval.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
 // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
-// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
-// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
-// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
-// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_manual.xyz"
-// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/goproTruth.xyz" // only use for QC
-// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
-
-// Testing goPro Data
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho"
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_collinearityTrainingKNNSmoothed_K1.pho"
-#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_collinearityTrainingKNNSmoothed_K1_new.pho"
-#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.iop"
 // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
-#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop"
-#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.xyz"
+#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
+#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_manual.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/goproTruth.xyz" // only use for QC
 #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
 #define INPUTROPFILENAME ""
+
+// // // Testing goPro Data
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_stereographicTrainingKNN.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_stereographicTrainingKNNSmoothed.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_collinearityTrainingKNN.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_collinearityTrainingKNNSmoothed.pho"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.iop"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
@@ -3157,7 +3158,7 @@ int main(int argc, char** argv) {
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -3341,7 +3342,7 @@ int main(int argc, char** argv) {
         // }
 
         // Collinearity condition with machine learned parameters
-        if (true)
+        if (false)
         {
             std::cout<<"   Running collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -3392,7 +3393,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if (false)
+        if(true)
         {
             std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -3645,39 +3646,39 @@ int main(int argc, char** argv) {
         // }
 
         int numAPCorrection = 0; // don't comment this away
-        // if(true)
-        // {   
-        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"     Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
-        //         fixAP.push_back(3); //k2
-        //         fixAP.push_back(4); //k3
-        //         fixAP.push_back(5); //p1
-        //         fixAP.push_back(6); //p2
+        if(true)
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"     Fixing a subset of the AP"<<std::endl;
+            std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                fixAP.push_back(0); //a1
+                fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                // fixAP.push_back(3); //k2
+                // fixAP.push_back(4); //k3
+                // fixAP.push_back(5); //p1
+                // fixAP.push_back(6); //p2
 
-        //         fixAP.push_back(7); //ep1
-        //         fixAP.push_back(8); //ep2
-        //         fixAP.push_back(9); //ep3
-        //         fixAP.push_back(10); //ep4
-        //         fixAP.push_back(11); //ep5
-        //         fixAP.push_back(12); //ep6
-        //         fixAP.push_back(13); //ep7
-        //         fixAP.push_back(14); //ep8
-        //         fixAP.push_back(15); //ep9
+                fixAP.push_back(7); //ep1
+                fixAP.push_back(8); //ep2
+                fixAP.push_back(9); //ep3
+                fixAP.push_back(10); //ep4
+                fixAP.push_back(11); //ep5
+                fixAP.push_back(12); //ep6
+                fixAP.push_back(13); //ep7
+                fixAP.push_back(14); //ep8
+                fixAP.push_back(15); //ep9
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
 
-        //         numAPCorrection = fixAP.size();
-        //     }
-        // }
+                numAPCorrection = fixAP.size();
+            }
+        }
 
         // if (true)
         // {
@@ -3893,12 +3894,13 @@ int main(int argc, char** argv) {
             std::cout<<"  LSA Cost Increased: "<<(2.0*summary.final_cost)<< " > " << (2.0*leastSquaresCost[leastSquaresCost.size()-1]) <<std::endl;
             if(MLMODE == 1)
             {
-                std::cout<<"  Copying previous KNN model to current..."<<std::endl;
+                std::cout<<"  Copying previous KNN model from temp to current..."<<std::endl;
                 system("python ~/BundleAdjustment/python/nearestNeighbourRename.py");
             }
             if(MLMODE == 2)
             {
-                std::cout<<"  Copying previous decision tree model to current"<<std::endl;
+                std::cout<<"  Copying previous decision tree model from temp to current"<<std::endl;
+                system("python ~/BundleAdjustment/python/decisionTreeRename.py");
             }
             break;
         }

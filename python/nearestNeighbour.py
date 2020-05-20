@@ -18,6 +18,9 @@
 @author: jacky.chow
 """
 
+import sklearn
+print('The scikit-learn version is {}.'.format(sklearn.__version__))
+
 def warn(*args, **kwargs):
     pass
 import warnings
@@ -28,6 +31,7 @@ import numpy as np
 from time import time
 from sklearn.preprocessing import MinMaxScaler
 from sklearn import neighbors
+from sklearn.ensemble import BaggingRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.externals import joblib
 from matplotlib import pyplot as plt
@@ -194,15 +198,20 @@ eopFilename    = '/home/jckchow/BundleAdjustment/build/temp.eop'
 
 
 # Maximum number of neighbours to test (+1 of what you actually want)
-minK = 3
-maxK = 5
+#minK = 3
+#maxK = 1001
+#minK = 3; maxK = 4
+minK = 1; maxK = 2
 
 # do we want to plot things (True or False)
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = True
+doSmoothing = False
 smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
+
+# do ensemble bagging
+doBagging = True
 
 print ("-----------K-Nearest Neighbour Modelling-----------")
 
@@ -365,6 +374,8 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
 #        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
 #        reg.fit(interpolatedTraining, interpolatedResiduals)
         reg = regCV.best_estimator_;
+        bestK = regCV.best_estimator_.n_neighbors;
+        bestMaxSamples = 1.0
         print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
         
 #        # Tune rNN using CV
@@ -393,25 +404,62 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     else:
         print('  Not doing Smoothing')
-        # Tune kNN using CV
-        t0 = time()
-#        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
-#        param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
-        param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
-#        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0, n_jobs=1, scoring='neg_mean_squared_error')
-        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
-        regCV.fit(features_train, labels_train)
-        print ("    Best in sample score: ", regCV.best_score_)
-        print ("    CV value for K ( between", minK, " and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
-        print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
+        
+        if (doBagging):
+            print('     Doing Ensemble: Bagging')
+            t0 = time()
+#    #        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
+##            param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
+#            param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
+##            regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0, n_jobs=1, scoring='neg_mean_squared_error')
+#            regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
+#            regCV.fit(features_train, labels_train)
+#            bestK = regCV.best_estimator_.n_neighbors
+#            print ("        Best in sample score: ", regCV.best_score_)
+#            print ("        CV value for K ( between", minK, " and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
+                        
+            param_grid = [ {'max_samples' : np.arange(0.1,1.1,0.1)} ] # test only up to 50 neighbours
+#            reg = BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=1), n_estimators=10, max_samples=1.0, oob_score=False, random_state=0)
+#            reg.fit(features_train, labels_train)
+            regCV = GridSearchCV(BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=1), n_estimators=25, oob_score=False, random_state=0), param_grid, cv=10, verbose = 0, n_jobs=1)
+            regCV.fit(features_train, labels_train)
+            bestK = 1
+            bestMaxSamples = regCV.best_estimator_.max_samples;
+            print ("        Best in sample score: ", regCV.best_score_)
+            print ("        CV value for max_samples: ( between", "0.1", " and", "1.0","): ", regCV.best_estimator_.max_samples)
+                        
 
-        # train with the best K parameter
-        t0 = time()   
-#        reg = neighbors.KNeighborsRegressor(n_neighbors=1, weights='uniform', n_jobs=1)
-#        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
-#        reg.fit(features_train, labels_train)
-        reg = regCV.best_estimator_;
-        print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
+            print ("        Training NN-Regressor + Bagging time:", round(time()-t0, 3), "s")
+    
+            # train with the best K parameter
+#            t0 = time()   
+    #        reg = neighbors.KNeighborsRegressor(n_neighbors=1, weights='uniform', n_jobs=1)
+    #        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
+    #        reg.fit(features_train, labels_train)
+#            reg = regCV.best_estimator_;
+#            print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
+        else:      
+            # Tune kNN using CV
+            t0 = time()
+    #        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
+    #        param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
+            param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
+    #        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0, n_jobs=1, scoring='neg_mean_squared_error')
+            regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
+            regCV.fit(features_train, labels_train)
+            print ("    Best in sample score: ", regCV.best_score_)
+            print ("    CV value for K ( between", minK, " and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
+            print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
+    
+            # train with the best K parameter
+            t0 = time()   
+    #        reg = neighbors.KNeighborsRegressor(n_neighbors=1, weights='uniform', n_jobs=1)
+    #        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
+    #        reg.fit(features_train, labels_train)
+            reg = regCV.best_estimator_;
+            bestK = regCV.best_estimator_.n_neighbors;
+            bestMaxSamples = 1.0
+            print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
 
     print ("    Done Training")
     # save the preprocessing info
@@ -476,7 +524,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     cost += sensorCost
     numSamples += 2.0*len(indexImage)
     
-    errors.append([sensorID, sensorCost, 2.0*len(indexImage), regCV.best_estimator_.n_neighbors])
+    errors.append([sensorID, sensorCost, 2.0*len(indexImage), bestK])
 #    ##########################################
 #    ### Plotting
 #    ##########################################
@@ -804,7 +852,7 @@ print (errors)
 ############################
 ### Output predicted corrections
 ############################
-outputCost.append([cost, numSamples, regCV.best_estimator_.n_neighbors, regCV.best_estimator_.n_neighbors, regCV.best_estimator_.n_neighbors])
+outputCost.append([cost, numSamples, bestK, bestMaxSamples, bestMaxSamples])
 outputCost = np.asarray(outputCost)
 
 t0 = time()

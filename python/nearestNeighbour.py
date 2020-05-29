@@ -198,23 +198,24 @@ eopFilename    = '/home/jckchow/BundleAdjustment/build/temp.eop'
 
 
 # Maximum number of neighbours to test (+1 of what you actually want)
-#minK = 3
-#maxK = 1001
-#minK = 3; maxK = 4
-minK = 1; maxK = 2
+minK = 3; maxK = 7
+#minK = 3; maxK = 7
+#minK = 1; maxK = 2
 
 # do we want to plot things (True or False)
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = False
+doSmoothing = True
 smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
 
+
 # do ensemble bagging
-doBagging = True
+doAveraging = True
+doBagging = False
 numEstimators = 25
 minNumSamples = 0.1
-maxNumSamples = 1.0
+maxNumSamples = 1.1
 
 print ("-----------K-Nearest Neighbour Modelling-----------")
 
@@ -360,49 +361,101 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
         removeList = ~np.isnan(interpolatedResiduals).any(axis=1);
         interpolatedTraining = X[removeList]
         interpolatedResiduals = interpolatedResiduals[removeList]
+        
+        # doing smoothing
+        if (doBagging):
+            print('     Doing Ensemble: Bagging')
+            t0 = time()
+#    #        param_grid = [ {'n_neighbors' : range(3,np.min((51,len(features_train[:,0])/10)))} ] # test only up to 50 neighbours
+##            param_grid = [ {'n_neighbors' : range(3,maxK,1)} ] # test only up to 50 neighbours
+#            param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
+##            regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0, n_jobs=1, scoring='neg_mean_squared_error')
+#            regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0,n_jobs=1)
+#            regCV.fit(features_train, labels_train)
+#            bestK = regCV.best_estimator_.n_neighbors
+#            print ("        Best in sample score: ", regCV.best_score_)
+#            print ("        CV value for K ( between", minK, " and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
+                        
+            param_grid = [ {'max_samples' : np.arange(minNumSamples,maxNumSamples,0.1)} ] # test only up to 50 neighbours
+#            reg = BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=1), n_estimators=10, max_samples=1.0, oob_score=False, random_state=0)
+#            reg.fit(features_train, labels_train)
+            regCV = GridSearchCV(BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=1), n_estimators=numEstimators, oob_score=False, random_state=0), param_grid, cv=10, verbose = 0, n_jobs=1)
+            regCV.fit(interpolatedTraining, interpolatedResiduals)
+            print ("        Best in sample score: ", regCV.best_score_)
+            print ("        CV value for max_samples: ( between", minNumSamples, " and", maxNumSamples-0.1,"): ", regCV.best_estimator_.max_samples)
+            print ("        # Estimators: ", numEstimators)
+            
+            reg = regCV.best_estimator_;
+            bestK = 1
+            bestMaxSamples = regCV.best_estimator_.max_samples;
+            print ("        Training NN-Regressor + Bagging time:", round(time()-t0, 3), "s")
+    
+            # train with the best K parameter
+#            t0 = time()   
+    #        reg = neighbors.KNeighborsRegressor(n_neighbors=1, weights='uniform', n_jobs=1)
+    #        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
+    #        reg.fit(features_train, labels_train)
+#            reg = regCV.best_estimator_;
+#            print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
+        else:    
+            # Tune kNN using CV
+            t0 = time()
+            param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
+    #        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
+            regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
+            regCV.fit(interpolatedTraining, interpolatedResiduals)
+    #        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
+            print ("    Best in sample score: ", regCV.best_score_)
+            print ("    CV value for K ( between",minK," and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
+            print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
+            
+            reg = regCV.best_estimator_;
+            bestK = regCV.best_estimator_.n_neighbors;
+            bestMaxSamples = 1.0          
+            
+            if doAveraging:
+#                param_grid = [ {'max_samples' : np.arange(minNumSamples,maxNumSamples,0.1)} ] # test only up to 50 neighbours
+                reg = BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=regCV.best_estimator_.n_neighbors), n_estimators=numEstimators, max_samples=1.0, oob_score=False, random_state=0)
+                reg.fit(interpolatedTraining, interpolatedResiduals)
+#                regCV = GridSearchCV(BaggingRegressor(base_estimator=neighbors.KNeighborsRegressor(weights='uniform', n_neighbors=regCV.best_estimator_.n_neighbors), n_estimators=numEstimators, oob_score=False, random_state=0), param_grid, cv=10, verbose = 0, n_jobs=1)
+#                regCV.fit(features_train, labels_train)
+#                print ("        Best in sample score: ", regCV.best_score_)
+#                print ("        CV value for max_samples: ( between", minNumSamples, " and", maxNumSamples-0.1,"): ", regCV.best_estimator_.max_samples)
+                print ("        # Estimators: ", numEstimators)
+                       
+#                reg = regCV.best_estimator_;
+#                bestK = regCV.best_estimator_.n_neighbors;
+#                bestMaxSamples = regCV.best_estimator_.max_samples
+                       
+            # train with the best K parameter
+    #        t0 = time()   
+    #        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
+    #        reg.fit(interpolatedTraining, interpolatedResiduals)
 
-        # Tune kNN using CV
-        t0 = time()
-        param_grid = [ {'n_neighbors' : range(minK,maxK,1)} ] # test only up to 50 neighbours
-#        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
-        regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
-        regCV.fit(interpolatedTraining, interpolatedResiduals)
-#        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
-        print ("    Best in sample score: ", regCV.best_score_)
-        print ("    CV value for K ( between",minK," and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
-        print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")
+            print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
         
-        # train with the best K parameter
-#        t0 = time()   
-#        reg = neighbors.KNeighborsRegressor(n_neighbors=regCV.best_estimator_.n_neighbors, weights='uniform', n_jobs=1)
-#        reg.fit(interpolatedTraining, interpolatedResiduals)
-        reg = regCV.best_estimator_;
-        bestK = regCV.best_estimator_.n_neighbors;
-        bestMaxSamples = 1.0
-        print ("    Training Final NN-Regressor:", round(time()-t0, 3), "s")
-        
-#        # Tune rNN using CV
-#        minSpacing = 0.5*( (xx_scaled[0,1] - xx_scaled[0,0]) + (yy_scaled[0,0] - yy_scaled[1,0]) )
-#        minSpacingBuffered = minSpacing + 0.001 * minSpacing; # give it a buffer to ensure we capture it in the radius search
-##        minSpacing /= 2.0;
-#        t0 = time()
-#        param_grid = [ {'radius' : np.arange(1.0*minSpacingBuffered,25.0*minSpacingBuffered, (minSpacing/2.0))} ] # test only up to 50 neighbours
-##        regCV = GridSearchCV(neighbors.RadiusNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
-#        regCV = GridSearchCV(neighbors.RadiusNeighborsRegressor(), param_grid, cv=10)
-#        regCV.fit(interpolatedTraining, interpolatedResiduals)
-##        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
-#        print "    Best in sample score: ", regCV.best_score_
-#        print "    CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
-#        print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
-#        
-#        # train with the best radius parameter
-#        t0 = time()   
-#        reg = neighbors.RadiusNeighborsRegressor(radius=regCV.best_estimator_.radius, weights='uniform', n_jobs=1)
-#        reg.fit(interpolatedTraining, interpolatedResiduals)
-#        print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
-#        
-#        reg = neighbors.RadiusNeighborsRegressor(radius=0.02, weights='uniform', n_jobs=1)
-#        reg.fit(interpolatedTraining, interpolatedResiduals)
+    #        # Tune rNN using CV
+    #        minSpacing = 0.5*( (xx_scaled[0,1] - xx_scaled[0,0]) + (yy_scaled[0,0] - yy_scaled[1,0]) )
+    #        minSpacingBuffered = minSpacing + 0.001 * minSpacing; # give it a buffer to ensure we capture it in the radius search
+    ##        minSpacing /= 2.0;
+    #        t0 = time()
+    #        param_grid = [ {'radius' : np.arange(1.0*minSpacingBuffered,25.0*minSpacingBuffered, (minSpacing/2.0))} ] # test only up to 50 neighbours
+    ##        regCV = GridSearchCV(neighbors.RadiusNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
+    #        regCV = GridSearchCV(neighbors.RadiusNeighborsRegressor(), param_grid, cv=10)
+    #        regCV.fit(interpolatedTraining, interpolatedResiduals)
+    ##        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
+    #        print "    Best in sample score: ", regCV.best_score_
+    #        print "    CV value for K (between 3 and 50): ", regCV.best_estimator_.n_neighbors
+    #        print "    Training NN-Regressor + CV time:", round(time()-t0, 3), "s"
+    #        
+    #        # train with the best radius parameter
+    #        t0 = time()   
+    #        reg = neighbors.RadiusNeighborsRegressor(radius=regCV.best_estimator_.radius, weights='uniform', n_jobs=1)
+    #        reg.fit(interpolatedTraining, interpolatedResiduals)
+    #        print "    Training Final NN-Regressor:", round(time()-t0, 3), "s"
+    #        
+    #        reg = neighbors.RadiusNeighborsRegressor(radius=0.02, weights='uniform', n_jobs=1)
+    #        reg.fit(interpolatedTraining, interpolatedResiduals)
 
     
     else:

@@ -1,12 +1,3 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jan 12 18:27:18 2018
-
-@author: jckchow
-"""
-
-
 # -*- coding: utf-8 -*-
 """
 /////////////////////////////////////////////////////////////////////////////
@@ -100,11 +91,17 @@ from sklearn.externals import joblib
 ### Omnidirectional Camera Journal paper 1
 ############################
 # Go Pro 3 Silver Edition
-phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.pho'
+#phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho'
+#eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop'
+#NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/collinearityTrainingKNNSmoothed/NNModel'
+#preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/collinearityTrainingKNNSmoothed/NNPreprocessing'
+#outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_collinearityTrainingKNNSmoothed.pho'
+
+phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho'
 eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop'
-NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/collinearityTrainingKNNSmoothed_K1/new/NNModel'
-preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/collinearityTrainingKNNSmoothed_K1/new/NNPreprocessing'
-outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_collinearityTrainingKNNSmoothed_K1_new.pho'
+NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/stereographicTrainingKNN/NNModel'
+preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/stereographicTrainingKNN/NNPreprocessing'
+outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_stereographicTrainingKNN.pho'
 
 ##########################################
 ### User parameters

@@ -22,6 +22,7 @@
 #include "glog/logging.h"
 #include "Python.h"
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <vector>
 #include <string>
@@ -36,13 +37,14 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1000 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 1 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECORRELATION 1 // Compute the correlation matrix, 1 is true, 0 is false
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
@@ -449,17 +451,17 @@
 // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// // // // Nikon Training Data
-#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
-#define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
+// // // // // Nikon Training Data
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
 // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
-#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.iop"
-#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
-#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
-#define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
-// #define INPUTXYZDATUMFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz"
-#define INPUTROPFILENAME ""
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_stereographic.iop"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz" // only use for QC
+// // #define INPUTXYZDATUMFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz"
+// #define INPUTROPFILENAME ""
 
 // // Nikon Testing Data
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
@@ -484,18 +486,18 @@
 // #define INPUTROPFILENAME ""
 
 // // Training goPro Data
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining_manualOutlierRemoval.pho"
-// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
-// // #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
+#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining_manualOutlierRemoval.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
 // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
-// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
-// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
-// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
-// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_manual.xyz"
-// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/goproTruth.xyz" // only use for QC
-// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
+#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_manual.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/goproTruth.xyz" // only use for QC
+#define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 // // // Testing goPro Data
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho"
@@ -3111,7 +3113,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographic collinearity condition, no machine learning
-        if (false)
+        if (true)
         {
             std::cout<<"   RUNNING STEREOGRAPHIC PROJECTION COLLINEARITY EQUATIONS..."<<std::endl;
 
@@ -3144,17 +3146,21 @@ int main(int argc, char** argv) {
                 // ceres::CostFunction* cost_function =
                 //     new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 16>(
                 //         new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                // // std::cout<<"      Stereographic Projection..."<<std::endl; 
 
                 ceres::CostFunction* cost_function =
                     new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
                         new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                // std::cout<<"      Fisheye Equidistant..."<<std::endl;
 
                 // ceres::CostFunction* cost_function =
                 //     new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
                 //         new fisheyeStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                // // std::cout<<"      Fisheye Stereographic..."<<std::endl;
+
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
@@ -3394,7 +3400,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if(true)
+        if(false)
         {
             std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -3647,39 +3653,39 @@ int main(int argc, char** argv) {
         // }
 
         int numAPCorrection = 0; // don't comment this away
-        // if(true)
-        // {   
-        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"     Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
-        //         fixAP.push_back(3); //k2
-        //         fixAP.push_back(4); //k3
-        //         fixAP.push_back(5); //p1
-        //         fixAP.push_back(6); //p2
+        if(true)
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"     Fixing a subset of the AP"<<std::endl;
+            std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                // fixAP.push_back(0); //a1
+                // fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                // fixAP.push_back(3); //k2
+                // fixAP.push_back(4); //k3
+                // fixAP.push_back(5); //p1
+                // fixAP.push_back(6); //p2
 
-        //         fixAP.push_back(7); //ep1: k4
-        //         fixAP.push_back(8); //ep2: k5
-        //         fixAP.push_back(9); //ep3
-        //         fixAP.push_back(10); //ep4
-        //         fixAP.push_back(11); //ep5
-        //         fixAP.push_back(12); //ep6
-        //         fixAP.push_back(13); //ep7
-        //         fixAP.push_back(14); //ep8
-        //         fixAP.push_back(15); //ep9
+                // fixAP.push_back(7); //ep1: k4
+                fixAP.push_back(8); //ep2: k5
+                fixAP.push_back(9); //ep3
+                fixAP.push_back(10); //ep4
+                fixAP.push_back(11); //ep5
+                fixAP.push_back(12); //ep6
+                fixAP.push_back(13); //ep7
+                fixAP.push_back(14); //ep8
+                fixAP.push_back(15); //ep9
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
 
-        //         numAPCorrection = fixAP.size();
-        //     }
-        // }
+                numAPCorrection = fixAP.size();
+            }
+        }
 
         // if (true)
         // {
@@ -3888,7 +3894,8 @@ int main(int argc, char** argv) {
        
         // condition for terminating the global ML least squares bundle adjustment routine
         // if ( leastSquaresCost.size() > 1 && (leastSquaresCost[leastSquaresCost.size()-1]) > (leastSquaresCost[leastSquaresCost.size()-2]) )
-        if ( leastSquaresCost.size() > 50 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        // if ( leastSquaresCost.size() > 50 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
+        if ( leastSquaresCost.size() > 5 && (summary.final_cost) > (leastSquaresCost[leastSquaresCost.size()-1]) )
         {
             std::cout<<"-------------------------!!!!!!Machine Learning Bundle Adjustment CONVERGED!!!!!!-------------------------"<<std::endl;
             // std::cout<<"LSA Cost Increased: "<<(leastSquaresCost[leastSquaresCost.size()-1])<< " > " << (leastSquaresCost[leastSquaresCost.size()-2]) <<std::endl;
@@ -4178,13 +4185,34 @@ int main(int argc, char** argv) {
         //////////////////////////////////////////////////
         /// Start doing covariance matrix calculation
         //////////////////////////////////////////////////
-
         Eigen::MatrixXd xyzVariance(XYZ.size(),3);
         Eigen::MatrixXd eopVariance(EOP.size(),6);
         Eigen::MatrixXd iopVariance(IOP.size(),3);
         Eigen::MatrixXd apVariance(AP.size(),16);
         Eigen::MatrixXd mlpVariance(MLP.size(),2);
         Eigen::MatrixXd ropVariance(ROP.size(),6);
+
+        Eigen::MatrixXd correlationAP_AP(16,16);
+        Eigen::MatrixXd correlationAP_omega(16,EOP.size());
+        Eigen::MatrixXd correlationAP_phi(16,EOP.size());
+        Eigen::MatrixXd correlationAP_kappa(16,EOP.size());
+        Eigen::MatrixXd correlationAP_Xo(16,EOP.size());
+        Eigen::MatrixXd correlationAP_Yo(16,EOP.size());
+        Eigen::MatrixXd correlationAP_Zo(16,EOP.size());
+        Eigen::MatrixXd correlationAP_X(16,XYZ.size());
+        Eigen::MatrixXd correlationAP_Y(16,XYZ.size());
+        Eigen::MatrixXd correlationAP_Z(16,XYZ.size());        
+
+        correlationAP_AP.setConstant(1E6);
+        correlationAP_omega.setConstant(1E6);
+        correlationAP_phi.setConstant(1E6);
+        correlationAP_kappa.setConstant(1E6);
+        correlationAP_Xo.setConstant(1E6);
+        correlationAP_Yo.setConstant(1E6);
+        correlationAP_Zo.setConstant(1E6);
+        correlationAP_X.setConstant(1E6);
+        correlationAP_Y.setConstant(1E6);
+        correlationAP_Z.setConstant(1E6);
 
         xyzVariance.setConstant(1E6);
         eopVariance.setConstant(1E6);
@@ -4521,12 +4549,51 @@ int main(int argc, char** argv) {
                 std::cout<<"   ep8: "<<AP[i][14]<<" +/- "<<sqrt(apVariance(i,14))<<". 95% significance test: is "<<fabs(AP[i][14])/(1E-16+sqrt(apVariance(i,14))) <<" and scaled "<< fabs(AP[i][14])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,14)))<<" > 1.96" <<std::endl;
                 std::cout<<"   ep9: "<<AP[i][15]<<" +/- "<<sqrt(apVariance(i,15))<<". 95% significance test: is "<<fabs(AP[i][15])/(1E-16+sqrt(apVariance(i,15))) <<" and scaled "<< fabs(AP[i][15])/(1E-16+aposterioriStdDev*sqrt(apVariance(i,15)))<<" > 1.96" <<std::endl;
                
-
                 // <<", "<<sqrt(apVariance(i,1))<<", "<<sqrt(apVariance(i,2))<<", "<<sqrt(apVariance(i,3))<<", "<<sqrt(apVariance(i,4))<<", "<<sqrt(apVariance(i,5))<<", "<<sqrt(apVariance(i,6))<<std::endl;
                 // // store the full variance-covariance matrix
                 // for (int n = 0; n < covariance_X.rows(); n++)
                 //     for (int m = 0; m < covariance_X.cols(); m++)
                 //         Cx(i*7+n + 6*EOP.size()+3*XYZ.size()+3*IOP.size(),i*7+m + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X(n,m);
+
+                if (COMPUTECORRELATION)
+                {
+                    std::vector<double> correlationStats;
+                    for (int n = 0; n < 16; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            correlationAP_AP(n,m) = covariance_X(n,m) / ( sqrt(covariance_X(n,n))*sqrt(covariance_X(m,m)) );
+
+                            if ( !std::isnan(correlationAP_AP(n,m)) )
+                                if (n != m)
+                                {
+                                    correlationStats.push_back(fabs(correlationAP_AP(n,m)));
+                                }
+                        }
+
+                    double sum = std::accumulate(correlationStats.begin(), correlationStats.end(), 0.0);
+                    double mean = sum / correlationStats.size();
+                    std::vector<double> diff(correlationStats.size());
+                    std::transform(correlationStats.begin(), correlationStats.end(), diff.begin(), [mean](double x) { return x - mean; });
+                    double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+                    double stdev = std::sqrt(sq_sum / correlationStats.size());
+                    double max = *std::max_element(correlationStats.begin(), correlationStats.end());
+                    double min = *std::min_element(correlationStats.begin(), correlationStats.end());
+
+                    std::ios cout_state(nullptr);
+                    cout_state.copyfmt(std::cout); //copy original cout format
+                    std::cout << std::setprecision(2);
+                    std::cout << std::fixed;
+
+                    std::cout<<"Correlation Matrix AP-AP..."<<std::endl;
+                    std::cout<<"   Mean(fabs): "<<mean<<std::endl;                    
+                    std::cout<<"   StdDev(fabs): "<<stdev<<std::endl;
+                    std::cout<<"   Range(fabs): "<<min<<" to "<<max<<std::endl;
+
+                    std::cout<<correlationAP_AP<<std::endl;
+
+                    std::cout.copyfmt(cout_state); // restore original cout format
+
+                }
             }
 
             // Eigen::MatrixXd mlpVariance(MLP.size(),2);

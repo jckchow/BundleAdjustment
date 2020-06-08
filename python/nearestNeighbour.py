@@ -198,23 +198,22 @@ eopFilename    = '/home/jckchow/BundleAdjustment/build/temp.eop'
 
 
 # Maximum number of neighbours to test (+1 of what you actually want)
-minK = 3; maxK = 7
-#minK = 3; maxK = 7
+minK = 3; maxK = 4
 #minK = 1; maxK = 2
 
 # do we want to plot things (True or False)
 doPlot = False
 
 # do we want to apply linear or cubic smoothing to the predictions
-doSmoothing = True
+doSmoothing = False
 smoothingMethod = 'linear' # 'linear' or 'nearest' or 'cubic'
 
 
 # do ensemble bagging
-doAveraging = True
 doBagging = False
+doAveraging = False
 numEstimators = 25
-minNumSamples = 0.1
+minNumSamples = 0.4
 maxNumSamples = 1.1
 
 print ("-----------K-Nearest Neighbour Modelling-----------")
@@ -316,8 +315,12 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     
     # smooth and rasterize the data before doing kNN
     if (doSmoothing):
-        resampleSizeX = 200;
-        resampleSizeY = 200;
+        resampleSizeX = 200; #width
+        resampleSizeY = 200; #height
+#        resampleSizeX = 267; #width
+#        resampleSizeY = 200; #height
+#        resampleSizeX = 533; #width
+#        resampleSizeY = 400; #height
         
         print('  Using Smoothing Method: ' + smoothingMethod)
         print('  Resample residuals to image with dimensions: ' + str(resampleSizeX) + ' x ' + str(resampleSizeY) + ' pixels')
@@ -404,7 +407,7 @@ for iter in range(0,len(sensorsUnique)): # iterate and calibrate each sensor
     #        param_grid = [ {'n_neighbors' : range(3,51,1)} ] # test only up to 50 neighbours
             regCV = GridSearchCV(neighbors.KNeighborsRegressor(weights='uniform'), param_grid, cv=10, verbose = 0)
             regCV.fit(interpolatedTraining, interpolatedResiduals)
-    #        regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals)))
+#            regCV.fit(np.row_stack((features_train, interpolatedTraining)), np.row_stack((labels_train, interpolatedResiduals))) # worse results
             print ("    Best in sample score: ", regCV.best_score_)
             print ("    CV value for K ( between",minK," and", maxK-1,"): ", regCV.best_estimator_.n_neighbors)
             print ("    Training NN-Regressor + CV time:", round(time()-t0, 3), "s")

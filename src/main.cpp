@@ -4962,14 +4962,72 @@ int main(int argc, char** argv) {
                         // std::cout<<correlationAP_Zo<<std::endl<<std::endl;
                     }
 
+                    std::vector<double> correlationStats;
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_AP_max(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_AP_max(n,m)));
+                        }
+
+                    double median, mean, stdev, min, max;
+                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+
                     std::cout<<"Correlation EOP-AP Max(fabs)"<<std::endl;
-                    std::cout<<correlation_EOP_AP_max<<std::endl;
+                    // std::cout<<correlation_EOP_AP_max<<std::endl;
+                    std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_AP_max.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_AP_max.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_AP_max.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_AP_max.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_AP_max.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_AP_max.row(5)<<std::endl;
+
+                    correlationStats.clear();
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_AP_median(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_AP_median(n,m)));
+                        }
+
+                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
                     std::cout<<"Correlation EOP-AP Median(fabs)"<<std::endl;
-                    std::cout<<correlation_EOP_AP_median<<std::endl;
+                    // std::cout<<correlation_EOP_AP_median<<std::endl;
+                    std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_AP_median.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_AP_median.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_AP_median.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_AP_median.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_AP_median.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_AP_median.row(5)<<std::endl;
+
+                    correlationStats.clear();
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_AP_mean(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_AP_mean(n,m)));
+                        }
+
+                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
                     std::cout<<"Correlation EOP-AP Mean(fabs)"<<std::endl;
-                    std::cout<<correlation_EOP_AP_mean<<std::endl;
+                    // std::cout<<correlation_EOP_AP_mean<<std::endl;
+                    std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_AP_mean.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_AP_mean.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_AP_mean.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_AP_mean.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_AP_mean.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_AP_mean.row(5)<<std::endl;
 
                     std::cout.copyfmt(cout_state); // restore original cout format
                 }
@@ -5082,10 +5140,25 @@ int main(int argc, char** argv) {
                     cout_state.copyfmt(std::cout); //copy original cout format
                     std::cout << std::setprecision(2);
                     std::cout << std::fixed;
+
+                    std::vector<double> correlationStats;
+                    for (int n = 0; n < 3; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            if ( !std::isnan(correlationIOP_AP(n,m)) )
+                                    correlationStats.push_back(fabs(correlationIOP_AP(n,m)));
+                        }
+
+                    double median, mean, stdev, min, max;
+                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+
                     std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
                     std::cout<<"xp: "<<correlationIOP_AP.row(0)<<std::endl;
                     std::cout<<"yp: "<<correlationIOP_AP.row(1)<<std::endl;
                     std::cout<<"c : "<<correlationIOP_AP.row(2)<<std::endl;
+
                     std::cout.copyfmt(cout_state); // restore original cout format
                 }
 

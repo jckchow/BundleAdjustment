@@ -564,12 +564,14 @@ int rangeRandomNumber (int min, int max){
     return min + x % n;
 }
 
-// Removes nans and extract only the relevant row corresponding to the AP
+// Removes nans and extract only the relevant row corresponding to the AP, apNum == 1 == a1, apNum == 2 == a2, apNum == 3 == k1
 std::vector<double> extractAPCorrelation(const Eigen::MatrixXd& correlationAP_EOP, const int EOP_size, const int apNum)
 {
     std::vector<double> correlationStats;
+
+    int n = apNum;
     for(int m = 0; m < EOP_size; m++)
-        for(int n = 0; n < apNum; n++)
+        // for(int n = 0; n < apNum; n++)
             if ( !std::isnan(correlationAP_EOP(n,m)) )
                 correlationStats.push_back(fabs(correlationAP_EOP(n,m)));
     
@@ -4638,17 +4640,20 @@ int main(int argc, char** argv) {
                     std::cout << std::setprecision(2);
                     std::cout << std::fixed;
 
-                    // std::cout<<"Correlation Matrix AP-AP..."<<std::endl;
+                    std::cout<<"Correlation Matrix AP-AP..."<<std::endl;
                     // std::cout<<"   Mean(fabs): "<<mean<<std::endl;                    
                     // std::cout<<"   StdDev(fabs): "<<stdev<<std::endl;
                     // std::cout<<"   Range(fabs): "<<min<<" to "<<max<<std::endl;
 
                     double median, mean, stdev, min, max;
-                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max);
-                    std::cout<<"   Median(fabs): "<<median<<std::endl;                    
-                    std::cout<<"   Mean(fabs): "<<mean<<std::endl;                    
-                    std::cout<<"   StdDev(fabs): "<<stdev<<std::endl;
-                    std::cout<<"   Range(fabs): "<<min<<" to "<<max<<std::endl;
+                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive
+                    // std::cout<<"   Median(fabs): "<<median<<std::endl;                    
+                    // std::cout<<"   Mean(fabs): "<<mean<<std::endl;                    
+                    // std::cout<<"   StdDev(fabs): "<<stdev<<std::endl;
+                    // std::cout<<"   Range(fabs): "<<min<<" to "<<max<<std::endl;
+                    // std::cout<<"   Median(fabs): "<<median<<std::endl;                    
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
                     std::cout<<correlationAP_AP<<std::endl;
 
@@ -4816,74 +4821,155 @@ int main(int argc, char** argv) {
                 }
 
                 if (COMPUTECORRELATION)
-                {                  
-                    // std::cout<<"Calculate statistics..."<<std::endl;
-                    double median;
-                    double mean;
-                    double stdev;
-                    double min;
-                    double max;
-
-                    std::vector<double> correlation_K1_omega;
-                    correlation_K1_omega = extractAPCorrelation(correlationAP_omega, EOP.size(), 1); // 1 == A1, 2 == A2
-                    std::cout<<"here"<<std::endl;
-                    // std::cout<<correlation_K1_omega.size()<<std::endl;
-                    // for(int m = 0; m<correlation_K1_omega.size(); m++)
-                    //     std::cout<<correlation_K1_omega[m]<<std::endl;
-                    calcCorrelationStats(correlation_K1_omega, median, mean, stdev, min, max);
-                    std::cout<<"here2"<<std::endl;
-
+                {   
                     std::ios cout_state(nullptr);
                     cout_state.copyfmt(std::cout); //copy original cout format
                     std::cout << std::setprecision(2);
                     std::cout << std::fixed;
-                
-                    std::cout<<"Correlation Matrix IOP-EOP"<<std::endl;
-                    std::cout<<correlationAP_omega<<std::endl;
 
-                    std::cout<<"Correlation Matrix IOP-EOP"<<std::endl;
-                    std::cout<< mean << ", " << stdev <<", "<< min <<", "<< max<< std::endl;
-                    // std::cout<<"Correlation Matrix AP-EOP"<<std::endl;
-                    // std::cout<<"   Omega..."<<std::endl;
-                    // std::cout<<"      K1: "<<Mean(fabs): "<<correlationAP_omega.cwiseAbs().mean()<<std::endl;                    
-                    // std::cout<<"      Range(fabs): "<<correlationAP_omega.cwiseAbs().minCoeff()<<" to "<<correlationAP_omega.cwiseAbs().maxCoeff()<<std::endl;
-                    // std::cout<<"   Phi..."<<std::endl;
-                    // std::cout<<"      Mean(fabs): "<<correlationAP_phi.cwiseAbs().mean()<<std::endl;                    
-                    // std::cout<<"      Range(fabs): "<<correlationAP_phi.cwiseAbs().minCoeff()<<" to "<<correlationAP_phi.cwiseAbs().maxCoeff()<<std::endl;
-                    // std::cout<<"   Kappa..."<<std::endl;
-                    // std::cout<<"      Mean(fabs): "<<correlationAP_kappa.cwiseAbs().mean()<<std::endl;                    
-                    // std::cout<<"      Range(fabs): "<<correlationAP_kappa.cwiseAbs().minCoeff()<<" to "<<correlationAP_kappa.cwiseAbs().maxCoeff()<<std::endl;
-                    // std::cout<<"   Xo..."<<std::endl;
-                    // std::cout<<"   Yo..."<<std::endl;
-                    // std::cout<<"   Zo..."<<std::endl;
+                    Eigen::MatrixXd correlation_EOP_AP_max(6,16);
+                    Eigen::MatrixXd correlation_EOP_AP_median(6,16);
+                    Eigen::MatrixXd correlation_EOP_AP_mean(6,16);
 
-                    // std::cout<<"Correlation Matrix AP-AP..."<<std::endl;
-                    // std::cout<<"   Mean(fabs): "<<mean<<std::endl;                    
-                    // std::cout<<"   StdDev(fabs): "<<stdev<<std::endl;
-                    // std::cout<<"   Range(fabs): "<<min<<" to "<<max<<std::endl;
+                    for (int n = 0; n < 16; n++) // loop through the APs
+                    {
+                        // std::cout<<"Calculate statistics..."<<std::endl;
+                        double median;
+                        double mean;
+                        double stdev;
+                        double min;
+                        double max;
 
-                    // std::cout<<"Correlation Matrix AP-EOP"<<std::endl;
-                    // std::cout<<"   Omega..."<<std::endl;
-                    // std::cout<<"      Mean(fabs): "<<correlationAP_omega.cwiseAbs().mean()<<std::endl;                    
-                    // std::cout<<"      Range(fabs): "<<correlationAP_omega.cwiseAbs().minCoeff()<<" to "<<correlationAP_omega.cwiseAbs().maxCoeff()<<std::endl;
-                    // std::cout<<"   Phi..."<<std::endl;
-                    // std::cout<<"      Mean(fabs): "<<correlationAP_phi.cwiseAbs().mean()<<std::endl;                    
-                    // std::cout<<"      Range(fabs): "<<correlationAP_phi.cwiseAbs().minCoeff()<<" to "<<correlationAP_phi.cwiseAbs().maxCoeff()<<std::endl;
-                    // std::cout<<"   Kappa..."<<std::endl;
-                    // std::cout<<"      Mean(fabs): "<<correlationAP_kappa.cwiseAbs().mean()<<std::endl;                    
-                    // std::cout<<"      Range(fabs): "<<correlationAP_kappa.cwiseAbs().minCoeff()<<" to "<<correlationAP_kappa.cwiseAbs().maxCoeff()<<std::endl;
-                    // std::cout<<"   Xo..."<<std::endl;
-                    // std::cout<<"   Yo..."<<std::endl;
-                    // std::cout<<"   Zo..."<<std::endl;
+                        std::vector<double> correlation_omega_AP, correlation_phi_AP, correlation_kappa_AP, correlation_Xo_AP, correlation_Yo_AP, correlation_Zo_AP;
+                        correlation_omega_AP = extractAPCorrelation(correlationAP_omega, EOP.size(), n); // 0 == a1, 1 == a2, 2 == k1, 3 == k2
+                        correlation_phi_AP   = extractAPCorrelation(correlationAP_phi, EOP.size(), n); 
+                        correlation_kappa_AP = extractAPCorrelation(correlationAP_kappa, EOP.size(), n); 
+                        correlation_Xo_AP = extractAPCorrelation(correlationAP_Xo, EOP.size(), n); 
+                        correlation_Yo_AP = extractAPCorrelation(correlationAP_Yo, EOP.size(), n); 
+                        correlation_Zo_AP = extractAPCorrelation(correlationAP_Zo, EOP.size(), n);
 
-                    // std::cout<<correlationAP_omega.cwiseAbs()<<std::endl;
-                    // std::cout<<correlationAP_omega<<std::endl<<std::endl;
-                    // std::cout<<correlationAP_phi<<std::endl<<std::endl;
-                    // std::cout<<correlationAP_kappa<<std::endl<<std::endl;
-                    // std::cout<<correlationAP_Xo<<std::endl<<std::endl;
-                    // std::cout<<correlationAP_Yo<<std::endl<<std::endl;
-                    // std::cout<<correlationAP_Zo<<std::endl<<std::endl;
+                        calcCorrelationStats(correlation_omega_AP, median, mean, stdev, min, max);
+                        if (correlation_omega_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        correlation_EOP_AP_max(0,n) = max;
+                        correlation_EOP_AP_median(0,n) = median;
+                        correlation_EOP_AP_mean(0,n) = mean;
 
+                        calcCorrelationStats(correlation_phi_AP, median, mean, stdev, min, max);
+                        if (correlation_phi_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        correlation_EOP_AP_max(1,n) = max;
+                        correlation_EOP_AP_median(1,n) = median;
+                        correlation_EOP_AP_mean(1,n) = mean;
+
+                        calcCorrelationStats(correlation_kappa_AP, median, mean, stdev, min, max);
+                        if (correlation_kappa_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        correlation_EOP_AP_max(2,n) = max;
+                        correlation_EOP_AP_median(2,n) = median;
+                        correlation_EOP_AP_mean(2,n) = mean;
+
+                        calcCorrelationStats(correlation_Xo_AP, median, mean, stdev, min, max);
+                        if (correlation_Xo_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        correlation_EOP_AP_max(3,n) = max;
+                        correlation_EOP_AP_median(3,n) = median;
+                        correlation_EOP_AP_mean(3,n) = mean;
+
+                        calcCorrelationStats(correlation_Yo_AP, median, mean, stdev, min, max);
+                        if (correlation_Yo_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        
+                        correlation_EOP_AP_max(4,n) = max;
+                        correlation_EOP_AP_median(4,n) = median;
+                        correlation_EOP_AP_mean(4,n) = mean;
+
+                        calcCorrelationStats(correlation_Zo_AP, median, mean, stdev, min, max);
+                        if (correlation_Zo_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        correlation_EOP_AP_max(5,n) = max;
+                        correlation_EOP_AP_median(5,n) = median;
+                        correlation_EOP_AP_mean(5,n) = mean;
+
+                        // std::vector<double> correlation_K1_omega, correlation_K1_phi, correlation_K1_kappa, correlation_K1_Xo, correlation_K1_Yo, correlation_K1_Zo;
+                        // correlation_K1_omega = extractAPCorrelation(correlationAP_omega, EOP.size(), 3); // 1 == a1, 2 == a2, 3 == k1, 4 == k2
+                        // correlation_K1_phi   = extractAPCorrelation(correlationAP_phi, EOP.size(), 3); // 1 == a1, 2 == a2, 3 == k1, 4 == k2
+                        // correlation_K1_kappa = extractAPCorrelation(correlationAP_kappa, EOP.size(), 3); // 1 == a1, 2 == a2, 3 == k1, 4 == k2
+                        // correlation_K1_Xo = extractAPCorrelation(correlationAP_Xo, EOP.size(), 3); // 1 == a1, 2 == a2, 3 == k1, 4 == k2
+                        // correlation_K1_Yo = extractAPCorrelation(correlationAP_Yo, EOP.size(), 3); // 1 == a1, 2 == a2, 3 == k1, 4 == k2
+                        // correlation_K1_Zo = extractAPCorrelation(correlationAP_Zo, EOP.size(), 3); // 1 == a1, 2 == a2, 3 == k1, 4 == k2
+
+                        // std::vector<double> correlation_K1_rotation;
+                        // correlation_K1_rotation.insert( correlation_K1_rotation.end(), correlation_K1_omega.begin(), correlation_K1_omega.end());
+                        // correlation_K1_rotation.insert( correlation_K1_rotation.end(), correlation_K1_phi.begin(), correlation_K1_phi.end() );
+                        // correlation_K1_rotation.insert( correlation_K1_rotation.end(), correlation_K1_kappa.begin(), correlation_K1_kappa.end() );
+
+                        // std::cout<<"here"<<std::endl;
+                        // std::cout<<correlation_K1_omega.size()<<std::endl;
+                        // for(int m = 0; m<correlation_K1_omega.size(); m++)
+                        //     std::cout<<correlation_K1_omega[m]<<std::endl;
+                        // calcCorrelationStats(correlation_K1_rotation, median, mean, stdev, min, max);
+                        // std::cout<<"Correlation K1-rotation"<<std::endl;
+                        // std::cout<<"   Mean(fabs): "<<mean<<" +/= "<<stdev<<std::endl;                    
+                        // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+                        // calcCorrelationStats(correlation_K1_rotation, median, mean, stdev, min, max);
+
+                    
+                        // std::cout<<"Correlation Matrix IOP-EOP"<<std::endl;
+                        // std::cout<<correlationAP_omega<<std::endl;
+
+                        // std::cout<<"Correlation Matrix IOP-EOP"<<std::endl;
+                        // std::cout<< mean << ", " << stdev <<", "<< min <<", "<< max<< std::endl;
+                        // std::cout<<"Correlation Matrix AP-EOP"<<std::endl;
+                        // std::cout<<"   Omega..."<<std::endl;
+                        // std::cout<<"      K1: "<<Mean(fabs): "<<correlationAP_omega.cwiseAbs().mean()<<std::endl;                    
+                        // std::cout<<"      Range(fabs): "<<correlationAP_omega.cwiseAbs().minCoeff()<<" to "<<correlationAP_omega.cwiseAbs().maxCoeff()<<std::endl;
+                        // std::cout<<"   Phi..."<<std::endl;
+                        // std::cout<<"      Mean(fabs): "<<correlationAP_phi.cwiseAbs().mean()<<std::endl;                    
+                        // std::cout<<"      Range(fabs): "<<correlationAP_phi.cwiseAbs().minCoeff()<<" to "<<correlationAP_phi.cwiseAbs().maxCoeff()<<std::endl;
+                        // std::cout<<"   Kappa..."<<std::endl;
+                        // std::cout<<"      Mean(fabs): "<<correlationAP_kappa.cwiseAbs().mean()<<std::endl;                    
+                        // std::cout<<"      Range(fabs): "<<correlationAP_kappa.cwiseAbs().minCoeff()<<" to "<<correlationAP_kappa.cwiseAbs().maxCoeff()<<std::endl;
+                        // std::cout<<"   Xo..."<<std::endl;
+                        // std::cout<<"   Yo..."<<std::endl;
+                        // std::cout<<"   Zo..."<<std::endl;
+
+                        // std::cout<<"Correlation Matrix AP-AP..."<<std::endl;
+                        // std::cout<<"   Mean(fabs): "<<mean<<std::endl;                    
+                        // std::cout<<"   StdDev(fabs): "<<stdev<<std::endl;
+                        // std::cout<<"   Range(fabs): "<<min<<" to "<<max<<std::endl;
+
+                        // std::cout<<"Correlation Matrix AP-EOP"<<std::endl;
+                        // std::cout<<"   Omega..."<<std::endl;
+                        // std::cout<<"      Mean(fabs): "<<correlationAP_omega.cwiseAbs().mean()<<std::endl;                    
+                        // std::cout<<"      Range(fabs): "<<correlationAP_omega.cwiseAbs().minCoeff()<<" to "<<correlationAP_omega.cwiseAbs().maxCoeff()<<std::endl;
+                        // std::cout<<"   Phi..."<<std::endl;
+                        // std::cout<<"      Mean(fabs): "<<correlationAP_phi.cwiseAbs().mean()<<std::endl;                    
+                        // std::cout<<"      Range(fabs): "<<correlationAP_phi.cwiseAbs().minCoeff()<<" to "<<correlationAP_phi.cwiseAbs().maxCoeff()<<std::endl;
+                        // std::cout<<"   Kappa..."<<std::endl;
+                        // std::cout<<"      Mean(fabs): "<<correlationAP_kappa.cwiseAbs().mean()<<std::endl;                    
+                        // std::cout<<"      Range(fabs): "<<correlationAP_kappa.cwiseAbs().minCoeff()<<" to "<<correlationAP_kappa.cwiseAbs().maxCoeff()<<std::endl;
+                        // std::cout<<"   Xo..."<<std::endl;
+                        // std::cout<<"   Yo..."<<std::endl;
+                        // std::cout<<"   Zo..."<<std::endl;
+
+                        // std::cout<<correlationAP_omega.cwiseAbs()<<std::endl;
+                        // std::cout<<correlationAP_omega<<std::endl<<std::endl;
+                        // std::cout<<correlationAP_phi<<std::endl<<std::endl;
+                        // std::cout<<correlationAP_kappa<<std::endl<<std::endl;
+                        // std::cout<<correlationAP_Xo<<std::endl<<std::endl;
+                        // std::cout<<correlationAP_Yo<<std::endl<<std::endl;
+                        // std::cout<<correlationAP_Zo<<std::endl<<std::endl;
+                    }
+
+                    std::cout<<"Correlation EOP-AP Max(fabs)"<<std::endl;
+                    std::cout<<correlation_EOP_AP_max<<std::endl;
+
+                    std::cout<<"Correlation EOP-AP Median(fabs)"<<std::endl;
+                    std::cout<<correlation_EOP_AP_median<<std::endl;
+
+                    std::cout<<"Correlation EOP-AP Mean(fabs)"<<std::endl;
+                    std::cout<<correlation_EOP_AP_mean<<std::endl;
 
                     std::cout.copyfmt(cout_state); // restore original cout format
                 }

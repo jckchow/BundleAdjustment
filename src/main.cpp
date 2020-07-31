@@ -3712,12 +3712,12 @@ int main(int argc, char** argv) {
                 fixAP.push_back(0); //a1
                 fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
-                // fixAP.push_back(3); //k2
-                // fixAP.push_back(4); //k3
-                // fixAP.push_back(5); //p1
-                // fixAP.push_back(6); //p2
+                fixAP.push_back(3); //k2
+                fixAP.push_back(4); //k3
+                fixAP.push_back(5); //p1
+                fixAP.push_back(6); //p2
 
-                // fixAP.push_back(7); //ep1: k4
+                fixAP.push_back(7); //ep1: k4
                 fixAP.push_back(8); //ep2: k5
                 fixAP.push_back(9); //ep3
                 fixAP.push_back(10); //ep4
@@ -4962,6 +4962,7 @@ int main(int argc, char** argv) {
                         // std::cout<<correlationAP_Zo<<std::endl<<std::endl;
                     }
 
+                    std::cout<<"Correlation EOP-AP Max(fabs)"<<std::endl;
                     std::vector<double> correlationStats;
                     for (int n = 0; n < 6; n++)
                         for (int m = 0; m < 16; m++)
@@ -4975,7 +4976,6 @@ int main(int argc, char** argv) {
                     std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
-                    std::cout<<"Correlation EOP-AP Max(fabs)"<<std::endl;
                     // std::cout<<correlation_EOP_AP_max<<std::endl;
                     std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
                     std::cout<<"omega: "<<correlation_EOP_AP_max.row(0)<<std::endl;
@@ -4985,6 +4985,7 @@ int main(int argc, char** argv) {
                     std::cout<<"Yo   : "<<correlation_EOP_AP_max.row(4)<<std::endl;
                     std::cout<<"Zo   : "<<correlation_EOP_AP_max.row(5)<<std::endl;
 
+                    std::cout<<"Correlation EOP-AP Median(fabs)"<<std::endl;
                     correlationStats.clear();
                     for (int n = 0; n < 6; n++)
                         for (int m = 0; m < 16; m++)
@@ -4997,7 +4998,6 @@ int main(int argc, char** argv) {
                     std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
-                    std::cout<<"Correlation EOP-AP Median(fabs)"<<std::endl;
                     // std::cout<<correlation_EOP_AP_median<<std::endl;
                     std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
                     std::cout<<"omega: "<<correlation_EOP_AP_median.row(0)<<std::endl;
@@ -5007,6 +5007,7 @@ int main(int argc, char** argv) {
                     std::cout<<"Yo   : "<<correlation_EOP_AP_median.row(4)<<std::endl;
                     std::cout<<"Zo   : "<<correlation_EOP_AP_median.row(5)<<std::endl;
 
+                    std::cout<<"Correlation EOP-AP Mean(fabs)"<<std::endl;
                     correlationStats.clear();
                     for (int n = 0; n < 6; n++)
                         for (int m = 0; m < 16; m++)
@@ -5019,7 +5020,6 @@ int main(int argc, char** argv) {
                     std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
-                    std::cout<<"Correlation EOP-AP Mean(fabs)"<<std::endl;
                     // std::cout<<correlation_EOP_AP_mean<<std::endl;
                     std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
                     std::cout<<"omega: "<<correlation_EOP_AP_mean.row(0)<<std::endl;

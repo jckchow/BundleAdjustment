@@ -3480,7 +3480,7 @@ int main(int argc, char** argv) {
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -3719,8 +3719,8 @@ int main(int argc, char** argv) {
 
                 fixAP.push_back(7); //ep1: k4
                 fixAP.push_back(8); //ep2: k5
-                fixAP.push_back(9); //ep3
-                fixAP.push_back(10); //ep4
+                fixAP.push_back(9); //ep3: k6
+                fixAP.push_back(10); //ep4: k7
                 fixAP.push_back(11); //ep5
                 fixAP.push_back(12); //ep6
                 fixAP.push_back(13); //ep7
@@ -4272,6 +4272,17 @@ int main(int argc, char** argv) {
         correlationAP_Y.setConstant(1E6);
         correlationAP_Z.setConstant(1E6);
 
+        correlationIOP_AP.setConstant(1E6);
+        correlationIOP_omega.setConstant(1E6);
+        correlationIOP_phi.setConstant(1E6);
+        correlationIOP_kappa.setConstant(1E6);
+        correlationIOP_Xo.setConstant(1E6);
+        correlationIOP_Yo.setConstant(1E6);
+        correlationIOP_Zo.setConstant(1E6);
+        correlationIOP_X.setConstant(1E6);
+        correlationIOP_Y.setConstant(1E6);
+        correlationIOP_Z.setConstant(1E6);
+
         xyzVariance.setConstant(1E6);
         eopVariance.setConstant(1E6);
         iopVariance.setConstant(1E6);
@@ -4293,8 +4304,8 @@ int main(int argc, char** argv) {
             ////////////////////////////////////////////////////////////////////////////////////////////////
             /// The 2 follow lines define a pseudo inner constraints EOP and object space coordinates, but very slow
             ////////////////////////////////////////////////////////////////////////////////////////////////
-            // covarianceOptions.algorithm_type = ceres::DENSE_SVD;
-            // covarianceOptions.null_space_rank = -1;
+            covarianceOptions.algorithm_type = ceres::DENSE_SVD;
+            covarianceOptions.null_space_rank = -1;
             ///////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////
@@ -4750,7 +4761,7 @@ int main(int argc, char** argv) {
 
                         if(COMPUTECORRELATION)
                         {   
-                            for (int n = 0; n < 3; n++)
+                            for (int n = 0; n < 3; n++) // xp, yp, c
                             {
                                 correlationIOP_omega(n,i) = covariance_X(n,0) / ( sqrt(eopVariance(i,0))*sqrt(iopVariance(j,n)) );
                                 correlationIOP_phi(n,i)   = covariance_X(n,1) / ( sqrt(eopVariance(i,1))*sqrt(iopVariance(j,n)) );
@@ -4833,7 +4844,7 @@ int main(int argc, char** argv) {
                     Eigen::MatrixXd correlation_EOP_IOP_median(6,3);
                     Eigen::MatrixXd correlation_EOP_IOP_mean(6,3);
 
-                    for (int n = 0; n < 3; n++) // loop through the IOPs
+                    for (int n = 0; n < 3; n++) // loop through the IOPs, xp yp c
                     {
                         // std::cout<<"Calculate statistics..."<<std::endl;
                         double median;
@@ -4843,7 +4854,7 @@ int main(int argc, char** argv) {
                         double max;
 
                         std::vector<double> correlation_omega_IOP, correlation_phi_IOP, correlation_kappa_IOP, correlation_Xo_IOP, correlation_Yo_IOP, correlation_Zo_IOP;
-                        correlation_omega_IOP = extractAPCorrelation(correlationIOP_omega, EOP.size(), n); // 0 == a1, 1 == a2, 2 == k1, 3 == k2
+                        correlation_omega_IOP = extractAPCorrelation(correlationIOP_omega, EOP.size(), n); // 0 == xp, 1 == yp, 2 == c
                         correlation_phi_IOP   = extractAPCorrelation(correlationIOP_phi, EOP.size(), n); 
                         correlation_kappa_IOP = extractAPCorrelation(correlationIOP_kappa, EOP.size(), n); 
                         correlation_Xo_IOP = extractAPCorrelation(correlationIOP_Xo, EOP.size(), n); 
@@ -5126,18 +5137,9 @@ int main(int argc, char** argv) {
                         {   
                             for (int n = 0; n < 3; n++)
                             {
-                                // std::cout<<i<<", "<<j<<", "<<n<<std::endl;
                                 correlationIOP_X(n,i) = covariance_X(n,0) / ( sqrt(xyzVariance(i,0))*sqrt(iopVariance(j,n)) );
                                 correlationIOP_Y(n,i) = covariance_X(n,1) / ( sqrt(xyzVariance(i,1))*sqrt(iopVariance(j,n)) );
                                 correlationIOP_Z(n,i) = covariance_X(n,2) / ( sqrt(xyzVariance(i,2))*sqrt(iopVariance(j,n)) );
-
-                                // std::cout<<covariance_X(n,0)<<", "<< sqrt(eopVariance(i,0))<<", "<< sqrt(apVariance(j,n))<<std::endl;
-                                
-                                // correlationAP_phi.col(i)   = covariance_X.col(1);
-                                // correlationAP_kappa.col(i) = covariance_X.col(2);
-                                // correlationAP_Xo.col(i)    = covariance_X.col(3);
-                                // correlationAP_Yo.col(i)    = covariance_X.col(4);
-                                // correlationAP_Zo.col(i)    = covariance_X.col(5);
                             }
                         }
                     }
@@ -5148,6 +5150,16 @@ int main(int argc, char** argv) {
                         covariance.GetCovarianceBlock(&XYZ[i][0], &AP[j][0], covariance_X.data());
 
                         Cx.block<3,16>(i*3 + 6*EOP.size(),j*16 + 6*EOP.size()+3*XYZ.size()+3*IOP.size()) = covariance_X.transpose();
+
+                        if(COMPUTECORRELATION)
+                        {   
+                            for (int n = 0; n < 16; n++)
+                            {
+                                correlationAP_X(n,i) = covariance_X(n,0) / ( sqrt(xyzVariance(i,0))*sqrt(apVariance(j,n)) );
+                                correlationAP_Y(n,i) = covariance_X(n,1) / ( sqrt(xyzVariance(i,1))*sqrt(apVariance(j,n)) );
+                                correlationAP_Z(n,i) = covariance_X(n,2) / ( sqrt(xyzVariance(i,2))*sqrt(apVariance(j,n)) );
+                            }
+                        }
                     }
 
                     // for(int j = 0; j < MLP.size(); j++)
@@ -5191,9 +5203,9 @@ int main(int argc, char** argv) {
                         double max;
 
                         std::vector<double> correlation_X_IOP, correlation_Y_IOP, correlation_Z_IOP;
-                        correlation_X_IOP = extractAPCorrelation(correlationIOP_X, EOP.size(), n); 
-                        correlation_Y_IOP = extractAPCorrelation(correlationIOP_Y, EOP.size(), n); 
-                        correlation_Z_IOP = extractAPCorrelation(correlationIOP_Z, EOP.size(), n); 
+                        correlation_X_IOP = extractAPCorrelation(correlationIOP_X, XYZ.size(), n); 
+                        correlation_Y_IOP = extractAPCorrelation(correlationIOP_Y, XYZ.size(), n); 
+                        correlation_Z_IOP = extractAPCorrelation(correlationIOP_Z, XYZ.size(), n); 
 
                         calcCorrelationStats(correlation_X_IOP, median, mean, stdev, min, max);
                         if (correlation_X_IOP.size() == 0)
@@ -5237,15 +5249,75 @@ int main(int argc, char** argv) {
                     std::cout<<"Y: "<<correlation_XYZ_IOP_max.row(1)<<std::endl;
                     std::cout<<"Z: "<<correlation_XYZ_IOP_max.row(2)<<std::endl;
 
-                    // std::cout<<"Correlation XYZ-IOP Median(fabs)"<<std::endl;
-                    // correlationStats.clear();
-                    // for (int n = 0; n < 3; n++)
-                    //     for (int m = 0; m < 3; m++)
-                    //     {
-                    //         if ( !std::isnan(correlation_XYZ_IOP_median(n,m)) )
-                    //                 correlationStats.push_back(fabs(correlation_XYZ_IOP_median(n,m)));
-                    //     }
+                    std::cout.copyfmt(cout_state); // restore original cout format
+                }
 
+                if (COMPUTECORRELATION) // compute correlation between XYZ and AP
+                {   
+                    std::ios cout_state(nullptr);
+                    cout_state.copyfmt(std::cout); //copy original cout format
+                    std::cout << std::setprecision(2);
+                    std::cout << std::fixed;
+
+                    Eigen::MatrixXd correlation_XYZ_AP_max(3,16);
+                    Eigen::MatrixXd correlation_XYZ_AP_median(3,16);
+                    Eigen::MatrixXd correlation_XYZ_AP_mean(3,16);
+
+                    for (int n = 0; n < 16; n++) // loop through the APs
+                    {
+                        // std::cout<<"Calculate statistics..."<<std::endl;
+                        double median;
+                        double mean;
+                        double stdev;
+                        double min;
+                        double max;
+
+                        std::vector<double> correlation_X_AP, correlation_Y_AP, correlation_Z_AP;
+                        correlation_X_AP = extractAPCorrelation(correlationAP_X, XYZ.size(), n); 
+                        correlation_Y_AP = extractAPCorrelation(correlationAP_Y, XYZ.size(), n); 
+                        correlation_Z_AP = extractAPCorrelation(correlationAP_Z, XYZ.size(), n); 
+
+                        calcCorrelationStats(correlation_X_AP, median, mean, stdev, min, max);
+                        if (correlation_X_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        correlation_XYZ_AP_max(0,n) = max;
+                        correlation_XYZ_AP_median(0,n) = median;
+                        correlation_XYZ_AP_mean(0,n) = mean;
+
+                        calcCorrelationStats(correlation_Y_AP, median, mean, stdev, min, max);
+                        if (correlation_Y_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        correlation_XYZ_AP_max(1,n) = max;
+                        correlation_XYZ_AP_median(1,n) = median;
+                        correlation_XYZ_AP_mean(1,n) = mean;
+                                              
+                        calcCorrelationStats(correlation_Z_AP, median, mean, stdev, min, max);
+                        if (correlation_Z_AP.size() == 0)
+                        { max = NAN; median = NAN; mean = NAN; }
+                        correlation_XYZ_AP_max(2,n) = max;
+                        correlation_XYZ_AP_median(2,n) = median;
+                        correlation_XYZ_AP_mean(2,n) = mean;
+
+                    }
+
+                    std::cout<<"Correlation XYZ-AP Max(fabs)"<<std::endl;
+                    std::vector<double> correlationStats;
+                    for (int n = 0; n < 3; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            if ( !std::isnan(correlation_XYZ_AP_max(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_XYZ_AP_max(n,m)));
+                        }
+
+                    double median, mean, stdev, min, max;
+                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+
+                    std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
+                    std::cout<<"X: "<<correlation_XYZ_AP_max.row(0)<<std::endl;
+                    std::cout<<"Y: "<<correlation_XYZ_AP_max.row(1)<<std::endl;
+                    std::cout<<"Z: "<<correlation_XYZ_AP_max.row(2)<<std::endl;
 
                     std::cout.copyfmt(cout_state); // restore original cout format
                 }

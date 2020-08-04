@@ -1524,8 +1524,8 @@ struct fisheyeStereographic {
   T Zs = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
 
   // ISPRS "Validation of geometric models for fisheye lenses" journal paper
-  T x = T(2.0)*IOP[2]*Xs*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys) );
-  T y = T(2.0)*IOP[2]*Ys*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys) );
+  T x = T(2.0)*IOP[2]*Xs*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
+  T y = T(2.0)*IOP[2]*Ys*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
 //   T x = IOP[2]*Xs*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys) );
 //   T y = IOP[2]*Ys*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys) );
 
@@ -3113,7 +3113,7 @@ int main(int argc, char** argv) {
         // loss = new ceres::CauchyLoss(0.5);
 
         // Conventional collinearity condition, no machine learning
-        if (true)
+        if (false)
         {
             std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -3148,7 +3148,7 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); // spatial resection only
 
 
@@ -3160,7 +3160,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographic collinearity condition, no machine learning
-        if (false)
+        if (true)
         {
             std::cout<<"   RUNNING STEREOGRAPHIC PROJECTION COLLINEARITY EQUATIONS..."<<std::endl;
 
@@ -3196,18 +3196,51 @@ int main(int argc, char** argv) {
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
                 // // std::cout<<"      Stereographic Projection..."<<std::endl; 
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
-                        new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
-                // std::cout<<"      Fisheye Equidistant..."<<std::endl;
-
                 // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
-                //         new fisheyeStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                //     new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
+                //         new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
-                // // std::cout<<"      Fisheye Stereographic..."<<std::endl;
+                // // std::cout<<"      Fisheye Equidistant..."<<std::endl;
 
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
+                        new fisheyeStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                // std::cout<<"      Fisheye Stereographic..."<<std::endl;
+
+                // rotation from map to sensor
+                double r11 = cos(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+                double r12 = cos(EOP[indexPose][0]) * sin(EOP[indexPose][2]) + sin(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+                double r13 = sin(EOP[indexPose][0]) * sin(EOP[indexPose][2]) - cos(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+
+                double r21 = -cos(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+                double r22 = cos(EOP[indexPose][0]) * cos(EOP[indexPose][2]) - sin(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+                double r23 = sin(EOP[indexPose][0]) * cos(EOP[indexPose][2]) + cos(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+
+                double r31 = sin(EOP[indexPose][1]);
+                double r32 = -sin(EOP[indexPose][0]) * cos(EOP[indexPose][1]);
+                double r33 = cos(EOP[indexPose][0]) * cos(EOP[indexPose][1]);
+
+                // rigid body transformation
+                // Object space coordinates oordinates in sensor frame
+                double Xs = r11 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r12 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r13 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+                double Ys = r21 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r22 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r23 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+                double Zs = r31 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r32 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r33 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+
+                double x_stereographic = (2.0)*IOP[indexPose][2]*Xs*tan( (0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
+                double y_stereographic = (2.0)*IOP[indexPose][2]*Ys*tan( (0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
+
+                double x_equidistant = IOP[indexPose][2]*Xs*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys);
+                double y_equidistant = IOP[indexPose][2]*Ys*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys);
+
+                double x_orthographic = IOP[indexPose][2]*Xs*sin(atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
+                double y_orthographic = IOP[indexPose][2]*Ys*sin(atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
+
+                std::cout<<"stereograph: "<<x_stereographic<<", "<<y_stereographic<<std::endl;
+                std::cout<<"equidistant: "<<x_equidistant<<", "<<y_equidistant<<std::endl;
+                std::cout<<"Differences: "<<x_stereographic-x_equidistant<<", "<<y_stereographic-y_equidistant<<std::endl;
+                std::cout<<"orthographi: "<<x_orthographic<<", "<<y_orthographic<<std::endl;
+                sleep(2);
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
@@ -3712,12 +3745,12 @@ int main(int argc, char** argv) {
                 fixAP.push_back(0); //a1
                 fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
-                fixAP.push_back(3); //k2
-                fixAP.push_back(4); //k3
-                fixAP.push_back(5); //p1
-                fixAP.push_back(6); //p2
+                // fixAP.push_back(3); //k2
+                // fixAP.push_back(4); //k3
+                // fixAP.push_back(5); //p1
+                // fixAP.push_back(6); //p2
 
-                fixAP.push_back(7); //ep1: k4
+                // fixAP.push_back(7); //ep1: k4
                 fixAP.push_back(8); //ep2: k5
                 fixAP.push_back(9); //ep3: k6
                 fixAP.push_back(10); //ep4: k7

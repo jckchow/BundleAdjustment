@@ -451,7 +451,7 @@
 // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikonTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// // // // // Nikon Training Data
+// // // // Nikon Training Data
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTraining.pho"
 // #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTrainingTemp.pho"
 // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/nikon_updated.iop"
@@ -464,13 +464,13 @@
 // #define INPUTROPFILENAME ""
 
 // // Nikon Testing Data
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
-// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
-// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
-// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
-// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
+#define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
+#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
+#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
+#define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 // //for all goPro
 // // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened_manual (copy).pho"
@@ -485,19 +485,19 @@
 // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// // Training goPro Data
-#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining_manualOutlierRemoval.pho"
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
-// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
-#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
-#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
-// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
-#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_manual.xyz"
-// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/goproTruth.xyz" // only use for QC
-#define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// // // Training goPro Data
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining_manualOutlierRemoval.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.pho"
+// // #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTemp.pho"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.iop"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro.iop"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_stereographic.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTraining.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/gopro.xyz"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_manual.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/Backup/goproTruth.xyz" // only use for QC
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/goproTruth.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // // // Testing goPro Data
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho"
@@ -1861,6 +1861,354 @@ struct collinearityStereographicMachineLearnedSimple {
   const double yMLP_;
 };
 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Fish-eye lens camera with Equidistant Projection and Machine Learned Parameters as constants
+/// Input:    x       - x observation
+///           y       - y observation
+///           xStdDev - noise
+///           yStdDev - noise
+/// Unknowns: x      - some unknown parameter in the adjustment
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct fisheyeEquidistantMachineLearnedSimple {
+  
+  fisheyeEquidistantMachineLearnedSimple(double x, double y, double xStdDev, double yStdDev, double xp, double yp, double xMLP, double yMLP)
+        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp), xMLP_(xMLP), yMLP_(yMLP)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, T* residual) const {
+
+  // rotation from map to sensor
+  T r11 = cos(EOP[1]) * cos(EOP[2]);
+  T r12 = cos(EOP[0]) * sin(EOP[2]) + sin(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+  T r13 = sin(EOP[0]) * sin(EOP[2]) - cos(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+
+  T r21 = -cos(EOP[1]) * sin(EOP[2]);
+  T r22 = cos(EOP[0]) * cos(EOP[2]) - sin(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+  T r23 = sin(EOP[0]) * cos(EOP[2]) + cos(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+
+  T r31 = sin(EOP[1]);
+  T r32 = -sin(EOP[0]) * cos(EOP[1]);
+  T r33 = cos(EOP[0]) * cos(EOP[1]);
+
+  // rigid body transformation
+  // Object space coordinates oordinates in sensor frame
+  T Xs = r11 * ( XYZ[0] - EOP[3] ) + r12 * ( XYZ[1] - EOP[4] ) + r13 * ( XYZ[2] - EOP[5] );
+  T Ys = r21 * ( XYZ[0] - EOP[3] ) + r22 * ( XYZ[1] - EOP[4] ) + r23 * ( XYZ[2] - EOP[5] );
+  T Zs = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
+
+  // ISPRS "Validation of geometric models for fisheye lenses" journal paper
+  T x = IOP[2]*Xs*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys);
+  T y = IOP[2]*Ys*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys);
+
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
+
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
+
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+
+  T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
+  T y_true = y + IOP[1] + delta_y - T(yMLP_);
+
+  // actual cost function
+  residual[0] = x_true - T(x_); // x-residual
+  residual[1] = y_true - T(y_); // y-residual    
+
+  residual[0] /= T(xStdDev_);
+  residual[1] /= T(yStdDev_);
+
+  return true;
+  }
+
+ private:
+  const double x_;
+  const double y_;
+  const double xStdDev_;
+  const double yStdDev_;
+  const double xp_;
+  const double yp_;
+  const double xMLP_;
+  const double yMLP_;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Fish-eye lens camera with Equisolid-angle Projection
+/// Input:    x       - x observation
+///           y       - y observation
+///           xStdDev - noise
+///           yStdDev - noise
+/// Unknowns: x      - some unknown parameter in the adjustment
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct fisheyeEquisolidAngleMachineLearnedSimple {
+  
+  fisheyeEquisolidAngleMachineLearnedSimple(double x, double y, double xStdDev, double yStdDev, double xp, double yp, double xMLP, double yMLP)
+        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp), xMLP_(xMLP), yMLP_(yMLP)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, T* residual) const {
+
+  // rotation from map to sensor
+  T r11 = cos(EOP[1]) * cos(EOP[2]);
+  T r12 = cos(EOP[0]) * sin(EOP[2]) + sin(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+  T r13 = sin(EOP[0]) * sin(EOP[2]) - cos(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+
+  T r21 = -cos(EOP[1]) * sin(EOP[2]);
+  T r22 = cos(EOP[0]) * cos(EOP[2]) - sin(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+  T r23 = sin(EOP[0]) * cos(EOP[2]) + cos(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+
+  T r31 = sin(EOP[1]);
+  T r32 = -sin(EOP[0]) * cos(EOP[1]);
+  T r33 = cos(EOP[0]) * cos(EOP[1]);
+
+  // rigid body transformation
+  // Object space coordinates oordinates in sensor frame
+  T Xs = r11 * ( XYZ[0] - EOP[3] ) + r12 * ( XYZ[1] - EOP[4] ) + r13 * ( XYZ[2] - EOP[5] );
+  T Ys = r21 * ( XYZ[0] - EOP[3] ) + r22 * ( XYZ[1] - EOP[4] ) + r23 * ( XYZ[2] - EOP[5] );
+  T Zs = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
+
+  // ISPRS "Validation of geometric models for fisheye lenses" journal paper
+  T x = T(2.0)*IOP[2]*Xs*sin(T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
+  T y = T(2.0)*IOP[2]*Ys*sin(T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
+
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
+
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
+
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+
+  T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
+  T y_true = y + IOP[1] + delta_y - T(yMLP_);
+
+  // actual cost function
+  residual[0] = x_true - T(x_); // x-residual
+  residual[1] = y_true - T(y_); // y-residual    
+
+  residual[0] /= T(xStdDev_);
+  residual[1] /= T(yStdDev_);
+
+  return true;
+  }
+
+ private:
+  const double x_;
+  const double y_;
+  const double xStdDev_;
+  const double yStdDev_;
+  const double xp_;
+  const double yp_;
+  const double xMLP_;
+  const double yMLP_;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Fish-eye lens camera with Orthographic Projection
+/// Input:    x       - x observation
+///           y       - y observation
+///           xStdDev - noise
+///           yStdDev - noise
+/// Unknowns: x      - some unknown parameter in the adjustment
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct fisheyeOrthographicMachineLearnedSimple {
+  
+  fisheyeOrthographicMachineLearnedSimple(double x, double y, double xStdDev, double yStdDev, double xp, double yp, double xMLP, double yMLP)
+        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp), xMLP_(xMLP), yMLP_(yMLP)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, T* residual) const {
+
+  // rotation from map to sensor
+  T r11 = cos(EOP[1]) * cos(EOP[2]);
+  T r12 = cos(EOP[0]) * sin(EOP[2]) + sin(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+  T r13 = sin(EOP[0]) * sin(EOP[2]) - cos(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+
+  T r21 = -cos(EOP[1]) * sin(EOP[2]);
+  T r22 = cos(EOP[0]) * cos(EOP[2]) - sin(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+  T r23 = sin(EOP[0]) * cos(EOP[2]) + cos(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+
+  T r31 = sin(EOP[1]);
+  T r32 = -sin(EOP[0]) * cos(EOP[1]);
+  T r33 = cos(EOP[0]) * cos(EOP[1]);
+
+  // rigid body transformation
+  // Object space coordinates oordinates in sensor frame
+  T Xs = r11 * ( XYZ[0] - EOP[3] ) + r12 * ( XYZ[1] - EOP[4] ) + r13 * ( XYZ[2] - EOP[5] );
+  T Ys = r21 * ( XYZ[0] - EOP[3] ) + r22 * ( XYZ[1] - EOP[4] ) + r23 * ( XYZ[2] - EOP[5] );
+  T Zs = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
+
+  // ISPRS "Validation of geometric models for fisheye lenses" journal paper
+  T x = IOP[2]*Xs*sin(atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
+  T y = IOP[2]*Ys*sin(atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
+
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
+
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
+
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+
+  T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
+  T y_true = y + IOP[1] + delta_y - T(yMLP_);
+
+  // actual cost function
+  residual[0] = x_true - T(x_); // x-residual
+  residual[1] = y_true - T(y_); // y-residual    
+
+  residual[0] /= T(xStdDev_);
+  residual[1] /= T(yStdDev_);
+
+  return true;
+  }
+
+ private:
+  const double x_;
+  const double y_;
+  const double xStdDev_;
+  const double yStdDev_;
+  const double xp_;
+  const double yp_;
+  const double xMLP_;
+  const double yMLP_;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Fish-eye lens camera with Stereographic Projection
+/// Input:    x       - x observation
+///           y       - y observation
+///           xStdDev - noise
+///           yStdDev - noise
+/// Unknowns: x      - some unknown parameter in the adjustment
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct fisheyeStereographicMachineLearnedSimple {
+  
+  fisheyeStereographicMachineLearnedSimple(double x, double y, double xStdDev, double yStdDev, double xp, double yp, double xMLP, double yMLP)
+        : x_(x), y_(y), xStdDev_(xStdDev), yStdDev_(yStdDev), xp_(xp), yp_(yp), xMLP_(xMLP), yMLP_(yMLP)  {}
+
+  template <typename T>
+  // unknown parameters followed by the output residual
+  bool operator()(const T* const EOP, const T* const XYZ, const T* const IOP, const T* const AP, T* residual) const {
+
+  // rotation from map to sensor
+  T r11 = cos(EOP[1]) * cos(EOP[2]);
+  T r12 = cos(EOP[0]) * sin(EOP[2]) + sin(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+  T r13 = sin(EOP[0]) * sin(EOP[2]) - cos(EOP[0]) * sin(EOP[1]) * cos(EOP[2]);
+
+  T r21 = -cos(EOP[1]) * sin(EOP[2]);
+  T r22 = cos(EOP[0]) * cos(EOP[2]) - sin(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+  T r23 = sin(EOP[0]) * cos(EOP[2]) + cos(EOP[0]) * sin(EOP[1]) * sin(EOP[2]);
+
+  T r31 = sin(EOP[1]);
+  T r32 = -sin(EOP[0]) * cos(EOP[1]);
+  T r33 = cos(EOP[0]) * cos(EOP[1]);
+
+  // rigid body transformation
+  // Object space coordinates oordinates in sensor frame
+  T Xs = r11 * ( XYZ[0] - EOP[3] ) + r12 * ( XYZ[1] - EOP[4] ) + r13 * ( XYZ[2] - EOP[5] );
+  T Ys = r21 * ( XYZ[0] - EOP[3] ) + r22 * ( XYZ[1] - EOP[4] ) + r23 * ( XYZ[2] - EOP[5] );
+  T Zs = r31 * ( XYZ[0] - EOP[3] ) + r32 * ( XYZ[1] - EOP[4] ) + r33 * ( XYZ[2] - EOP[5] );
+
+  // ISPRS "Validation of geometric models for fisheye lenses" journal paper
+  T x = T(2.0)*IOP[2]*Xs*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
+  T y = T(2.0)*IOP[2]*Ys*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
+//   T x = IOP[2]*Xs*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys) );
+//   T y = IOP[2]*Ys*tan( T(0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys) );
+
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  T x_bar = (T(x_) - IOP[0]) / APSCALE; // arbitrary scale for stability
+  T y_bar = (T(y_) - IOP[1]) / APSCALE; // arbitrary scale for stability
+
+//   T r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  T rr = x_bar*x_bar + y_bar*y_bar; 
+
+//   T delta_x = x_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[5]*(pow(r,2.0)+T(2.0)*pow(x_bar,2.0))+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*pow(r,2.0)+AP[3]*pow(r,4.0)+AP[4]*pow(r,6.0)) + AP[6]*(pow(r,2.0)+T(2.0)*pow(y_bar,2.0))+T(2.0)*AP[5]*x_bar*y_bar;
+
+//   T delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+//   T delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Standard AP model by Brown
+  T delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+T(2.0)*x_bar*x_bar)+T(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  T delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+T(2.0)*y_bar*y_bar)+T(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+
+
+  T x_true = x + IOP[0] + delta_x - T(xMLP_); // MLP is the machine learned parameters
+  T y_true = y + IOP[1] + delta_y - T(yMLP_);
+
+  // actual cost function
+  residual[0] = x_true - T(x_); // x-residual
+  residual[1] = y_true - T(y_); // y-residual    
+
+  residual[0] /= T(xStdDev_);
+  residual[1] /= T(yStdDev_);
+
+  return true;
+  }
+
+ private:
+  const double x_;
+  const double y_;
+  const double xStdDev_;
+  const double yStdDev_;
+  const double xp_;
+  const double yp_;
+  const double xMLP_;
+  const double yMLP_;
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Collinearity Equation With Machine Learned Parameters as constants and ROP
 /// Input:    x       - x observation
@@ -3113,7 +3461,7 @@ int main(int argc, char** argv) {
         // loss = new ceres::CauchyLoss(0.5);
 
         // Conventional collinearity condition, no machine learning
-        if (false)
+        if (true)
         {
             std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -3147,7 +3495,7 @@ int main(int argc, char** argv) {
                         new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); // spatial resection only
 
@@ -3160,7 +3508,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographic collinearity condition, no machine learning
-        if (true)
+        if (false)
         {
             std::cout<<"   RUNNING STEREOGRAPHIC PROJECTION COLLINEARITY EQUATIONS..."<<std::endl;
 
@@ -3190,11 +3538,11 @@ int main(int argc, char** argv) {
                 // imageXStdDev[n] *= 10000.0;
                 // imageYStdDev[n] *= 10000.0;
 
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 16>(
-                //         new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
-                // // std::cout<<"      Stereographic Projection..."<<std::endl; 
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<collinearityStereographic, 2, 6, 3, 3, 16>(
+                        new collinearityStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                // std::cout<<"      Stereographic Projection..."<<std::endl; 
 
                 // ceres::CostFunction* cost_function =
                 //     new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
@@ -3202,50 +3550,51 @@ int main(int argc, char** argv) {
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
                 // // std::cout<<"      Fisheye Equidistant..."<<std::endl;
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
-                        new fisheyeStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
-                // std::cout<<"      Fisheye Stereographic..."<<std::endl;
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
+                //         new fisheyeStereographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                // // std::cout<<"      Fisheye Stereographic..."<<std::endl;
 
-                // rotation from map to sensor
-                double r11 = cos(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
-                double r12 = cos(EOP[indexPose][0]) * sin(EOP[indexPose][2]) + sin(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
-                double r13 = sin(EOP[indexPose][0]) * sin(EOP[indexPose][2]) - cos(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+                // Use the following for testing
+                // // rotation from map to sensor
+                // double r11 = cos(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+                // double r12 = cos(EOP[indexPose][0]) * sin(EOP[indexPose][2]) + sin(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
+                // double r13 = sin(EOP[indexPose][0]) * sin(EOP[indexPose][2]) - cos(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * cos(EOP[indexPose][2]);
 
-                double r21 = -cos(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
-                double r22 = cos(EOP[indexPose][0]) * cos(EOP[indexPose][2]) - sin(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
-                double r23 = sin(EOP[indexPose][0]) * cos(EOP[indexPose][2]) + cos(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+                // double r21 = -cos(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+                // double r22 = cos(EOP[indexPose][0]) * cos(EOP[indexPose][2]) - sin(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
+                // double r23 = sin(EOP[indexPose][0]) * cos(EOP[indexPose][2]) + cos(EOP[indexPose][0]) * sin(EOP[indexPose][1]) * sin(EOP[indexPose][2]);
 
-                double r31 = sin(EOP[indexPose][1]);
-                double r32 = -sin(EOP[indexPose][0]) * cos(EOP[indexPose][1]);
-                double r33 = cos(EOP[indexPose][0]) * cos(EOP[indexPose][1]);
+                // double r31 = sin(EOP[indexPose][1]);
+                // double r32 = -sin(EOP[indexPose][0]) * cos(EOP[indexPose][1]);
+                // double r33 = cos(EOP[indexPose][0]) * cos(EOP[indexPose][1]);
 
-                // rigid body transformation
-                // Object space coordinates oordinates in sensor frame
-                double Xs = r11 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r12 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r13 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
-                double Ys = r21 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r22 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r23 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
-                double Zs = r31 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r32 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r33 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+                // // rigid body transformation
+                // // Object space coordinates oordinates in sensor frame
+                // double Xs = r11 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r12 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r13 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+                // double Ys = r21 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r22 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r23 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
+                // double Zs = r31 * ( XYZ[indexPoint][0] - EOP[indexPose][3] ) + r32 * ( XYZ[indexPoint][1] - EOP[indexPose][4] ) + r33 * ( XYZ[indexPoint][2] - EOP[indexPose][5] );
 
-                double x_stereographic = (2.0)*IOP[indexPose][2]*Xs*tan( (0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
-                double y_stereographic = (2.0)*IOP[indexPose][2]*Ys*tan( (0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
+                // double x_stereographic = (2.0)*IOP[indexPose][2]*Xs*tan( (0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
+                // double y_stereographic = (2.0)*IOP[indexPose][2]*Ys*tan( (0.5)*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) ) / sqrt(Xs*Xs+Ys*Ys);
 
-                double x_equidistant = IOP[indexPose][2]*Xs*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys);
-                double y_equidistant = IOP[indexPose][2]*Ys*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys);
+                // double x_equidistant = IOP[indexPose][2]*Xs*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys);
+                // double y_equidistant = IOP[indexPose][2]*Ys*atan2(sqrt(Xs*Xs+Ys*Ys), -Zs) / sqrt(Xs*Xs+Ys*Ys);
 
-                double x_orthographic = IOP[indexPose][2]*Xs*sin(atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
-                double y_orthographic = IOP[indexPose][2]*Ys*sin(atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
+                // double x_orthographic = IOP[indexPose][2]*Xs*sin(atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
+                // double y_orthographic = IOP[indexPose][2]*Ys*sin(atan2(sqrt(Xs*Xs+Ys*Ys), -Zs)) / sqrt(Xs*Xs+Ys*Ys);
 
-                std::cout<<"stereograph: "<<x_stereographic<<", "<<y_stereographic<<std::endl;
-                std::cout<<"equidistant: "<<x_equidistant<<", "<<y_equidistant<<std::endl;
-                std::cout<<"Differences: "<<x_stereographic-x_equidistant<<", "<<y_stereographic-y_equidistant<<std::endl;
-                std::cout<<"orthographi: "<<x_orthographic<<", "<<y_orthographic<<std::endl;
-                sleep(2);
+                // std::cout<<"stereograph: "<<x_stereographic<<", "<<y_stereographic<<std::endl;
+                // std::cout<<"equidistant: "<<x_equidistant<<", "<<y_equidistant<<std::endl;
+                // std::cout<<"Differences: "<<x_stereographic-x_equidistant<<", "<<y_stereographic-y_equidistant<<std::endl;
+                // std::cout<<"orthographi: "<<x_orthographic<<", "<<y_orthographic<<std::endl;
+                // sleep(2);
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
-                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -3742,15 +4091,15 @@ int main(int argc, char** argv) {
             {
                 // Fix part of APs instead of all
                 std::vector<int> fixAP;
-                fixAP.push_back(0); //a1
-                fixAP.push_back(1); //a2
+                // fixAP.push_back(0); //a1
+                // fixAP.push_back(1); //a2
                 // fixAP.push_back(2); //k1
                 // fixAP.push_back(3); //k2
-                // fixAP.push_back(4); //k3
+                fixAP.push_back(4); //k3
                 // fixAP.push_back(5); //p1
                 // fixAP.push_back(6); //p2
 
-                // fixAP.push_back(7); //ep1: k4
+                fixAP.push_back(7); //ep1: k4
                 fixAP.push_back(8); //ep2: k5
                 fixAP.push_back(9); //ep3: k6
                 fixAP.push_back(10); //ep4: k7
@@ -4336,9 +4685,10 @@ int main(int argc, char** argv) {
 
             ////////////////////////////////////////////////////////////////////////////////////////////////
             /// The 2 follow lines define a pseudo inner constraints EOP and object space coordinates, but very slow
+            /// Use the following if you want proper covariance/correlation matrix information
             ////////////////////////////////////////////////////////////////////////////////////////////////
-            covarianceOptions.algorithm_type = ceres::DENSE_SVD;
-            covarianceOptions.null_space_rank = -1;
+            // covarianceOptions.algorithm_type = ceres::DENSE_SVD;
+            // covarianceOptions.null_space_rank = -1;
             ///////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////

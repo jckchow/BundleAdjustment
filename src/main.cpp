@@ -48,7 +48,7 @@
 #define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
-#define COMPUTE_QUANTILE_RESIDUALS 1 // !=0 means compute the quantile statistics and write it to screen. This is an int if COMPUTE_QUANTILE_RESIDUALS = 4 we divide the data into four 25% bins, if COMPUTE_QUANTILE_RESIDUALS = 10 we divide the data into 10 bins.
+#define QUANTILE_RESIDUALS_BINS 10 // !=0 means compute the quantile statistics and write it to screen. This is an int if QUANTILE_RESIDUALS_BINS = 4 we divide the data into four 25% bins, if QUANTILE_RESIDUALS_BINS = 10 we divide the data into 10 bins.
 
 #define PLOTRESULTS 0 // plots the outputs using python
 
@@ -590,7 +590,7 @@ std::vector<double> extractAPCorrelation(const Eigen::MatrixXd& correlationAP_EO
 }
 
 // Calculate the standard correlation stats: mean, stdDev, min, max
-void calcCorrelationStats(const std::vector<double>& correlationStats, double& median, double& mean, double& stdev, double& min, double& max)
+void calcStatistics(const std::vector<double>& correlationStats, double& median, double& mean, double& stdev, double& min, double& max)
 {
     median = 0.0;
     mean = 0.0; // rest to zero first
@@ -652,10 +652,11 @@ double refractionAngle(const double x, const double y, const double* IOP, const 
   // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
   double x_bar = (x - IOP[0]) / APSCALE; // arbitrary scale for stability
   double y_bar = (y - IOP[1]) / APSCALE; // arbitrary scale for stability
-  double r = sqrt(x_bar*x_bar + y_bar*y_bar); 
+  double rr = x_bar*x_bar + y_bar*y_bar; 
 
-  double delta_x = x_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[5]*(r*r+(2.0)*x_bar*x_bar)+(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
-  double delta_y = y_bar*(AP[2]*r*r+AP[3]*r*r*r*r+AP[4]*r*r*r*r*r*r) + AP[6]*(r*r+(2.0)*y_bar*y_bar)+(2.0)*AP[5]*x_bar*y_bar;
+  // Standard AP model by Brown
+  double delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+(2.0)*x_bar*x_bar)+(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  double delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+(2.0)*y_bar*y_bar)+(2.0)*AP[5]*x_bar*y_bar;
 
   // Empirical model
   delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
@@ -665,6 +666,24 @@ double refractionAngle(const double x, const double y, const double* IOP, const 
   double y_corr = y - IOP[1] - delta_y;
 
   return ( atan2(sqrt(x_corr*x_corr+y_corr*y_corr) , IOP[2]) );
+}
+
+// Sort indices, returns a sorted vector of indices
+std::vector<int> sort_index(const std::vector<double> &v) 
+{
+
+  // initialize original index locations
+  std::vector<int> idx(v.size());
+  iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  // using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings
+  // when v contains elements of equal values 
+  stable_sort(idx.begin(), idx.end(),
+       [&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
+
+  return idx;
 }
 
 // Calculates the Akaike information criterion
@@ -4603,9 +4622,9 @@ int main(int argc, char** argv) {
             }
 
             // Compute the quantile image residual statistics and output to screen
-            if (COMPUTE_QUANTILE_RESIDUALS)
+            if (QUANTILE_RESIDUALS_BINS)
             {
-                std::cout<<"  Computing quantile residual statistics..."<<std::endl;
+                std::cout<<"  Computing quantile residual statistics by dividing into "<< QUANTILE_RESIDUALS_BINS <<" bins..."<<std::endl;
 
                 std::vector<double> beta;
                 // apply the IOP and AP correction to the image measurements and express it as refraction angle (because we have this function already
@@ -4625,8 +4644,106 @@ int main(int argc, char** argv) {
                     beta.push_back(b);
                 }
 
-                
+                std::vector<int> index = sort_index(beta); // this is the vector of indices for sorting the refraction angle
 
+                int binWidth = std::ceil(double(index.size()) / double(QUANTILE_RESIDUALS_BINS));
+                std::cout<<"    binWidth: "<<binWidth<<std::endl;
+
+                struct statistics {
+                    double obsMean, obsStdDev, obsMedian, obsMin, obsMax;
+                    double resMean, resStdDev, resMedian, resMin, resMax;
+                };
+
+                std::vector<statistics> imageStats;
+                imageStats.resize(QUANTILE_RESIDUALS_BINS);
+
+                std::vector<statistics> imageStatsX;
+                imageStatsX.resize(QUANTILE_RESIDUALS_BINS);
+
+                int l = 0;
+                std::vector<double> tempImageX, tempImageY, tempImage;
+                std::vector<double> tempResidualsX, tempResidualsY, tempResiduals;
+                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++)
+                {
+                    for(int m = 0; m < binWidth && l < beta.size(); m++)
+                    {
+                        tempImageX.push_back(imageX[index[l]]);
+                        tempImageY.push_back(imageY[index[l]]);
+                        tempResidualsX.push_back(imageResiduals(index[l],0));
+                        tempResidualsY.push_back(imageResiduals(index[l],1));
+
+                        tempImage.push_back(imageX[index[l]]);
+                        tempImage.push_back(imageY[index[l]]);
+                        tempResiduals.push_back(imageResiduals(index[l],0));
+                        tempResiduals.push_back(imageResiduals(index[l],1));
+                        
+                        l++;
+                    }
+
+                    // Calculate the statistics of actual image measurements
+                    double obsMean, obsStdDev, obsMedian, obsMin, obsMax;
+                    calcStatistics(tempImage,obsMedian, obsMean, obsStdDev, obsMin, obsMax);
+
+                    // Calculate the statistics of image residuals
+                    double resMean, resStdDev, resMedian, resMin, resMax;
+                    calcStatistics(tempResiduals,resMedian, resMean, resStdDev, resMin, resMax);
+
+                    statistics temp;
+                    temp.obsMean = obsMean;
+                    temp.obsStdDev = obsStdDev;
+                    temp.obsMedian = obsMedian;
+                    temp.obsMin = obsMin;
+                    temp.obsMax = obsMax;
+                    temp.resMean = resMean;
+                    temp.resStdDev = resStdDev;
+                    temp.resMedian = resMedian;
+                    temp.resMin = resMin;
+                    temp.resMax = resMax;
+
+                    imageStats[n] = temp;
+
+                    // Calculate the statistics of actual image measurements
+                    calcStatistics(tempImageX,obsMedian, obsMean, obsStdDev, obsMin, obsMax);
+
+                    // Calculate the statistics of image residuals
+                    calcStatistics(tempResidualsX,resMedian, resMean, resStdDev, resMin, resMax);
+
+                    temp.obsMean = obsMean;
+                    temp.obsStdDev = obsStdDev;
+                    temp.obsMedian = obsMedian;
+                    temp.obsMin = obsMin;
+                    temp.obsMax = obsMax;
+                    temp.resMean = resMean;
+                    temp.resStdDev = resStdDev;
+                    temp.resMedian = resMedian;
+                    temp.resMin = resMin;
+                    temp.resMax = resMax;
+
+                    imageStatsX[n] = temp;
+
+                    tempImageX.clear();
+                    tempImageY.clear();
+                    tempImage.clear();
+                    tempResidualsX.clear();
+                    tempResidualsY.clear();
+                    tempResiduals.clear();
+                }
+
+                std::cout<<"    Min imgX: ";
+                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                    std::cout<<imageStatsX[n].obsMin<<"\t";
+                std::cout<<std::endl;
+
+                std::cout<<"    Max imgX: ";
+                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                    std::cout<<imageStatsX[n].obsMax<<"\t";
+                std::cout<<std::endl;
+
+                std::cout<<"    Mean res: ";
+                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                    std::cout<<imageStats[n].resMean<<"\t";
+                std::cout<<std::endl;
+                
             }
         }
 
@@ -5116,7 +5233,7 @@ int main(int argc, char** argv) {
                     // std::cout<<"   Range(fabs): "<<min<<" to "<<max<<std::endl;
 
                     double median, mean, stdev, min, max;
-                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive
                     // std::cout<<"   Median(fabs): "<<median<<std::endl;                    
                     // std::cout<<"   Mean(fabs): "<<mean<<std::endl;                    
                     // std::cout<<"   StdDev(fabs): "<<stdev<<std::endl;
@@ -5318,42 +5435,42 @@ int main(int argc, char** argv) {
                         correlation_Yo_IOP = extractAPCorrelation(correlationIOP_Yo, EOP.size(), n);
                         correlation_Zo_IOP = extractAPCorrelation(correlationIOP_Zo, EOP.size(), n);
 
-                        calcCorrelationStats(correlation_omega_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_omega_IOP, median, mean, stdev, min, max);
                         if (correlation_omega_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_IOP_max(0,n) = max;
                         correlation_EOP_IOP_median(0,n) = median;
                         correlation_EOP_IOP_mean(0,n) = mean;
 
-                        calcCorrelationStats(correlation_phi_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_phi_IOP, median, mean, stdev, min, max);
                         if (correlation_phi_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_IOP_max(1,n) = max;
                         correlation_EOP_IOP_median(1,n) = median;
                         correlation_EOP_IOP_mean(1,n) = mean;
 
-                        calcCorrelationStats(correlation_kappa_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_kappa_IOP, median, mean, stdev, min, max);
                         if (correlation_kappa_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_IOP_max(2,n) = max;
                         correlation_EOP_IOP_median(2,n) = median;
                         correlation_EOP_IOP_mean(2,n) = mean;
 
-                        calcCorrelationStats(correlation_Xo_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Xo_IOP, median, mean, stdev, min, max);
                         if (correlation_Xo_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_IOP_max(3,n) = max;
                         correlation_EOP_IOP_median(3,n) = median;
                         correlation_EOP_IOP_mean(3,n) = mean;
 
-                        calcCorrelationStats(correlation_Yo_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Yo_IOP, median, mean, stdev, min, max);
                         if (correlation_Yo_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }    
                         correlation_EOP_IOP_max(4,n) = max;
                         correlation_EOP_IOP_median(4,n) = median;
                         correlation_EOP_IOP_mean(4,n) = mean;
 
-                        calcCorrelationStats(correlation_Zo_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Zo_IOP, median, mean, stdev, min, max);
                         if (correlation_Zo_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_IOP_max(5,n) = max;
@@ -5372,7 +5489,7 @@ int main(int argc, char** argv) {
                         }
 
                     double median, mean, stdev, min, max;
-                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
@@ -5393,7 +5510,7 @@ int main(int argc, char** argv) {
                     //                 correlationStats.push_back(fabs(correlation_EOP_IOP_median(n,m)));
                     //     }
 
-                    // calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    // calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     // std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
@@ -5414,7 +5531,7 @@ int main(int argc, char** argv) {
                     //                 correlationStats.push_back(fabs(correlation_EOP_IOP_mean(n,m)));
                     //     }
 
-                    // calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    // calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     // std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
@@ -5457,35 +5574,35 @@ int main(int argc, char** argv) {
                         correlation_Yo_AP = extractAPCorrelation(correlationAP_Yo, EOP.size(), n); 
                         correlation_Zo_AP = extractAPCorrelation(correlationAP_Zo, EOP.size(), n);
 
-                        calcCorrelationStats(correlation_omega_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_omega_AP, median, mean, stdev, min, max);
                         if (correlation_omega_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_AP_max(0,n) = max;
                         correlation_EOP_AP_median(0,n) = median;
                         correlation_EOP_AP_mean(0,n) = mean;
 
-                        calcCorrelationStats(correlation_phi_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_phi_AP, median, mean, stdev, min, max);
                         if (correlation_phi_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_AP_max(1,n) = max;
                         correlation_EOP_AP_median(1,n) = median;
                         correlation_EOP_AP_mean(1,n) = mean;
 
-                        calcCorrelationStats(correlation_kappa_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_kappa_AP, median, mean, stdev, min, max);
                         if (correlation_kappa_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_AP_max(2,n) = max;
                         correlation_EOP_AP_median(2,n) = median;
                         correlation_EOP_AP_mean(2,n) = mean;
 
-                        calcCorrelationStats(correlation_Xo_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Xo_AP, median, mean, stdev, min, max);
                         if (correlation_Xo_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_AP_max(3,n) = max;
                         correlation_EOP_AP_median(3,n) = median;
                         correlation_EOP_AP_mean(3,n) = mean;
 
-                        calcCorrelationStats(correlation_Yo_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Yo_AP, median, mean, stdev, min, max);
                         if (correlation_Yo_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         
@@ -5493,7 +5610,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_AP_median(4,n) = median;
                         correlation_EOP_AP_mean(4,n) = mean;
 
-                        calcCorrelationStats(correlation_Zo_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Zo_AP, median, mean, stdev, min, max);
                         if (correlation_Zo_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_AP_max(5,n) = max;
@@ -5512,7 +5629,7 @@ int main(int argc, char** argv) {
                         }
 
                     double median, mean, stdev, min, max;
-                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
@@ -5534,7 +5651,7 @@ int main(int argc, char** argv) {
                     //                 correlationStats.push_back(fabs(correlation_EOP_AP_median(n,m)));
                     //     }
 
-                    // calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    // calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     // std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
@@ -5556,7 +5673,7 @@ int main(int argc, char** argv) {
                     //                 correlationStats.push_back(fabs(correlation_EOP_AP_mean(n,m)));
                     //     }
 
-                    // calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    // calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     // std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
@@ -5664,21 +5781,21 @@ int main(int argc, char** argv) {
                         correlation_Y_IOP = extractAPCorrelation(correlationIOP_Y, XYZ.size(), n); 
                         correlation_Z_IOP = extractAPCorrelation(correlationIOP_Z, XYZ.size(), n); 
 
-                        calcCorrelationStats(correlation_X_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_X_IOP, median, mean, stdev, min, max);
                         if (correlation_X_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_XYZ_IOP_max(0,n) = max;
                         correlation_XYZ_IOP_median(0,n) = median;
                         correlation_XYZ_IOP_mean(0,n) = mean;
 
-                        calcCorrelationStats(correlation_Y_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Y_IOP, median, mean, stdev, min, max);
                         if (correlation_Y_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_XYZ_IOP_max(1,n) = max;
                         correlation_XYZ_IOP_median(1,n) = median;
                         correlation_XYZ_IOP_mean(1,n) = mean;
                                               
-                        calcCorrelationStats(correlation_Z_IOP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Z_IOP, median, mean, stdev, min, max);
                         if (correlation_Z_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_XYZ_IOP_max(2,n) = max;
@@ -5697,7 +5814,7 @@ int main(int argc, char** argv) {
                         }
 
                     double median, mean, stdev, min, max;
-                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
@@ -5734,21 +5851,21 @@ int main(int argc, char** argv) {
                         correlation_Y_AP = extractAPCorrelation(correlationAP_Y, XYZ.size(), n); 
                         correlation_Z_AP = extractAPCorrelation(correlationAP_Z, XYZ.size(), n); 
 
-                        calcCorrelationStats(correlation_X_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_X_AP, median, mean, stdev, min, max);
                         if (correlation_X_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_XYZ_AP_max(0,n) = max;
                         correlation_XYZ_AP_median(0,n) = median;
                         correlation_XYZ_AP_mean(0,n) = mean;
 
-                        calcCorrelationStats(correlation_Y_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Y_AP, median, mean, stdev, min, max);
                         if (correlation_Y_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_XYZ_AP_max(1,n) = max;
                         correlation_XYZ_AP_median(1,n) = median;
                         correlation_XYZ_AP_mean(1,n) = mean;
                                               
-                        calcCorrelationStats(correlation_Z_AP, median, mean, stdev, min, max);
+                        calcStatistics(correlation_Z_AP, median, mean, stdev, min, max);
                         if (correlation_Z_AP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_XYZ_AP_max(2,n) = max;
@@ -5767,7 +5884,7 @@ int main(int argc, char** argv) {
                         }
 
                     double median, mean, stdev, min, max;
-                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
@@ -5851,7 +5968,7 @@ int main(int argc, char** argv) {
                         }
 
                     double median, mean, stdev, min, max;
-                    calcCorrelationStats(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
                     std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
                     std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 

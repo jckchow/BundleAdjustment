@@ -668,6 +668,27 @@ double refractionAngle(const double x, const double y, const double* IOP, const 
   return ( atan2(sqrt(x_corr*x_corr+y_corr*y_corr) , IOP[2]) );
 }
 
+double radialDistance(const double x, const double y, const double* IOP, const double* AP)
+{
+  // camera correction model AP = a1, a2, k1, k2, k3, p1, p2, ...
+  double x_bar = (x - IOP[0]) / APSCALE; // arbitrary scale for stability
+  double y_bar = (y - IOP[1]) / APSCALE; // arbitrary scale for stability
+  double rr = x_bar*x_bar + y_bar*y_bar; 
+
+  // Standard AP model by Brown
+  double delta_x = x_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[5]*(rr+(2.0)*x_bar*x_bar)+(2.0)*AP[6]*x_bar*y_bar + AP[0]*x_bar+AP[1]*y_bar;
+  double delta_y = y_bar*(AP[2]*rr+AP[3]*rr*rr+AP[4]*rr*rr*rr) + AP[6]*(rr+(2.0)*y_bar*y_bar)+(2.0)*AP[5]*x_bar*y_bar;
+
+  // Empirical model
+  delta_x += x_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+  delta_y += y_bar*(AP[7]*rr*rr*rr*rr+AP[8]*rr*rr*rr*rr*rr+AP[9]*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr+AP[10]*rr*rr*rr*rr*rr*rr*rr*rr+AP[11]*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[12]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[13]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[14]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr+AP[15]*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr*rr);
+
+  double x_corr = x - IOP[0] - delta_x;
+  double y_corr = y - IOP[1] - delta_y;
+
+  return ( sqrt(x_corr*x_corr+y_corr*y_corr) );
+}
+
 // Sort indices, returns a sorted vector of indices
 std::vector<int> sort_index(const std::vector<double> &v) 
 {
@@ -4626,7 +4647,7 @@ int main(int argc, char** argv) {
             {
                 std::cout<<"  Computing quantile residual statistics by dividing into "<< QUANTILE_RESIDUALS_BINS <<" bins..."<<std::endl;
 
-                std::vector<double> beta;
+                std::vector<double> radialDist;
                 // apply the IOP and AP correction to the image measurements and express it as refraction angle (because we have this function already
                 for(int n = 0; n < imageX.size(); n++) // loop through all observations
                 {
@@ -4640,11 +4661,11 @@ int main(int argc, char** argv) {
                     it = std::find(iopCamera.begin(), iopCamera.end(), eopCamera[indexPose]);
                     int indexSensor = std::distance(iopCamera.begin(),it);
 
-                    double b  = refractionAngle(imageX[n], imageY[n], &IOP[indexSensor][0], &AP[indexSensor][0]);
-                    beta.push_back(b);
+                    double d  = radialDistance(imageX[n], imageY[n], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                    radialDist.push_back(d);
                 }
 
-                std::vector<int> index = sort_index(beta); // this is the vector of indices for sorting the refraction angle
+                std::vector<int> index = sort_index(radialDist); // this is the vector of indices for sorting the refraction angle
 
                 int binWidth = std::ceil(double(index.size()) / double(QUANTILE_RESIDUALS_BINS));
                 std::cout<<"    binWidth: "<<binWidth<<std::endl;
@@ -4657,25 +4678,36 @@ int main(int argc, char** argv) {
                 std::vector<statistics> imageStats;
                 imageStats.resize(QUANTILE_RESIDUALS_BINS);
 
-                std::vector<statistics> imageStatsX;
-                imageStatsX.resize(QUANTILE_RESIDUALS_BINS);
+                std::vector<double> radialDistStats;
+                radialDistStats.resize(QUANTILE_RESIDUALS_BINS);
+
+                // std::vector<statistics> imageStatsX;
+                // imageStatsX.resize(QUANTILE_RESIDUALS_BINS);
+
+                // std::vector<statistics> imageStatsX;
+                // imageStatsY.resize(QUANTILE_RESIDUALS_BINS);
 
                 int l = 0;
-                std::vector<double> tempImageX, tempImageY, tempImage;
-                std::vector<double> tempResidualsX, tempResidualsY, tempResiduals;
+                // std::vector<double> tempImageX, tempImageY;
+                // std::vector<double> tempResidualsX, tempResidualsY;
+                std::vector<double> tempImage;
+                std::vector<double> tempResiduals;
+                std::vector<double> tempRadialDist;
                 for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++)
                 {
-                    for(int m = 0; m < binWidth && l < beta.size(); m++)
+                    for(int m = 0; m < binWidth && l < radialDist.size(); m++)
                     {
-                        tempImageX.push_back(imageX[index[l]]);
-                        tempImageY.push_back(imageY[index[l]]);
-                        tempResidualsX.push_back(imageResiduals(index[l],0));
-                        tempResidualsY.push_back(imageResiduals(index[l],1));
+                        // tempImageX.push_back(imageX[index[l]]);
+                        // tempImageY.push_back(imageY[index[l]]);
+                        // tempResidualsX.push_back(imageResiduals(index[l],0));
+                        // tempResidualsY.push_back(imageResiduals(index[l],1));
 
                         tempImage.push_back(imageX[index[l]]);
                         tempImage.push_back(imageY[index[l]]);
                         tempResiduals.push_back(imageResiduals(index[l],0));
                         tempResiduals.push_back(imageResiduals(index[l],1));
+
+                        tempRadialDist.push_back(radialDist[index[l]]);
                         
                         l++;
                     }
@@ -4687,6 +4719,9 @@ int main(int argc, char** argv) {
                     // Calculate the statistics of image residuals
                     double resMean, resStdDev, resMedian, resMin, resMax;
                     calcStatistics(tempResiduals,resMedian, resMean, resStdDev, resMin, resMax);
+
+                    double distMean, distStdDev, distMedian, distMin, distMax;
+                    calcStatistics(tempRadialDist, distMean, distStdDev, distMedian, distMin, distMax);
 
                     statistics temp;
                     temp.obsMean = obsMean;
@@ -4702,41 +4737,48 @@ int main(int argc, char** argv) {
 
                     imageStats[n] = temp;
 
-                    // Calculate the statistics of actual image measurements
-                    calcStatistics(tempImageX,obsMedian, obsMean, obsStdDev, obsMin, obsMax);
+                    radialDistStats[n] = distMean;
 
-                    // Calculate the statistics of image residuals
-                    calcStatistics(tempResidualsX,resMedian, resMean, resStdDev, resMin, resMax);
+                    // // Calculate the statistics of actual image measurements
+                    // calcStatistics(tempImageX,obsMedian, obsMean, obsStdDev, obsMin, obsMax);
 
-                    temp.obsMean = obsMean;
-                    temp.obsStdDev = obsStdDev;
-                    temp.obsMedian = obsMedian;
-                    temp.obsMin = obsMin;
-                    temp.obsMax = obsMax;
-                    temp.resMean = resMean;
-                    temp.resStdDev = resStdDev;
-                    temp.resMedian = resMedian;
-                    temp.resMin = resMin;
-                    temp.resMax = resMax;
+                    // // Calculate the statistics of image residuals
+                    // calcStatistics(tempResidualsX,resMedian, resMean, resStdDev, resMin, resMax);
 
-                    imageStatsX[n] = temp;
+                    // temp.obsMean = obsMean;
+                    // temp.obsStdDev = obsStdDev;
+                    // temp.obsMedian = obsMedian;
+                    // temp.obsMin = obsMin;
+                    // temp.obsMax = obsMax;
+                    // temp.resMean = resMean;
+                    // temp.resStdDev = resStdDev;
+                    // temp.resMedian = resMedian;
+                    // temp.resMin = resMin;
+                    // temp.resMax = resMax;
 
-                    tempImageX.clear();
-                    tempImageY.clear();
+                    // imageStatsX[n] = temp;
+
+                    // tempImageX.clear();
+                    // tempImageY.clear();
                     tempImage.clear();
-                    tempResidualsX.clear();
-                    tempResidualsY.clear();
+                    // tempResidualsX.clear();
+                    // tempResidualsY.clear();
                     tempResiduals.clear();
                 }
 
-                std::cout<<"    Min imgX: ";
-                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
-                    std::cout<<imageStatsX[n].obsMin<<"\t";
-                std::cout<<std::endl;
+                // std::cout<<"    Min imgX: ";
+                // for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                //     std::cout<<imageStatsX[n].obsMin<<"\t";
+                // std::cout<<std::endl;
 
-                std::cout<<"    Max imgX: ";
+                // std::cout<<"    Max imgX: ";
+                // for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                //     std::cout<<imageStatsX[n].obsMax<<"\t";
+                // std::cout<<std::endl;
+
+                std::cout<<"    Mean dis: ";
                 for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
-                    std::cout<<imageStatsX[n].obsMax<<"\t";
+                    std::cout<<radialDistStats[n]<<"\t";
                 std::cout<<std::endl;
 
                 std::cout<<"    Mean res: ";

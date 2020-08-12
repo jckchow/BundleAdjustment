@@ -622,6 +622,45 @@ void calcStatistics(const std::vector<double>& correlationStats, double& median,
     }
 }
 
+// Calculate the standard correlation stats: mean, stdDev, min, max
+void calcStatistics(const std::vector<double>& correlationStats, double& median, double& mean, double& stdev, double& min, double& max, double& RMSE)
+{
+    median = 0.0;
+    mean = 0.0; // rest to zero first
+    stdev = 0.0;
+    min = 0.0;
+    max = 0.0;
+    RMSE = 0.0;
+
+    if(correlationStats.size() != 0) // only do it if not empty
+    {
+        // std::cout<<"Compute median"<<std::endl;
+        median = calcMedian(correlationStats);
+
+        // std::cout<<"Compute mean"<<std::endl;
+        double sum = std::accumulate(correlationStats.begin(), correlationStats.end(), 0.0);
+        mean = sum / correlationStats.size();
+
+        // std::vector<double> diff(correlationStats.size());
+        // std::transform(correlationStats.begin(), correlationStats.end(), diff.begin(), [mean](double x) { return x - mean; });
+        // double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+        // stdev = std::sqrt(sq_sum / correlationStats.size());
+        // std::cout<<"Compute stdev"<<std::endl;
+        stdev = calcStdDev(correlationStats);
+
+        // std::cout<<"Compute max"<<std::endl;
+        max = *std::max_element(correlationStats.begin(), correlationStats.end());
+
+        // std::cout<<"Compute min"<<std::endl;
+        min = *std::min_element(correlationStats.begin(), correlationStats.end());
+
+        for (int i = 0; i < correlationStats.size(); i++)
+            RMSE += (correlationStats[i] * correlationStats[i]);
+        RMSE /= double(correlationStats.size());
+        RMSE = sqrt(RMSE);
+    }
+}
+
 // Calculate incidence angle relative to optical axis
 double incidenceAngle (const double* EOP, const double* XYZ)
 {
@@ -4671,8 +4710,8 @@ int main(int argc, char** argv) {
                 std::cout<<"    binWidth: "<<binWidth<<std::endl;
 
                 struct statistics {
-                    double obsMean, obsStdDev, obsMedian, obsMin, obsMax;
-                    double resMean, resStdDev, resMedian, resMin, resMax;
+                    double obsMean, obsStdDev, obsMedian, obsMin, obsMax, obsRMSE;
+                    double resMean, resStdDev, resMedian, resMin, resMax, resRMSE;
                 };
 
                 std::vector<statistics> imageStats;
@@ -4713,15 +4752,15 @@ int main(int argc, char** argv) {
                     }
 
                     // Calculate the statistics of actual image measurements
-                    double obsMean, obsStdDev, obsMedian, obsMin, obsMax;
-                    calcStatistics(tempImage,obsMedian, obsMean, obsStdDev, obsMin, obsMax);
+                    double obsMean, obsStdDev, obsMedian, obsMin, obsMax, obsRMSE;
+                    calcStatistics(tempImage,obsMedian, obsMean, obsStdDev, obsMin, obsMax, obsRMSE);
 
                     // Calculate the statistics of image residuals
-                    double resMean, resStdDev, resMedian, resMin, resMax;
-                    calcStatistics(tempResiduals,resMedian, resMean, resStdDev, resMin, resMax);
+                    double resMean, resStdDev, resMedian, resMin, resMax, resRMSE;
+                    calcStatistics(tempResiduals,resMedian, resMean, resStdDev, resMin, resMax, resRMSE);
 
-                    double distMean, distStdDev, distMedian, distMin, distMax;
-                    calcStatistics(tempRadialDist, distMean, distStdDev, distMedian, distMin, distMax);
+                    double distMean, distStdDev, distMedian, distMin, distMax, distRMSE;
+                    calcStatistics(tempRadialDist, distMean, distStdDev, distMedian, distMin, distMax, distRMSE);
 
                     statistics temp;
                     temp.obsMean = obsMean;
@@ -4729,15 +4768,17 @@ int main(int argc, char** argv) {
                     temp.obsMedian = obsMedian;
                     temp.obsMin = obsMin;
                     temp.obsMax = obsMax;
+                    temp.obsRMSE = obsRMSE;
                     temp.resMean = resMean;
                     temp.resStdDev = resStdDev;
                     temp.resMedian = resMedian;
                     temp.resMin = resMin;
                     temp.resMax = resMax;
+                    temp.resRMSE = resRMSE;
 
                     imageStats[n] = temp;
 
-                    radialDistStats[n] = distMean;
+                    radialDistStats[n] = distMedian;
 
                     // // Calculate the statistics of actual image measurements
                     // calcStatistics(tempImageX,obsMedian, obsMean, obsStdDev, obsMin, obsMax);
@@ -4776,14 +4817,24 @@ int main(int argc, char** argv) {
                 //     std::cout<<imageStatsX[n].obsMax<<"\t";
                 // std::cout<<std::endl;
 
-                std::cout<<"    Mean dis: ";
+                std::cout<<"    Median dist: ";
                 for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
                     std::cout<<radialDistStats[n]<<"\t";
                 std::cout<<std::endl;
 
-                std::cout<<"    Mean res: ";
+                std::cout<<"    Mean residu: ";
                 for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
                     std::cout<<imageStats[n].resMean<<"\t";
+                std::cout<<std::endl;
+
+                std::cout<<"    StdDev resi: ";
+                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                    std::cout<<imageStats[n].resStdDev<<"\t";
+                std::cout<<std::endl;
+
+                std::cout<<"    RMSE residu: ";
+                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                    std::cout<<imageStats[n].resRMSE<<"\t";
                 std::cout<<std::endl;
                 
             }

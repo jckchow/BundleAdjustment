@@ -4717,7 +4717,7 @@ int main(int argc, char** argv) {
                 std::vector<statistics> imageStats;
                 imageStats.resize(QUANTILE_RESIDUALS_BINS);
 
-                std::vector<double> radialDistStats;
+                std::vector<statistics> radialDistStats;
                 radialDistStats.resize(QUANTILE_RESIDUALS_BINS);
 
                 // std::vector<statistics> imageStatsX;
@@ -4760,7 +4760,7 @@ int main(int argc, char** argv) {
                     calcStatistics(tempResiduals,resMedian, resMean, resStdDev, resMin, resMax, resRMSE);
 
                     double distMean, distStdDev, distMedian, distMin, distMax, distRMSE;
-                    calcStatistics(tempRadialDist, distMean, distStdDev, distMedian, distMin, distMax, distRMSE);
+                    calcStatistics(tempRadialDist, distMedian, distMean, distStdDev, distMin, distMax, distRMSE);
 
                     statistics temp;
                     temp.obsMean = obsMean;
@@ -4778,7 +4778,13 @@ int main(int argc, char** argv) {
 
                     imageStats[n] = temp;
 
-                    radialDistStats[n] = distMedian;
+                    temp.obsMean = distMean;
+                    temp.obsStdDev = distStdDev;
+                    temp.obsMedian = distMedian;
+                    temp.obsMin = distMin;
+                    temp.obsMax = distMax;
+                    temp.obsRMSE = distRMSE;
+                    radialDistStats[n] = temp;
 
                     // // Calculate the statistics of actual image measurements
                     // calcStatistics(tempImageX,obsMedian, obsMean, obsStdDev, obsMin, obsMax);
@@ -4805,6 +4811,7 @@ int main(int argc, char** argv) {
                     // tempResidualsX.clear();
                     // tempResidualsY.clear();
                     tempResiduals.clear();
+                    tempRadialDist.clear();
                 }
 
                 // std::cout<<"    Min imgX: ";
@@ -4817,27 +4824,44 @@ int main(int argc, char** argv) {
                 //     std::cout<<imageStatsX[n].obsMax<<"\t";
                 // std::cout<<std::endl;
 
-                std::cout<<"    Median dist: ";
+                std::cout<<"    Min distanc: ";
                 for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
-                    std::cout<<radialDistStats[n]<<"\t";
+                    std::cout<<radialDistStats[n].obsMin<<"\t";
                 std::cout<<std::endl;
 
-                std::cout<<"    Mean residu: ";
+                std::cout<<"    Median dist: ";
+                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                    std::cout<<radialDistStats[n].obsMedian<<"\t";
+                std::cout<<std::endl;
+
+                std::cout<<"    Max distanc: ";
+                for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
+                    std::cout<<radialDistStats[n].obsMax<<"\t";
+                std::cout<<std::endl;
+
+                std::ios cout_state(nullptr);
+                cout_state.copyfmt(std::cout); //copy original cout format
+                std::cout << std::setprecision(2);
+                std::cout << std::fixed;
+
+                std::cout<<"    Mean residuals  : ";
                 for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
                     std::cout<<imageStats[n].resMean<<"\t";
                 std::cout<<std::endl;
 
-                std::cout<<"    StdDev resi: ";
+                std::cout<<"    StdDev residuals: ";
                 for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
                     std::cout<<imageStats[n].resStdDev<<"\t";
                 std::cout<<std::endl;
 
-                std::cout<<"    RMSE residu: ";
+                std::cout<<"    RMSE residuals  : ";
                 for(int n = 0; n < int(QUANTILE_RESIDUALS_BINS); n++) 
                     std::cout<<imageStats[n].resRMSE<<"\t";
                 std::cout<<std::endl;
-                
+
+                std::cout.copyfmt(cout_state); // restore original cout format  
             }
+
         }
 
 

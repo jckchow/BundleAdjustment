@@ -37,20 +37,20 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1000 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 1 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECORRELATION 0 // Compute the correlation matrix, 1 is true, 0 is false
-#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECORRELATION 1 // Compute the correlation matrix, 1 is true, 0 is false. Must have COMPUTECX set to 1 for this to work
+#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
 #define QUANTILE_RESIDUALS_BINS 10 // !=0 means compute the quantile statistics and write it to screen. This is an int if QUANTILE_RESIDUALS_BINS = 4 we divide the data into four 25% bins, if QUANTILE_RESIDUALS_BINS = 10 we divide the data into 10 bins.
 
-#define PLOTRESULTS 0 // plots the outputs using python
+#define PLOTRESULTS 0 // plots the outputs using python MATPLOTLIB
 
 #define APSCALE 1000.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
 // #define APSCALE 1.0 // arbitrary scale for x_bar and y_bar, makes the inversion of matrix more stable for the AP
@@ -406,6 +406,261 @@
 // // #define INPUTROPFILENAME ""
 // #define INPUTROPFILENAME "/home/jckchow/BundleAdjustment/xrayData1/xray1.rop"
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// 
+/// Paper 3: 150 Training, 150 Testing
+/// 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////
+/// Sensor A
+////////
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.pho"
+#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A_v3.pho"
+#define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.eop"
+#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A_v3.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+#define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90A.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90A.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120A.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120A.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+////////
+/// Sensor B
+////////
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30B.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1B.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30B.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60B.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1B.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60B.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90B.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1B.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90B.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1B.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120B.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150B.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1B.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150B.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+///////////////////////////
+// Testing on 150
+///////////////////////////
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Training150AB_photoROP_old.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingA_Training150A_photoROP_linearSmoothing_robust.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1ATesting.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingA.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingB.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1TestingB_Training150B_photoROP_IOP_linearSmoothing200.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1BTesting.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1TestingB.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
+
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1Testing_Training30_photoROP_IOP.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho"
+// // #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/xray1Testing.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.rop"
+
+////////
+/// Sensor A + B together
+////////
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTROPFILENAME ""
+// #define INPUTROPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.rop"
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTROPFILENAME ""
+// #define INPUTROPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.rop"
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTROPFILENAME ""
+// #define INPUTROPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.rop"
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training120.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTROPFILENAME ""
+// #define INPUTROPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.rop"
+
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_continue.pho"
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150AB_photoROP.pho" // pre-calibrated each sensor individually
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.iop"
+// // #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150.eop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150_ROP.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.xyz"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1Truth.xyz" // only use for QC
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// // #define INPUTROPFILENAME ""
+// #define INPUTROPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1.rop"
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 /// Paper 1 ISPRS TC 1: Omnidirectional camera
@@ -472,15 +727,15 @@
 // // #define INPUTXYZDATUMFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTraining.xyz"
 // #define INPUTROPFILENAME ""
 
-// // Nikon Testing Data
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
-#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/applyKNN/nikonTesting_stereographicTrainingKNN_NEW.pho"
-#define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
-#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
-#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
-#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
-#define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// // // Nikon Testing Data
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/applyKNN/nikonTesting_stereographicTrainingKNN_NEW.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTestingTemp.pho"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.iop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop"
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTruthTesting.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // //for all goPro
 // // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/gopro_screened_manual (copy).pho"
@@ -3555,7 +3810,7 @@ int main(int argc, char** argv) {
         // loss = new ceres::CauchyLoss(0.5);
 
         // Conventional collinearity condition, no machine learning
-        if (false)
+        if (true)
         {
             std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -3589,10 +3844,9 @@ int main(int argc, char** argv) {
                         new collinearity(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); // spatial resection only
-
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
                 variances.push_back(imageYStdDev[n]*imageYStdDev[n]);
@@ -3638,11 +3892,11 @@ int main(int argc, char** argv) {
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
                 // // std::cout<<"      Stereographic Projection..."<<std::endl; 
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
-                        new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
-                // std::cout<<"      Fisheye Equidistant..."<<std::endl;
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<fisheyeEquidistant, 2, 6, 3, 3, 16>(
+                //         new fisheyeEquidistant(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                // // std::cout<<"      Fisheye Equidistant..."<<std::endl;
 
                 // ceres::CostFunction* cost_function =
                 //     new ceres::AutoDiffCostFunction<fisheyeEquisolidAngle, 2, 6, 3, 3, 16>(
@@ -3650,11 +3904,11 @@ int main(int argc, char** argv) {
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
                 // // std::cout<<"      Fisheye EquisolidAngle..."<<std::endl;
 
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<fisheyeOrthographic, 2, 6, 3, 3, 16>(
-                //         new fisheyeOrthographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
-                // // std::cout<<"      Fisheye Orthographic..."<<std::endl;
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<fisheyeOrthographic, 2, 6, 3, 3, 16>(
+                        new fisheyeOrthographic(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);
+                // std::cout<<"      Fisheye Orthographic..."<<std::endl;
 
                 // ceres::CostFunction* cost_function =
                 //     new ceres::AutoDiffCostFunction<fisheyeStereographic, 2, 6, 3, 3, 16>(
@@ -3699,7 +3953,7 @@ int main(int argc, char** argv) {
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
 
-                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
@@ -3935,7 +4189,7 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if(true)
+        if(false)
         {
             std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
 
@@ -3960,10 +4214,10 @@ int main(int argc, char** argv) {
                 //  std::cout<<"EOP: "<< EOP[indexPose][3] <<", " << EOP[indexPose][4] <<", " << EOP[indexPose][5]  <<std::endl;
                 //  std::cout<<"XYZ: "<< XYZ[indexPoint][0] <<", " << XYZ[indexPoint][1] <<", " << XYZ[indexPoint][2]  <<std::endl;
 
-                ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<collinearityStereographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
-                        new collinearityStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<collinearityStereographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
+                //         new collinearityStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // ceres::CostFunction* cost_function =
                 //     new ceres::AutoDiffCostFunction<fisheyeEquidistantMachineLearnedSimple, 2, 6, 3, 3, 16>(
@@ -3980,14 +4234,14 @@ int main(int argc, char** argv) {
                 //         new fisheyeOrthographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<fisheyeStereographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
-                //         new fisheyeStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<fisheyeStereographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
+                        new fisheyeStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
 
-                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
@@ -4208,39 +4462,39 @@ int main(int argc, char** argv) {
         // }
 
         int numAPCorrection = 0; // don't comment this away
-        if(true)
-        {   
-            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-            std::cout<<"     Fixing a subset of the AP"<<std::endl;
-            std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
-            for(int n = 0; n < iopCamera.size(); n++)
-            {
-                // Fix part of APs instead of all
-                std::vector<int> fixAP;
-                fixAP.push_back(0); //a1
-                fixAP.push_back(1); //a2
-                // fixAP.push_back(2); //k1
-                fixAP.push_back(3); //k2
-                fixAP.push_back(4); //k3
-                fixAP.push_back(5); //p1
-                fixAP.push_back(6); //p2
+        // if(true)
+        // {   
+        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+        //     std::cout<<"     Fixing a subset of the AP"<<std::endl;
+        //     std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
+        //     for(int n = 0; n < iopCamera.size(); n++)
+        //     {
+        //         // Fix part of APs instead of all
+        //         std::vector<int> fixAP;
+        //         fixAP.push_back(0); //a1
+        //         fixAP.push_back(1); //a2
+        //         // fixAP.push_back(2); //k1
+        //         fixAP.push_back(3); //k2
+        //         fixAP.push_back(4); //k3
+        //         fixAP.push_back(5); //p1
+        //         fixAP.push_back(6); //p2
 
-                fixAP.push_back(7); //ep1: k4
-                fixAP.push_back(8); //ep2: k5
-                fixAP.push_back(9); //ep3: k6
-                fixAP.push_back(10); //ep4: k7
-                fixAP.push_back(11); //ep5
-                fixAP.push_back(12); //ep6
-                fixAP.push_back(13); //ep7
-                fixAP.push_back(14); //ep8
-                fixAP.push_back(15); //ep9
+        //         fixAP.push_back(7); //ep1: k4
+        //         fixAP.push_back(8); //ep2: k5
+        //         fixAP.push_back(9); //ep3: k6
+        //         fixAP.push_back(10); //ep4: k7
+        //         fixAP.push_back(11); //ep5
+        //         fixAP.push_back(12); //ep6
+        //         fixAP.push_back(13); //ep7
+        //         fixAP.push_back(14); //ep8
+        //         fixAP.push_back(15); //ep9
 
-                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
-                problem.SetParameterization(&AP[n][0], subset_parameterization);
+        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
+        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
 
-                numAPCorrection = fixAP.size();
-            }
-        }
+        //         numAPCorrection = fixAP.size();
+        //     }
+        // }
 
         // if (true)
         // {
@@ -4336,29 +4590,35 @@ int main(int argc, char** argv) {
             }
         }
 
-        // // // prior on the IOP. 
-        // if (true)
-        // {
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         double xpStdDev = 10.0;
-        //         double ypStdDev = 10.0;
-        //         double cStdDev  = 10.0;
-        //         // double xpStdDev = 1E6;
-        //         // double ypStdDev = 1E6;
-        //         // double cStdDev  = 1E6;
-        //         std::cout<<"     "<<n+1<<". Prior on xp, yp, c: "<<xpStdDev<<", "<<ypStdDev<<", "<<cStdDev<<std::endl;
+        // prior on the IOP. 
+        if (true)
+        {
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // double xpStdDev = 10.0;
+                // double ypStdDev = 10.0;
+                // double cStdDev  = 10.0;
+                // double xpStdDev = 2500.0;
+                // double ypStdDev = 2500.0;
+                // double cStdDev  = 25.0;
+                // double xpStdDev = 1E2;
+                // double ypStdDev = 1E2;
+                // double cStdDev  = 1E2;
+                double xpStdDev = 1E3;
+                double ypStdDev = 1E3;
+                double cStdDev  = 1E3;
+                std::cout<<"     "<<n+1<<". Prior on xp, yp, c: "<<xpStdDev<<", "<<ypStdDev<<", "<<cStdDev<<std::endl;
 
-        //         ceres::CostFunction* cost_function =
-        //             new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
-        //                 new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
-        //         problem.AddResidualBlock(cost_function, NULL, &IOP[n][0]);
+                ceres::CostFunction* cost_function =
+                    new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
+                        new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
+                problem.AddResidualBlock(cost_function, NULL, &IOP[n][0]);
 
-        //         variances.push_back(xpStdDev*xpStdDev);
-        //         variances.push_back(ypStdDev*ypStdDev);
-        //         variances.push_back(cStdDev*cStdDev);
-        //     }
-        // }
+                variances.push_back(xpStdDev*xpStdDev);
+                variances.push_back(ypStdDev*ypStdDev);
+                variances.push_back(cStdDev*cStdDev);
+            }
+        }
 
 
         // prior on the AP
@@ -4707,7 +4967,7 @@ int main(int argc, char** argv) {
                 std::vector<int> index = sort_index(radialDist); // this is the vector of indices for sorting the refraction angle
 
                 int binWidth = std::ceil(double(index.size()) / double(QUANTILE_RESIDUALS_BINS));
-                std::cout<<"    binWidth: "<<binWidth<<std::endl;
+                std::cout<<"    binWidth: "<<binWidth<<" points"<<std::endl;
 
                 struct statistics {
                     double obsMean, obsStdDev, obsMedian, obsMin, obsMax, obsRMSE;
@@ -5228,7 +5488,6 @@ int main(int argc, char** argv) {
                 iopVariance(i,1) = variance_X(1);
                 iopVariance(i,2) = variance_X(2);
 
-
                 iopVariance(i,0) *= aposterioriVariance;
                 iopVariance(i,1) *= aposterioriVariance;
                 iopVariance(i,2) *= aposterioriVariance;
@@ -5534,6 +5793,7 @@ int main(int argc, char** argv) {
                     Eigen::MatrixXd correlation_EOP_IOP_max(6,3);
                     Eigen::MatrixXd correlation_EOP_IOP_median(6,3);
                     Eigen::MatrixXd correlation_EOP_IOP_mean(6,3);
+                    Eigen::MatrixXd correlation_EOP_IOP_min(6,3);
 
                     for (int n = 0; n < 3; n++) // loop through the IOPs, xp yp c
                     {
@@ -5552,12 +5812,15 @@ int main(int argc, char** argv) {
                         correlation_Yo_IOP = extractAPCorrelation(correlationIOP_Yo, EOP.size(), n);
                         correlation_Zo_IOP = extractAPCorrelation(correlationIOP_Zo, EOP.size(), n);
 
+
+
                         calcStatistics(correlation_omega_IOP, median, mean, stdev, min, max);
                         if (correlation_omega_IOP.size() == 0)
                         { max = NAN; median = NAN; mean = NAN; }
                         correlation_EOP_IOP_max(0,n) = max;
                         correlation_EOP_IOP_median(0,n) = median;
                         correlation_EOP_IOP_mean(0,n) = mean;
+                        correlation_EOP_IOP_min(0,n) = min;
 
                         calcStatistics(correlation_phi_IOP, median, mean, stdev, min, max);
                         if (correlation_phi_IOP.size() == 0)
@@ -5565,6 +5828,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_IOP_max(1,n) = max;
                         correlation_EOP_IOP_median(1,n) = median;
                         correlation_EOP_IOP_mean(1,n) = mean;
+                        correlation_EOP_IOP_min(1,n) = min;
 
                         calcStatistics(correlation_kappa_IOP, median, mean, stdev, min, max);
                         if (correlation_kappa_IOP.size() == 0)
@@ -5572,6 +5836,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_IOP_max(2,n) = max;
                         correlation_EOP_IOP_median(2,n) = median;
                         correlation_EOP_IOP_mean(2,n) = mean;
+                        correlation_EOP_IOP_min(2,n) = min;
 
                         calcStatistics(correlation_Xo_IOP, median, mean, stdev, min, max);
                         if (correlation_Xo_IOP.size() == 0)
@@ -5579,6 +5844,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_IOP_max(3,n) = max;
                         correlation_EOP_IOP_median(3,n) = median;
                         correlation_EOP_IOP_mean(3,n) = mean;
+                        correlation_EOP_IOP_min(3,n) = min;
 
                         calcStatistics(correlation_Yo_IOP, median, mean, stdev, min, max);
                         if (correlation_Yo_IOP.size() == 0)
@@ -5586,6 +5852,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_IOP_max(4,n) = max;
                         correlation_EOP_IOP_median(4,n) = median;
                         correlation_EOP_IOP_mean(4,n) = mean;
+                        correlation_EOP_IOP_min(4,n) = min;
 
                         calcStatistics(correlation_Zo_IOP, median, mean, stdev, min, max);
                         if (correlation_Zo_IOP.size() == 0)
@@ -5593,8 +5860,11 @@ int main(int argc, char** argv) {
                         correlation_EOP_IOP_max(5,n) = max;
                         correlation_EOP_IOP_median(5,n) = median;
                         correlation_EOP_IOP_mean(5,n) = mean;
+                        correlation_EOP_IOP_min(5,n) = min;
 
                     }
+
+                    std::cout<<"============================= Correlation EOP-IOP ============================="<<std::endl;
 
                     std::cout<<"Correlation EOP-IOP Max(fabs)"<<std::endl;
                     std::vector<double> correlationStats;
@@ -5618,47 +5888,68 @@ int main(int argc, char** argv) {
                     std::cout<<"Yo   : "<<correlation_EOP_IOP_max.row(4)<<std::endl;
                     std::cout<<"Zo   : "<<correlation_EOP_IOP_max.row(5)<<std::endl;
 
-                    // std::cout<<"Correlation EOP-IOP Median(fabs)"<<std::endl;
-                    // correlationStats.clear();
-                    // for (int n = 0; n < 6; n++)
-                    //     for (int m = 0; m < 3; m++)
-                    //     {
-                    //         if ( !std::isnan(correlation_EOP_IOP_median(n,m)) )
-                    //                 correlationStats.push_back(fabs(correlation_EOP_IOP_median(n,m)));
-                    //     }
+                    std::cout<<"Correlation EOP-IOP Median(fabs)"<<std::endl;
+                    correlationStats.clear();
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 3; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_IOP_median(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_IOP_median(n,m)));
+                        }
 
-                    // calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
-                    // std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
-                    // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
-                    // std::cout<<"       xp\typ\tc"<<std::endl;
-                    // std::cout<<"omega: "<<correlation_EOP_IOP_median.row(0)<<std::endl;
-                    // std::cout<<"phi  : "<<correlation_EOP_IOP_median.row(1)<<std::endl;
-                    // std::cout<<"kappa: "<<correlation_EOP_IOP_median.row(2)<<std::endl;
-                    // std::cout<<"Xo   : "<<correlation_EOP_IOP_median.row(3)<<std::endl;
-                    // std::cout<<"Yo   : "<<correlation_EOP_IOP_median.row(4)<<std::endl;
-                    // std::cout<<"Zo   : "<<correlation_EOP_IOP_median.row(5)<<std::endl;
+                    std::cout<<"       xp\typ\tc"<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_IOP_median.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_IOP_median.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_IOP_median.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_IOP_median.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_IOP_median.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_IOP_median.row(5)<<std::endl;
 
-                    // std::cout<<"Correlation EOP-IOP Mean(fabs)"<<std::endl;
-                    // correlationStats.clear();
-                    // for (int n = 0; n < 6; n++)
-                    //     for (int m = 0; m < 3; m++)
-                    //     {
-                    //         if ( !std::isnan(correlation_EOP_IOP_mean(n,m)) )
-                    //                 correlationStats.push_back(fabs(correlation_EOP_IOP_mean(n,m)));
-                    //     }
+                    std::cout<<"Correlation EOP-IOP Mean(fabs)"<<std::endl;
+                    correlationStats.clear();
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 3; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_IOP_mean(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_IOP_mean(n,m)));
+                        }
 
-                    // calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
-                    // std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
-                    // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
-                    // std::cout<<"       xp\typ\tc"<<std::endl;
-                    // std::cout<<"omega: "<<correlation_EOP_IOP_mean.row(0)<<std::endl;
-                    // std::cout<<"phi  : "<<correlation_EOP_IOP_mean.row(1)<<std::endl;
-                    // std::cout<<"kappa: "<<correlation_EOP_IOP_mean.row(2)<<std::endl;
-                    // std::cout<<"Xo   : "<<correlation_EOP_IOP_mean.row(3)<<std::endl;
-                    // std::cout<<"Yo   : "<<correlation_EOP_IOP_mean.row(4)<<std::endl;
-                    // std::cout<<"Zo   : "<<correlation_EOP_IOP_mean.row(5)<<std::endl;
+                    std::cout<<"       xp\typ\tc"<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_IOP_mean.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_IOP_mean.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_IOP_mean.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_IOP_mean.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_IOP_mean.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_IOP_mean.row(5)<<std::endl;
+
+                    std::cout<<"Correlation EOP-IOP Min(fabs)"<<std::endl;
+                    correlationStats.clear();
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 3; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_IOP_min(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_IOP_min(n,m)));
+                        }
+
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+
+                    std::cout<<"       xp\typ\tc"<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_IOP_min.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_IOP_min.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_IOP_min.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_IOP_min.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_IOP_min.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_IOP_min.row(5)<<std::endl;
 
                     std::cout.copyfmt(cout_state); // restore original cout format
                 }

@@ -430,17 +430,17 @@
 // // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.pho"
-#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A_v3.pho"
-#define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
-// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.eop"
-#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training30A_v3.eop"
-// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
-// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-#define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-#define INPUTROPFILENAME ""
+// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A_v2.pho"
+// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// // #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A.eop"
+// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training60A_v2.eop"
+// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
+// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
+// #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+// #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+// #define INPUTROPFILENAME ""
 
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training90A.pho"
 // // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
@@ -464,16 +464,16 @@
 // // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
 // #define INPUTROPFILENAME ""
 
-// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
-// // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
-// #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
-// #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
+#define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+#define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
+#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+#define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
 // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
-// // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
-// // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
-// #define INPUTROPFILENAME ""
+#define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarmLowWeight.xyz"
+#define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/faroarm.xyz" // only use for QC
+#define INPUTROPFILENAME ""
 
 ////////
 /// Sensor B
@@ -4595,17 +4595,17 @@ int main(int argc, char** argv) {
         {
             for(int n = 0; n < iopCamera.size(); n++)
             {
-                // double xpStdDev = 10.0;
-                // double ypStdDev = 10.0;
+                double xpStdDev = 10.0;
+                double ypStdDev = 10.0;
                 // double cStdDev  = 10.0;
-                // double xpStdDev = 2500.0;
-                // double ypStdDev = 2500.0;
+                // double xpStdDev = 25.0;
+                // double ypStdDev = 25.0;
                 // double cStdDev  = 25.0;
                 // double xpStdDev = 1E2;
                 // double ypStdDev = 1E2;
                 // double cStdDev  = 1E2;
-                double xpStdDev = 1E3;
-                double ypStdDev = 1E3;
+                // double xpStdDev = 1E3;
+                // double ypStdDev = 1E3;
                 double cStdDev  = 1E3;
                 std::cout<<"     "<<n+1<<". Prior on xp, yp, c: "<<xpStdDev<<", "<<ypStdDev<<", "<<cStdDev<<std::endl;
 
@@ -5255,8 +5255,8 @@ int main(int argc, char** argv) {
             /// The 2 follow lines define a pseudo inner constraints EOP and object space coordinates, but very slow
             /// Use the following if you want proper covariance/correlation matrix information
             ////////////////////////////////////////////////////////////////////////////////////////////////
-            // covarianceOptions.algorithm_type = ceres::DENSE_SVD;
-            // covarianceOptions.null_space_rank = -1;
+            covarianceOptions.algorithm_type = ceres::DENSE_SVD;
+            covarianceOptions.null_space_rank = -1;
             ///////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////
@@ -5964,6 +5964,7 @@ int main(int argc, char** argv) {
                     Eigen::MatrixXd correlation_EOP_AP_max(6,16);
                     Eigen::MatrixXd correlation_EOP_AP_median(6,16);
                     Eigen::MatrixXd correlation_EOP_AP_mean(6,16);
+                    Eigen::MatrixXd correlation_EOP_AP_min(6,16);
 
                     for (int n = 0; n < 16; n++) // loop through the APs
                     {
@@ -5988,6 +5989,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_AP_max(0,n) = max;
                         correlation_EOP_AP_median(0,n) = median;
                         correlation_EOP_AP_mean(0,n) = mean;
+                        correlation_EOP_AP_min(0,n) = min;
 
                         calcStatistics(correlation_phi_AP, median, mean, stdev, min, max);
                         if (correlation_phi_AP.size() == 0)
@@ -5995,6 +5997,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_AP_max(1,n) = max;
                         correlation_EOP_AP_median(1,n) = median;
                         correlation_EOP_AP_mean(1,n) = mean;
+                        correlation_EOP_AP_min(1,n) = min;
 
                         calcStatistics(correlation_kappa_AP, median, mean, stdev, min, max);
                         if (correlation_kappa_AP.size() == 0)
@@ -6002,6 +6005,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_AP_max(2,n) = max;
                         correlation_EOP_AP_median(2,n) = median;
                         correlation_EOP_AP_mean(2,n) = mean;
+                        correlation_EOP_AP_min(2,n) = min;
 
                         calcStatistics(correlation_Xo_AP, median, mean, stdev, min, max);
                         if (correlation_Xo_AP.size() == 0)
@@ -6009,6 +6013,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_AP_max(3,n) = max;
                         correlation_EOP_AP_median(3,n) = median;
                         correlation_EOP_AP_mean(3,n) = mean;
+                        correlation_EOP_AP_min(3,n) = min;
 
                         calcStatistics(correlation_Yo_AP, median, mean, stdev, min, max);
                         if (correlation_Yo_AP.size() == 0)
@@ -6017,6 +6022,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_AP_max(4,n) = max;
                         correlation_EOP_AP_median(4,n) = median;
                         correlation_EOP_AP_mean(4,n) = mean;
+                        correlation_EOP_AP_min(4,n) = min;
 
                         calcStatistics(correlation_Zo_AP, median, mean, stdev, min, max);
                         if (correlation_Zo_AP.size() == 0)
@@ -6024,6 +6030,7 @@ int main(int argc, char** argv) {
                         correlation_EOP_AP_max(5,n) = max;
                         correlation_EOP_AP_median(5,n) = median;
                         correlation_EOP_AP_mean(5,n) = mean;
+                        correlation_EOP_AP_min(5,n) = min;
 
                     }
 
@@ -6050,49 +6057,71 @@ int main(int argc, char** argv) {
                     std::cout<<"Yo   : "<<correlation_EOP_AP_max.row(4)<<std::endl;
                     std::cout<<"Zo   : "<<correlation_EOP_AP_max.row(5)<<std::endl;
 
-                    // std::cout<<"Correlation EOP-AP Median(fabs)"<<std::endl;
-                    // correlationStats.clear();
-                    // for (int n = 0; n < 6; n++)
-                    //     for (int m = 0; m < 16; m++)
-                    //     {
-                    //         if ( !std::isnan(correlation_EOP_AP_median(n,m)) )
-                    //                 correlationStats.push_back(fabs(correlation_EOP_AP_median(n,m)));
-                    //     }
+                    std::cout<<"Correlation EOP-AP Median(fabs)"<<std::endl;
+                    correlationStats.clear();
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_AP_median(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_AP_median(n,m)));
+                        }
 
-                    // calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
-                    // std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
-                    // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
-                    // // std::cout<<correlation_EOP_AP_median<<std::endl;
-                    // std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
-                    // std::cout<<"omega: "<<correlation_EOP_AP_median.row(0)<<std::endl;
-                    // std::cout<<"phi  : "<<correlation_EOP_AP_median.row(1)<<std::endl;
-                    // std::cout<<"kappa: "<<correlation_EOP_AP_median.row(2)<<std::endl;
-                    // std::cout<<"Xo   : "<<correlation_EOP_AP_median.row(3)<<std::endl;
-                    // std::cout<<"Yo   : "<<correlation_EOP_AP_median.row(4)<<std::endl;
-                    // std::cout<<"Zo   : "<<correlation_EOP_AP_median.row(5)<<std::endl;
+                    // std::cout<<correlation_EOP_AP_median<<std::endl;
+                    std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_AP_median.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_AP_median.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_AP_median.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_AP_median.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_AP_median.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_AP_median.row(5)<<std::endl;
 
-                    // std::cout<<"Correlation EOP-AP Mean(fabs)"<<std::endl;
-                    // correlationStats.clear();
-                    // for (int n = 0; n < 6; n++)
-                    //     for (int m = 0; m < 16; m++)
-                    //     {
-                    //         if ( !std::isnan(correlation_EOP_AP_mean(n,m)) )
-                    //                 correlationStats.push_back(fabs(correlation_EOP_AP_mean(n,m)));
-                    //     }
+                    std::cout<<"Correlation EOP-AP Mean(fabs)"<<std::endl;
+                    correlationStats.clear();
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_AP_mean(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_AP_mean(n,m)));
+                        }
 
-                    // calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
-                    // std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
-                    // std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
 
-                    // // std::cout<<correlation_EOP_AP_mean<<std::endl;
-                    // std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
-                    // std::cout<<"omega: "<<correlation_EOP_AP_mean.row(0)<<std::endl;
-                    // std::cout<<"phi  : "<<correlation_EOP_AP_mean.row(1)<<std::endl;
-                    // std::cout<<"kappa: "<<correlation_EOP_AP_mean.row(2)<<std::endl;
-                    // std::cout<<"Xo   : "<<correlation_EOP_AP_mean.row(3)<<std::endl;
-                    // std::cout<<"Yo   : "<<correlation_EOP_AP_mean.row(4)<<std::endl;
-                    // std::cout<<"Zo   : "<<correlation_EOP_AP_mean.row(5)<<std::endl;
+                    // std::cout<<correlation_EOP_AP_mean<<std::endl;
+                    std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_AP_mean.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_AP_mean.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_AP_mean.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_AP_mean.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_AP_mean.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_AP_mean.row(5)<<std::endl;
+
+                    std::cout<<"Correlation EOP-AP Min(fabs)"<<std::endl;
+                    correlationStats.clear();
+                    for (int n = 0; n < 6; n++)
+                        for (int m = 0; m < 16; m++)
+                        {
+                            if ( !std::isnan(correlation_EOP_AP_min(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_EOP_AP_min(n,m)));
+                        }
+
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+
+                    // std::cout<<correlation_EOP_AP_mean<<std::endl;
+                    std::cout<<"       a1\ta2\tk1\tk2\tk3\tp1\tp2\tk4\tk5..."<<std::endl;
+                    std::cout<<"omega: "<<correlation_EOP_AP_min.row(0)<<std::endl;
+                    std::cout<<"phi  : "<<correlation_EOP_AP_min.row(1)<<std::endl;
+                    std::cout<<"kappa: "<<correlation_EOP_AP_min.row(2)<<std::endl;
+                    std::cout<<"Xo   : "<<correlation_EOP_AP_min.row(3)<<std::endl;
+                    std::cout<<"Yo   : "<<correlation_EOP_AP_min.row(4)<<std::endl;
+                    std::cout<<"Zo   : "<<correlation_EOP_AP_min.row(5)<<std::endl;
 
                     std::cout.copyfmt(cout_state); // restore original cout format
                 }
@@ -6174,6 +6203,7 @@ int main(int argc, char** argv) {
                     Eigen::MatrixXd correlation_XYZ_IOP_max(3,3);
                     Eigen::MatrixXd correlation_XYZ_IOP_median(3,3);
                     Eigen::MatrixXd correlation_XYZ_IOP_mean(3,3);
+                    Eigen::MatrixXd correlation_XYZ_IOP_min(3,3);
 
                     for (int n = 0; n < 3; n++) // loop through the IOPs
                     {
@@ -6195,6 +6225,7 @@ int main(int argc, char** argv) {
                         correlation_XYZ_IOP_max(0,n) = max;
                         correlation_XYZ_IOP_median(0,n) = median;
                         correlation_XYZ_IOP_mean(0,n) = mean;
+                        correlation_XYZ_IOP_min(0,n) = min;
 
                         calcStatistics(correlation_Y_IOP, median, mean, stdev, min, max);
                         if (correlation_Y_IOP.size() == 0)
@@ -6202,6 +6233,7 @@ int main(int argc, char** argv) {
                         correlation_XYZ_IOP_max(1,n) = max;
                         correlation_XYZ_IOP_median(1,n) = median;
                         correlation_XYZ_IOP_mean(1,n) = mean;
+                        correlation_XYZ_IOP_min(1,n) = min;
                                               
                         calcStatistics(correlation_Z_IOP, median, mean, stdev, min, max);
                         if (correlation_Z_IOP.size() == 0)
@@ -6209,6 +6241,7 @@ int main(int argc, char** argv) {
                         correlation_XYZ_IOP_max(2,n) = max;
                         correlation_XYZ_IOP_median(2,n) = median;
                         correlation_XYZ_IOP_mean(2,n) = mean;
+                        correlation_XYZ_IOP_min(2,n) = min;
 
                     }
 
@@ -6230,6 +6263,64 @@ int main(int argc, char** argv) {
                     std::cout<<"X: "<<correlation_XYZ_IOP_max.row(0)<<std::endl;
                     std::cout<<"Y: "<<correlation_XYZ_IOP_max.row(1)<<std::endl;
                     std::cout<<"Z: "<<correlation_XYZ_IOP_max.row(2)<<std::endl;
+
+                    std::cout<<"Correlation XYZ-IOP Median(fabs)"<<std::endl;
+                    // std::vector<double> correlationStats;
+                    for (int n = 0; n < 3; n++)
+                        for (int m = 0; m < 3; m++)
+                        {
+                            if ( !std::isnan(correlation_XYZ_IOP_median(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_XYZ_IOP_median(n,m)));
+                        }
+
+                    // double median, mean, stdev, min, max;
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+
+                    std::cout<<"       xp\typ\tc"<<std::endl;
+                    std::cout<<"X: "<<correlation_XYZ_IOP_median.row(0)<<std::endl;
+                    std::cout<<"Y: "<<correlation_XYZ_IOP_median.row(1)<<std::endl;
+                    std::cout<<"Z: "<<correlation_XYZ_IOP_median.row(2)<<std::endl;
+
+                    std::cout<<"Correlation XYZ-IOP Mean(fabs)"<<std::endl;
+                    // std::vector<double> correlationStats;
+                    for (int n = 0; n < 3; n++)
+                        for (int m = 0; m < 3; m++)
+                        {
+                            if ( !std::isnan(correlation_XYZ_IOP_mean(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_XYZ_IOP_mean(n,m)));
+                        }
+
+                    // double median, mean, stdev, min, max;
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+
+                    std::cout<<"       xp\typ\tc"<<std::endl;
+                    std::cout<<"X: "<<correlation_XYZ_IOP_mean.row(0)<<std::endl;
+                    std::cout<<"Y: "<<correlation_XYZ_IOP_mean.row(1)<<std::endl;
+                    std::cout<<"Z: "<<correlation_XYZ_IOP_mean.row(2)<<std::endl;
+
+
+                    std::cout<<"Correlation XYZ-IOP Min(fabs)"<<std::endl;
+                    // std::vector<double> correlationStats;
+                    for (int n = 0; n < 3; n++)
+                        for (int m = 0; m < 3; m++)
+                        {
+                            if ( !std::isnan(correlation_XYZ_IOP_min(n,m)) )
+                                    correlationStats.push_back(fabs(correlation_XYZ_IOP_min(n,m)));
+                        }
+
+                    // double median, mean, stdev, min, max;
+                    calcStatistics(correlationStats, median, mean, stdev, min, max); // note correlationStats are all positive                
+                    std::cout<<"   Mean(fabs): "<<mean<<" +/- "<<stdev<<std::endl;                    
+                    std::cout<<"   Median(fabs): "<<median<<" ("<<min<<" to "<<max<<")"<<std::endl;
+
+                    std::cout<<"       xp\typ\tc"<<std::endl;
+                    std::cout<<"X: "<<correlation_XYZ_IOP_min.row(0)<<std::endl;
+                    std::cout<<"Y: "<<correlation_XYZ_IOP_min.row(1)<<std::endl;
+                    std::cout<<"Z: "<<correlation_XYZ_IOP_min.row(2)<<std::endl;
 
                     std::cout.copyfmt(cout_state); // restore original cout format
                 }

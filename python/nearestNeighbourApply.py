@@ -88,20 +88,33 @@ from sklearn.externals import joblib
 #outputFilename = '/home/jckchow/BundleAdjustment/xrayData1/Data_Train150_Test150/TestingResults/Output/xray1Testing_Training30_photoROP_linearSmoothing200.pho'
 
 ############################
+### Fluoroscopy Journal paper 2
+############################
+
+phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho'
+eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop'
+NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/xrayData1/journalPaper2_results/perspectiveProjection150A_KNN1000/NNModel'
+preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/xrayData1/journalPaper2_results/perspectiveProjection150A_KNN1000/NNPreprocessing'
+outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/xrayData1/journalPaper2_results/perspectiveProjection150A_KNN1000/statistics/xray1Training150A_continue.pho'
+
+
+############################
 ### Omnidirectional Camera Journal paper 1
 ############################
-# Go Pro 3 Silver Edition
+
+### Nikon
+#phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.pho'
+#eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/nikonTesting.eop'
+#NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/stereographicTrainingKNN_NEW/NNModel'
+#preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/stereographicTrainingKNN_NEW/NNPreprocessing'
+#outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/nikon_2020_03_23/TrainingTesting/applyKNN/nikonTesting_stereographicTrainingKNN_NEW.pho'
+
+### Go Pro 3 Silver Edition
 #phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho'
 #eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop'
-#NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/collinearityTrainingKNNSmoothed/NNModel'
-#preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/collinearityTrainingKNNSmoothed/NNPreprocessing'
-#outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_collinearityTrainingKNNSmoothed.pho'
-
-phoFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting_manualOutlierRemoval.pho'
-eopFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/goproTesting.eop'
-NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/stereographicTrainingKNN/NNModel'
-preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/stereographicTrainingKNN/NNPreprocessing'
-outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_stereographicTrainingKNN.pho'
+#NNModelFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/stereographicTrainingKNNSmoothed_NEW/NNModel'
+#preprocessingFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/stereographicTrainingKNNSmoothed_NEW/NNPreprocessing'
+#outputFilename = '/media/sf_UbuntuVirtualShared/bundleAdjustment/omnidirectionalCamera/gopro_2020_04_01/TrainingTesting/applyKNN/goproTesting_stereographicTrainingKNNSmoothed_NEW.pho'
 
 ##########################################
 ### User parameters

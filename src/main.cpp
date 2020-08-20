@@ -37,18 +37,18 @@
 
 // Define constants
 #define PI 3.141592653589793238462643383279502884197169399
-#define NUMITERATION 1 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
+#define NUMITERATION 100 // Set it to anything greater than 1 to do ML. Otherwise, set it to 1 to do non-machine learning bundle adjustment
 #define DEBUGMODE 0
 #define ROPMODE 0 // Turn on absolute boresight and leverarm constraints. 1 for true, 0 for false
 #define WEIGHTEDROPMODE 0 // weighted boresight and leverarm constraints. 1 for true, 0 for false
 #define INITIALIZEAP 0 // if true, we will backproject good object space to calculate the initial APs in machine learning pipeline. Will need good resection and object space to do this.
 
-#define COMPUTECX 1 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
-#define COMPUTECORRELATION 1 // Compute the correlation matrix, 1 is true, 0 is false. Must have COMPUTECX set to 1 for this to work
-#define COMPUTECV 1 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
+#define COMPUTECX 0 // Compute covariance matrix of unknowns Cx, 1 is true, 0 is false
+#define COMPUTECORRELATION 0 // Compute the correlation matrix, 1 is true, 0 is false. Must have COMPUTECX set to 1 for this to work
+#define COMPUTECV 0 // Compute covariance matrix of residuals Cv, 1 is true, 0 is false. If we need Cv, we must also calculate Cx
 // if (COMPUTECV)
 //     #define COMPUTECX 1
-#define QUANTILE_RESIDUALS_BINS 10 // !=0 means compute the quantile statistics and write it to screen. This is an int if QUANTILE_RESIDUALS_BINS = 4 we divide the data into four 25% bins, if QUANTILE_RESIDUALS_BINS = 10 we divide the data into 10 bins.
+#define QUANTILE_RESIDUALS_BINS 30 // !=0 means compute the quantile statistics and write it to screen. This is an int if QUANTILE_RESIDUALS_BINS = 4 we divide the data into four 25% bins, if QUANTILE_RESIDUALS_BINS = 10 we divide the data into 10 bins.
 
 #define PLOTRESULTS 0 // plots the outputs using python MATPLOTLIB
 
@@ -466,8 +466,11 @@
 
 #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.pho"
 // #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A_continue.pho"
+// #define INPUTIMAGEFILENAME "/media/sf_UbuntuVirtualShared/bundleAdjustment/xrayData1/journalPaper2_results/orthographicProjection150A_KNN100/temp.pho"
 #define INPUTIMAGEFILENAMETEMP "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1TrainingTemp.pho" 
-#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A.iop"
+// #define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A_orthographic.iop"
+#define INPUTIOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1A_v3.iop"
 #define INPUTEOPFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/Data_Train150_Test150/TrainingSubset/xray1Training150A.eop"
 // #define INPUTXYZFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROPLowWeight.xyz"
 // #define INPUTXYZTRUTHFILENAME "/media/sf_UbuntuVirtualShared/BundleAdjustment/xrayData1/xray1TruthROP.xyz" // only use for QC
@@ -3810,7 +3813,7 @@ int main(int argc, char** argv) {
         // loss = new ceres::CauchyLoss(0.5);
 
         // Conventional collinearity condition, no machine learning
-        if (true)
+        if (false)
         {
             std::cout<<"   RUNNING CONVENTIONAL COLLINEARITY EQUATIONS..."<<std::endl;
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
@@ -3845,7 +3848,7 @@ int main(int argc, char** argv) {
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]); // spatial resection only
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -3858,7 +3861,7 @@ int main(int argc, char** argv) {
         // Stereographic collinearity condition, no machine learning
         if (false)
         {
-            std::cout<<"   RUNNING STEREOGRAPHIC PROJECTION COLLINEARITY EQUATIONS..."<<std::endl;
+            std::cout<<"   RUNNING FISHEYE PROJECTION COLLINEARITY EQUATIONS..."<<std::endl;
 
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
             {
@@ -3952,9 +3955,16 @@ int main(int argc, char** argv) {
                 // sleep(2);
 
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0); // principal distance should be positive
+                problem.SetParameterLowerBound(&IOP[indexSensor][0], 1, -iopYMax[indexSensor]); // Y is flipped
+                problem.SetParameterUpperBound(&IOP[indexSensor][0], 1, iopYMin[indexSensor]);
+                problem.SetParameterLowerBound(&IOP[indexSensor][0], 0, iopXMin[indexSensor]);
+                problem.SetParameterUpperBound(&IOP[indexSensor][0], 0, iopXMax[indexSensor]);
+
+                // std::cout<<iopYMax[indexSensor]<<", "<<iopYMin[indexSensor]<<", "<<iopXMin[indexSensor]<<", "<<iopXMax[indexSensor]<<std::endl;
+
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -4177,7 +4187,7 @@ int main(int argc, char** argv) {
                         new collinearityMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
                 problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
@@ -4189,9 +4199,9 @@ int main(int argc, char** argv) {
         }
 
         // Stereographical projection collinearity condition with machine learned parameters
-        if(false)
+        if(true)
         {
-            std::cout<<"   Running stereographic projection collinearity equations with machine learning calibration parameters"<<std::endl;
+            std::cout<<"   Running fisheye projection equations with machine learning calibration parameters"<<std::endl;
 
             for(int n = 0; n < imageX.size(); n++) // loop through all observations
             {
@@ -4229,20 +4239,24 @@ int main(int argc, char** argv) {
                 //         new fisheyeEquisolidAngleMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
-                // ceres::CostFunction* cost_function =
-                //     new ceres::AutoDiffCostFunction<fisheyeOrthographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
-                //         new fisheyeOrthographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
-                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
-
                 ceres::CostFunction* cost_function =
-                    new ceres::AutoDiffCostFunction<fisheyeStereographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
-                        new fisheyeStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                    new ceres::AutoDiffCostFunction<fisheyeOrthographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
+                        new fisheyeOrthographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
                 problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
 
+                // ceres::CostFunction* cost_function =
+                //     new ceres::AutoDiffCostFunction<fisheyeStereographicMachineLearnedSimple, 2, 6, 3, 3, 16>(
+                //         new fisheyeStereographicMachineLearnedSimple(imageX[n],imageY[n],imageXStdDev[n], imageYStdDev[n],iopXp[indexSensor],iopYp[indexSensor], imageXCorr[n], imageYCorr[n]));
+                // problem.AddResidualBlock(cost_function, loss, &EOP[indexPose][0], &XYZ[indexPoint][0], &IOP[indexSensor][0], &AP[indexSensor][0]);  
+
                 problem.SetParameterLowerBound(&IOP[indexSensor][0], 2, 0.0);
+                problem.SetParameterLowerBound(&IOP[indexSensor][0], 1, -iopYMax[indexSensor]); // Y is flipped
+                problem.SetParameterUpperBound(&IOP[indexSensor][0], 1, iopYMin[indexSensor]);
+                problem.SetParameterLowerBound(&IOP[indexSensor][0], 0, iopXMin[indexSensor]);
+                problem.SetParameterUpperBound(&IOP[indexSensor][0], 0, iopXMax[indexSensor]);
 
                 // problem.SetParameterBlockConstant(&IOP[indexSensor][0]);
-                problem.SetParameterBlockConstant(&AP[indexSensor][0]);
+                // problem.SetParameterBlockConstant(&AP[indexSensor][0]);
                 // problem.SetParameterBlockConstant(&XYZ[indexPoint][0]);
 
                 variances.push_back(imageXStdDev[n]*imageXStdDev[n]);
@@ -4462,39 +4476,39 @@ int main(int argc, char** argv) {
         // }
 
         int numAPCorrection = 0; // don't comment this away
-        // if(true)
-        // {   
-        //     // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
-        //     std::cout<<"     Fixing a subset of the AP"<<std::endl;
-        //     std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
-        //     for(int n = 0; n < iopCamera.size(); n++)
-        //     {
-        //         // Fix part of APs instead of all
-        //         std::vector<int> fixAP;
-        //         fixAP.push_back(0); //a1
-        //         fixAP.push_back(1); //a2
-        //         // fixAP.push_back(2); //k1
-        //         fixAP.push_back(3); //k2
-        //         fixAP.push_back(4); //k3
-        //         fixAP.push_back(5); //p1
-        //         fixAP.push_back(6); //p2
+        if(true)
+        {   
+            // Does not work with Cv estimations. Switch to a strong prior to disable APs if need Cv information
+            std::cout<<"     Fixing a subset of the AP"<<std::endl;
+            std::cout<<"       When using this mode cannot esimate Cv, so please disable"<<std::endl;
+            for(int n = 0; n < iopCamera.size(); n++)
+            {
+                // Fix part of APs instead of all
+                std::vector<int> fixAP;
+                fixAP.push_back(0); //a1
+                fixAP.push_back(1); //a2
+                // fixAP.push_back(2); //k1
+                fixAP.push_back(3); //k2
+                fixAP.push_back(4); //k3
+                fixAP.push_back(5); //p1
+                fixAP.push_back(6); //p2
 
-        //         fixAP.push_back(7); //ep1: k4
-        //         fixAP.push_back(8); //ep2: k5
-        //         fixAP.push_back(9); //ep3: k6
-        //         fixAP.push_back(10); //ep4: k7
-        //         fixAP.push_back(11); //ep5
-        //         fixAP.push_back(12); //ep6
-        //         fixAP.push_back(13); //ep7
-        //         fixAP.push_back(14); //ep8
-        //         fixAP.push_back(15); //ep9
+                fixAP.push_back(7); //ep1: k4
+                fixAP.push_back(8); //ep2: k5
+                fixAP.push_back(9); //ep3: k6
+                fixAP.push_back(10); //ep4: k7
+                fixAP.push_back(11); //ep5
+                fixAP.push_back(12); //ep6
+                fixAP.push_back(13); //ep7
+                fixAP.push_back(14); //ep8
+                fixAP.push_back(15); //ep9
 
-        //         ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
-        //         problem.SetParameterization(&AP[n][0], subset_parameterization);
+                ceres::SubsetParameterization* subset_parameterization = new ceres::SubsetParameterization(16, fixAP);
+                problem.SetParameterization(&AP[n][0], subset_parameterization);
 
-        //         numAPCorrection = fixAP.size();
-        //     }
-        // }
+                numAPCorrection = fixAP.size();
+            }
+        }
 
         // if (true)
         // {
@@ -4613,6 +4627,7 @@ int main(int argc, char** argv) {
                     new ceres::AutoDiffCostFunction<constrainPoint, 3, 3>(
                         new constrainPoint(iopXp[n], iopYp[n], iopC[n], xpStdDev, ypStdDev, cStdDev));
                 problem.AddResidualBlock(cost_function, NULL, &IOP[n][0]);
+                // problem.AddResidualBlock(cost_function, loss, &IOP[n][0]);
 
                 variances.push_back(xpStdDev*xpStdDev);
                 variances.push_back(ypStdDev*ypStdDev);
